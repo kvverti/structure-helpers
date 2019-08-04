@@ -1,36 +1,27 @@
 {
   "schemaVersion": 1,
-  "id": "modid",
+  "id": "structure-helpers",
   "version": "${version}",
-
-  "name": "Example Mod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "name": "Structure Helpers",
+  "description": "Adds miscellaneous structure processors for mod authors to use.",
   "authors": [
-    "Me!"
-  ],
-  "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
-  },
-
-  "license": "CC0-1.0",
+    "Lilliana \"RoboSky\""
+  ]
+  "license": "MIT",
   "icon": "assets/modid/icon.png",
-
   "environment": "*",
-  "entrypoints": {
-    "main": [
-      "net.fabricmc.example.ExampleMod"
-    ]
-  },
-  "mixins": [
-    "modid.mixins.json"
-  ],
-
   "depends": {
-    "fabricloader": ">=0.4.0",
-    "fabric": "*"
+    "fabricloader": ">=0.4.0"
   },
   "suggests": {
     "flamingo": "*"
+  },
+  "custom": {
+    "modmenu:api": true
+  },
+  "entrypoints": {
+    "main": [
+      "robosky.structurehelpers.StructureHelpers"
+    ]
   }
 }
