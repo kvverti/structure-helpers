@@ -1,16 +1,12 @@
-# Fabric Example Mod
+# Structure Helpers
 
-## Setup
+## Usage
+This mod is intended to be included in other mods. 
 
-1. Edit build.gradle and mod.json to suit your needs.
-    * The "mixins" object can be removed from mod.json if you do not need to use mixins.
-    * Please replace all occurences of "modid" with your own mod ID - sometimes, a different string may also suffice.
-2. Run the following command:
+Currently the mod adds one structure processor, `robosky.structurehelpers.RandomChanceProcessor`, 
+which allows blocks of the modder's choice to be replaced with a random selection from a pool with predefined weights.
 
-```
-./gradlew idea
-```
+Examples where this would be useful include vanilla strongholds, which use a similar random table to pick between
+stone brick variants.
 
-## License
-
-This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
+Dependency information will be provided once a maven exists. For now, get the binary from github releases.
