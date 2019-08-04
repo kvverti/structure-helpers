@@ -6,7 +6,7 @@
   "description": "Adds miscellaneous structure processors for mod authors to use.",
   "authors": [
     "Lilliana \"RoboSky\""
-  ]
+  ],
   "license": "MIT",
   "icon": "assets/modid/icon.png",
   "environment": "*",
