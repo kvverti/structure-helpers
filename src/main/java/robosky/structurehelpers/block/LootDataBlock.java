@@ -13,8 +13,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
-import robosky.structurehelpers.iface.PlayerProxy;
-
 public class LootDataBlock extends Block implements BlockEntityProvider {
 
     public LootDataBlock(Block.Settings settings) {
@@ -28,11 +26,15 @@ public class LootDataBlock extends Block implements BlockEntityProvider {
 
     @Override
     public boolean activate(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult ctx) {
-        BlockEntity be = world.getBlockEntity(pos);
-        if (be instanceof LootDataBlockEntity) {
-            // ((PlayerProxy)player).structhelp_openLootDataBlock((LootDataBlockEntity)be);
-            // temporary
-            MinecraftClient.getInstance().openScreen(new LootDataScreen((LootDataBlockEntity)be));
+        if (!player.isCreativeLevelTwoOp()) {
+            return false;
+        }
+        // todo: sync data correctly from server
+        if (world.isClient()) {
+            BlockEntity be = world.getBlockEntity(pos);
+            if (be instanceof LootDataBlockEntity) {
+                MinecraftClient.getInstance().openScreen(new LootDataScreen((LootDataBlockEntity)be));
+            }
         }
         return true;
     }

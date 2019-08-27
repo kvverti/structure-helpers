@@ -25,7 +25,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements StructHelpServerP
         ServerWorld world = player.getServerWorld();
         NetworkThreadUtils.forceMainThread(packet, this, world);
         BlockEntity be = world.getBlockEntity(packet.getPos());
-        if(be instanceof LootDataBlockEntity) {
+        if (be instanceof LootDataBlockEntity && player.isCreativeLevelTwoOp()) {
             LootDataBlockEntity ld = (LootDataBlockEntity)be;
             ld.setLootTable(packet.getLootTable());
             ld.setReplacementState(packet.getReplacement());
