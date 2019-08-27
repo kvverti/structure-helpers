@@ -1,0 +1,5 @@
+{
+    "variants": {
+        "": { "model": "structure-helpers:block/loot_data" }
+    }
+}

@@ -8,6 +8,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.structure.processor.StructureProcessorType;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Rarity;
 import net.minecraft.util.registry.Registry;
 
 import robosky.structurehelpers.block.LootDataBlock;
@@ -30,7 +31,7 @@ public class StructureHelpers implements ModInitializer {
     public static final Item LOOT_DATA_ITEM = Registry.register(
         Registry.ITEM,
         new Identifier(MODID, "loot_data"),
-        new BlockItem(LOOT_DATA_BLOCK, new Item.Settings()));
+        new BlockItem(LOOT_DATA_BLOCK, new Item.Settings().rarity(Rarity.EPIC)));
 
     public static final BlockEntityType<LootDataBlockEntity> LOOT_DATA_ENTITY_TYPE =
         Registry.register(
