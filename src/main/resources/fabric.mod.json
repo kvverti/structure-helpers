@@ -8,7 +8,7 @@
     "Lilliana \"RoboSky\""
   ],
   "license": "MIT",
-  "icon": "assets/modid/icon.png",
+  "icon": "assets/structure-helpers/icon.png",
   "environment": "*",
   "depends": {
     "fabricloader": ">=0.4.0"
@@ -23,5 +23,8 @@
     "main": [
       "robosky.structurehelpers.StructureHelpers"
     ]
-  }
+  },
+  "mixins": [
+    "structhelp.mixins.json"
+  ]
 }

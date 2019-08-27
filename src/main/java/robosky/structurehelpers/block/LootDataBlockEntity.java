@@ -20,6 +20,22 @@ public class LootDataBlockEntity extends BlockEntity implements BlockEntityClien
         super(StructureHelpers.LOOT_DATA_ENTITY_TYPE);
     }
 
+    public Identifier getLootTable() {
+        return lootTable;
+    }
+
+    public void setLootTable(Identifier lootTable) {
+        this.lootTable = lootTable;
+    }
+
+    public String getReplacementState() {
+        return replacementState;
+    }
+
+    public void setReplacementState(String replacementState) {
+    	this.replacementState = replacementState;
+    }
+
     @Override
     public CompoundTag toClientTag(CompoundTag tag) {
         tag.putString("LootTable", lootTable.toString());

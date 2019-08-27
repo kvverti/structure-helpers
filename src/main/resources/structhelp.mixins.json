@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "robosky.structurehelpers.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "ServerPlayNetworkHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
