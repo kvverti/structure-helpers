@@ -23,6 +23,11 @@ public class LootDataScreen extends ClientCottonScreen {
         super(new Description(be));
     }
 
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
+
     /**
      * GUI for the loot data block entity.
      */

@@ -1,31 +1,31 @@
 package robosky.structurehelpers.network;
 
+import net.minecraft.util.PacketByteBuf;
 import java.io.IOException;
-
 import net.minecraft.network.Packet;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 
-import robosky.structurehelpers.iface.StructHelpServerPacketListener;
+import robosky.structurehelpers.iface.StructHelpClientPacketListener;
 
 /**
- * Sends client data from the loot data GUI to the server.
+ * Synchronizes loot data on the server to the client before opening
+ * the data block screen.
  */
-public final class UpdateLootDataC2SPacket implements Packet<StructHelpServerPacketListener> {
+public class OpenLootDataS2CPacket implements Packet<StructHelpClientPacketListener> {
 
     private final LootDataPacketData data;
 
-    public UpdateLootDataC2SPacket() {
+    public OpenLootDataS2CPacket() {
         this(BlockPos.ORIGIN, "minecraft:empty", "minecraft:air");
     }
 
-    public UpdateLootDataC2SPacket(BlockPos pos, String lootTable, String replacement) {
-        this.data = new LootDataPacketData(pos, lootTable, replacement);
+    public OpenLootDataS2CPacket(BlockPos pos, String lootTable, String replace) {
+        data = new LootDataPacketData(pos, lootTable, replace);
     }
 
     public BlockPos getPos() {
-    	return data.getPos();
+        return data.getPos();
     }
 
     public Identifier getLootTable() {
@@ -33,7 +33,7 @@ public final class UpdateLootDataC2SPacket implements Packet<StructHelpServerPac
     }
 
     public String getReplacement() {
-    	return data.getReplacement();
+        return data.getReplacement();
     }
 
     @Override
@@ -47,7 +47,7 @@ public final class UpdateLootDataC2SPacket implements Packet<StructHelpServerPac
     }
 
     @Override
-    public void apply(StructHelpServerPacketListener listener) {
-        listener.structhelp_onLootData(this);
+    public void apply(StructHelpClientPacketListener listener) {
+        listener.structhelp_onOpenLootData(this);
     }
 }

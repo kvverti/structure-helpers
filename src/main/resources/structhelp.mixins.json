@@ -5,6 +5,9 @@
   "mixins": [
     "ServerPlayNetworkHandlerMixin"
   ],
+  "client": [
+    "client.ClientPlayNetworkHandlerMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }
