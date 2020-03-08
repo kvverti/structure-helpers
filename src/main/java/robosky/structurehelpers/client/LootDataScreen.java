@@ -1,23 +1,29 @@
 package robosky.structurehelpers.client;
 
+import io.github.cottonmc.cotton.gui.client.CottonClientScreen;
 import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
-import io.github.cottonmc.cotton.gui.client.ClientCottonScreen;
 import io.github.cottonmc.cotton.gui.widget.WButton;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
 import io.github.cottonmc.cotton.gui.widget.WTextField;
 
+import io.netty.buffer.Unpooled;
+
+import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.PacketByteBuf;
 
 import robosky.structurehelpers.block.LootDataBlockEntity;
-import robosky.structurehelpers.network.UpdateLootDataC2SPacket;
+import robosky.structurehelpers.network.ServerStructHelpPackets;
+import robosky.structurehelpers.network.LootDataPacketData;
 
 /**
  * Screen class for the loot data block entity.
  */
-public class LootDataScreen extends ClientCottonScreen {
+public class LootDataScreen extends CottonClientScreen {
 
     public LootDataScreen(LootDataBlockEntity be) {
         super(new Description(be));
@@ -77,9 +83,11 @@ public class LootDataScreen extends ClientCottonScreen {
         }
 
         private void sendDataToServer() {
-            UpdateLootDataC2SPacket packet =
-                new UpdateLootDataC2SPacket(backingBe.getPos(), lootTableIn.getText(), replaceIn.getText());
-            MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
+            LootDataPacketData data =
+                new LootDataPacketData(backingBe.getPos(), lootTableIn.getText(), replaceIn.getText());
+            PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+            data.write(buf);
+            ClientSidePacketRegistry.INSTANCE.sendToServer(ServerStructHelpPackets.LOOT_DATA_UPDATE, buf);
             MinecraftClient.getInstance().openScreen(null);
         }
     }

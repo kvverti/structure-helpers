@@ -5,7 +5,8 @@
   "name": "Structure Helpers",
   "description": "Adds miscellaneous structure processors for mod authors to use.",
   "authors": [
-    "Lilliana \"RoboSky\""
+    "Lilliana \"RoboSky\"",
+    "kwerti"
   ],
   "license": "MIT",
   "icon": "assets/structure-helpers/icon.png",
@@ -22,6 +23,9 @@
   "entrypoints": {
     "main": [
       "robosky.structurehelpers.StructureHelpers"
+    ],
+    "client": [
+      "robosky.structurehelpers.StructureHelpersClient"
     ]
   },
   "mixins": [

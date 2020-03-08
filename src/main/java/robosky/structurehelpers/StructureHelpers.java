@@ -13,6 +13,7 @@ import net.minecraft.util.registry.Registry;
 
 import robosky.structurehelpers.block.LootDataBlock;
 import robosky.structurehelpers.block.LootDataBlockEntity;
+import robosky.structurehelpers.network.ServerStructHelpPackets;
 
 public class StructureHelpers implements ModInitializer {
 
@@ -35,12 +36,12 @@ public class StructureHelpers implements ModInitializer {
 
     public static final BlockEntityType<LootDataBlockEntity> LOOT_DATA_ENTITY_TYPE =
         Registry.register(
-            Registry.BLOCK_ENTITY,
+            Registry.BLOCK_ENTITY_TYPE,
             new Identifier(MODID, "loot_data"),
             BlockEntityType.Builder.create(LootDataBlockEntity::new, LOOT_DATA_BLOCK).build(null));
 
     @Override
     public void onInitialize() {
-
+        ServerStructHelpPackets.init();
     }
 }

@@ -10,7 +10,7 @@ import net.minecraft.structure.processor.StructureProcessor;
 import net.minecraft.structure.processor.StructureProcessorType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.ViewableWorld;
+import net.minecraft.world.WorldView;
 
 import java.util.List;
 import java.util.Map;
@@ -48,7 +48,7 @@ public class RandomChanceProcessor extends StructureProcessor {
     }
 
     @Override
-    public Structure.StructureBlockInfo process(ViewableWorld world, BlockPos pos, Structure.StructureBlockInfo thing,
+    public Structure.StructureBlockInfo process(WorldView world, BlockPos pos, Structure.StructureBlockInfo thing,
                                                 Structure.StructureBlockInfo info, StructurePlacementData data) {
         Random rand = new Random(MathHelper.hashCode(info.pos));
         if (entries.containsKey(info.state)) {

@@ -1,7 +1,5 @@
 package robosky.structurehelpers.network;
 
-import java.io.IOException;
-
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.PacketByteBuf;
@@ -10,13 +8,17 @@ import net.minecraft.util.math.BlockPos;
 /**
  * Common data between the C2S and S2C loot data packets.
  */
-final class LootDataPacketData {
+public final class LootDataPacketData {
 
     private BlockPos pos;
 
     private Identifier lootTable;
 
     private String replacement;
+
+    public LootDataPacketData() {
+        this(BlockPos.ORIGIN, "minecraft:empty", "minecraft:air");
+    }
 
     public LootDataPacketData(BlockPos pos, String lootTable, String replacement) {
         this.pos = pos;
@@ -40,7 +42,7 @@ final class LootDataPacketData {
     	return replacement;
     }
 
-    public void read(PacketByteBuf buf) throws IOException {
+    public void read(PacketByteBuf buf) {
         pos = buf.readBlockPos();
         try {
             lootTable = new Identifier(buf.readString());
@@ -50,7 +52,7 @@ final class LootDataPacketData {
         replacement = buf.readString();
     }
 
-    public void write(PacketByteBuf buf) throws IOException {
+    public void write(PacketByteBuf buf) {
         buf.writeBlockPos(pos);
         buf.writeString(lootTable.toString());
         buf.writeString(replacement);

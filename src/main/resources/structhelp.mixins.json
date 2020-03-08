@@ -3,11 +3,7 @@
   "package": "robosky.structurehelpers.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "ServerPlayNetworkHandlerMixin",
     "SimpleStructurePieceMixin"
-  ],
-  "client": [
-    "client.ClientPlayNetworkHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

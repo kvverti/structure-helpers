@@ -19,8 +19,9 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MutableIntBoundingBox;
+import net.minecraft.util.math.BlockBox;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -62,7 +63,7 @@ public abstract class SimpleStructurePieceMixin extends StructurePiece {
             )
         )
     )
-    private void handleLootData(IWorld world, Random rand, MutableIntBoundingBox box, ChunkPos chunkPos, CallbackInfoReturnable<Boolean> info) {
+    private void handleLootData(IWorld world, ChunkGenerator<?> generator, Random rand, BlockBox box, ChunkPos chunkPos, CallbackInfoReturnable<Boolean> info) {
         List<Structure.StructureBlockInfo> ls = this.structure.method_16445(this.pos, this.placementData, StructureHelpers.LOOT_DATA_BLOCK);
         for (Structure.StructureBlockInfo bi : ls) {
             if (bi.tag != null) {
@@ -81,7 +82,7 @@ public abstract class SimpleStructurePieceMixin extends StructurePiece {
                     }
                     try {
                         String replacement = bi.tag.getString("Replacement");
-                        blockState = blockStateParser.method_9654(new StringReader(replacement)).getBlockState();
+                        blockState = blockStateParser.parse(new StringReader(replacement)).getBlockState();
                     } catch (CommandSyntaxException e) {
                         blockState = Blocks.AIR.getDefaultState();
                     }
