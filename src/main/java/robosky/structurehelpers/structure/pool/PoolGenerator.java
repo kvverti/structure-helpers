@@ -1,6 +1,5 @@
 package robosky.structurehelpers.structure.pool;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 
@@ -180,14 +179,16 @@ public class PoolGenerator {
                     boolean added = false;
                     for (StructurePoolElement element1 : elements) {
                         // only add one piece
-                        if (added) break;
-                        // don't process the empty pool
-                        if (element1 == EmptyPoolElement.INSTANCE) {
+                        if (added) {
                             break;
                         }
+                        // don't process the empty pool
+                        if (element1 == EmptyPoolElement.INSTANCE) {
+                            continue;
+                        }
+                        // don't add more than one of each required room
                         if(element1 instanceof ExtendedSinglePoolElement) {
                             ExtendedSinglePoolElement el = (ExtendedSinglePoolElement)element1;
-                            // don't add more than one boss room
                             if (placedRequiredRooms.contains(el.location())) {
                                 continue;
                             }
@@ -195,78 +196,87 @@ public class PoolGenerator {
 
                         // whether this piece can connect to its neighbors
                         boolean noJunction = false;
-                        List<BlockRotation> rotations;
+                        BlockRotation rotation;
                         if(element1 instanceof ExtendedSinglePoolElement) {
                             ExtendedSinglePoolElement el = (ExtendedSinglePoolElement)element1;
                             switch(el.rotationType()) {
                                 case NONE:
-                                    rotations = ImmutableList.of(BlockRotation.NONE);
+                                    rotation = BlockRotation.NONE;
                                     break;
                                 case INHERITED:
-                                    rotations = ImmutableList.of(piece.getRotation());
+                                    rotation = piece.getRotation();
                                     break;
                                 case RANDOM:
                                 default:
-                                    rotations = BlockRotation.randomRotationOrder(this.random);
+                                    rotation = BlockRotation.random(this.random);
                                     break;
                             }
                         } else {
-                            rotations = BlockRotation.randomRotationOrder(this.random);
+                            rotation = BlockRotation.random(this.random);
                         }
-                        for (BlockRotation rotation : rotations) {
-                            // get a list of potential pieces of the given rotation
-                            List<Structure.StructureBlockInfo> infos = element1.getStructureBlockInfos(this.manager, BlockPos.ORIGIN, rotation, this.random);
-                            int maxElementHeight = element1.getBoundingBox(this.manager, BlockPos.ORIGIN, rotation).getBlockCountY() > 16 ? 0 :
-                                    infos.stream().mapToInt((info1) -> {
-                                        if (!element1.getBoundingBox(this.manager, BlockPos.ORIGIN, rotation).contains(info1.pos
-                                                .offset(info1.state.get(JigsawBlock.FACING)))) {
-                                            return 0;
-                                        } else {
-                                            return Math.max(StructurePoolBasedGenerator.REGISTRY.get(new Identifier(info1.tag
-                                                            .getString("target_pool"))).method_19309(this.manager),
-                                                    StructurePoolBasedGenerator.REGISTRY.get(StructurePoolBasedGenerator
-                                                            .REGISTRY.get(new Identifier(info1.tag.getString("target_pool")))
-                                                            .getTerminatorsId()).method_19309(this.manager));
-                                        }
-                                    }).max().orElse(0);
+                        // get a list of potential pieces of the given rotation
+                        List<Structure.StructureBlockInfo> infos = element1.getStructureBlockInfos(this.manager, BlockPos.ORIGIN, rotation, this.random);
+                        int maxElementHeight;
+                        if(element1.getBoundingBox(this.manager, BlockPos.ORIGIN, rotation).getBlockCountY() <= 16) {
+                            maxElementHeight =
+                                infos.stream()
+                                    .filter(info1 -> element1.getBoundingBox(this.manager, BlockPos.ORIGIN, rotation)
+                                        .contains(info1.pos.offset(info1.state.get(JigsawBlock.FACING))))
+                                    .mapToInt(info1 -> {
+                                        StructurePool target = StructurePoolBasedGenerator.REGISTRY
+                                            .get(new Identifier(info1.tag.getString("target_pool")));
+                                        StructurePool terminator = StructurePoolBasedGenerator.REGISTRY
+                                            .get(target.getTerminatorsId());
+                                        return Math.max(
+                                            target.method_19309(this.manager),
+                                            terminator.method_19309(this.manager)
+                                        );
+                                    }).max()
+                                    .orElse(0);
+                        } else {
+                            maxElementHeight = 0;
+                        }
 
-                            int y = 0;
-                            int relativeY = 0;
-                            int offsetY;
-                            BlockBox bbox2 = null;
-                            BlockPos pos = null;
-                            int height;
-                            // determine if a structure can generate and set the
-                            // positions/dimensions to the appropriate values
-                            do {
-                                Optional<Structure.StructureBlockInfo> first = infos.stream().filter(i -> JigsawBlock
-                                        .attachmentMatches(info, i)).findFirst();
-                                if (!first.isPresent()) {
-                                    noJunction = true;
-                                    break;
-                                }
-                                Structure.StructureBlockInfo connection = first.get();
-                                // remove the s tructure from future consideration
-                                // in future iterations of this do-while
-                                infos.remove(connection);
+                        int y = 0;
+                        int relativeY = 0;
+                        int offsetY;
+                        BlockBox bbox2 = null;
+                        BlockPos pos = null;
+                        int height;
+                        // determine if a structure can generate and set the
+                        // positions/dimensions to the appropriate values
+                        do {
+                            Optional<Structure.StructureBlockInfo> first = infos.stream()
+                            .filter(i -> JigsawBlock.attachmentMatches(info, i))
+                            .findFirst();
+                            if (!first.isPresent()) {
+                                noJunction = true;
+                                break;
+                            }
+                            Structure.StructureBlockInfo connection = first.get();
+                            // remove the s tructure from future consideration
+                            // in future iterations of this do-while
+                            infos.remove(connection);
 
-                                BlockPos offset = new BlockPos(info.pos.offset(direction_1).getX() - connection.pos.getX(),
-                                        info.pos.offset(direction_1).getY() - connection.pos.getY(), info.pos.offset(direction_1).getZ() - connection.pos.getZ());
-                                BlockBox bbox4 = element1.getBoundingBox(this.manager, offset, rotation);
-                                y = connection.pos.getY();
-                                relativeY = info.pos.getY() - bbox.minY - y + info.state.get(JigsawBlock.FACING).getOffsetY();
-                                offsetY = bbox.minY + relativeY;
-                                bbox2 = bbox4.translated(0, offsetY - bbox4.minY, 0);
-                                pos = offset.add(0, offsetY - bbox4.minY, 0);
-                                if (maxElementHeight > 0) {
-                                    height = Math.max(maxElementHeight + 1, bbox2.maxY - bbox2.minY);
-                                    bbox2.maxY = bbox2.minY + height;
-                                }
-                            } while (VoxelShapes.matchesAnywhere(shape4.get(), VoxelShapes.cuboid(Box.from(bbox2).contract(0.25D)),
-                                    BooleanBiFunction.ONLY_SECOND));
-                            // don't add the piece if there is no possible connection
-                            if (noJunction) break;
-
+                            BlockPos offset = new BlockPos(info.pos.offset(direction_1).getX() - connection.pos.getX(),
+                                    info.pos.offset(direction_1).getY() - connection.pos.getY(), info.pos.offset(direction_1).getZ() - connection.pos.getZ());
+                            BlockBox bbox4 = element1.getBoundingBox(this.manager, offset, rotation);
+                            y = connection.pos.getY();
+                            relativeY = info.pos.getY() - bbox.minY - y + info.state.get(JigsawBlock.FACING).getOffsetY();
+                            offsetY = bbox.minY + relativeY;
+                            bbox2 = bbox4.translated(0, offsetY - bbox4.minY, 0);
+                            pos = offset.add(0, offsetY - bbox4.minY, 0);
+                            if (maxElementHeight > 0) {
+                                height = Math.max(maxElementHeight + 1, bbox2.maxY - bbox2.minY);
+                                bbox2.maxY = bbox2.minY + height;
+                            }
+                        } while(VoxelShapes.matchesAnywhere(
+                            shape4.get(),
+                            VoxelShapes.cuboid(Box.from(bbox2).contract(0.25D)),
+                            BooleanBiFunction.ONLY_SECOND
+                        ));
+                        // only add the piece if there is a possible connection
+                        if(!noJunction) {
                             shape4.set(VoxelShapes.combine(shape4.get(), VoxelShapes.cuboid(Box.from(bbox2)), BooleanBiFunction.ONLY_FIRST));
                             height = piece.getGroundLevelDelta();
                             // get the piece to generate
@@ -291,7 +301,6 @@ public class PoolGenerator {
                                     placedRequiredRooms.add(el.location());
                                 }
                             }
-                            break;
                         }
                     }
                 } else {
