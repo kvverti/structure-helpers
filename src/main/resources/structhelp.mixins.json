@@ -3,7 +3,8 @@
   "package": "robosky.structurehelpers.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "SimpleStructurePieceMixin"
+    "SimpleStructurePieceMixin",
+    "StructurePoolBasedGeneratorMixin"
   ],
   "injectors": {
     "defaultRequire": 1
