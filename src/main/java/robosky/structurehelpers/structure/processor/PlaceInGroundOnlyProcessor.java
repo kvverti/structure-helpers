@@ -23,7 +23,6 @@ import robosky.structurehelpers.StructureHelpers;
  * A structure processor that only places the given BlockStates
  * if it would not replace air. Useful to avoid breaking the surface
  * or caves, as vanilla stringholds do.
- * TODO: Do not place in water / fluids
  */
 public class PlaceInGroundOnlyProcessor extends StructureProcessor {
 
@@ -41,7 +40,9 @@ public class PlaceInGroundOnlyProcessor extends StructureProcessor {
     public StructureBlockInfo process(WorldView world, BlockPos pos, StructureBlockInfo meh,
             StructureBlockInfo info, StructurePlacementData data) {
         if(states.contains(info.state)) {
-            if(world.getBlockState(info.pos).isAir()) {
+            // do not place if the existing block is non-solid
+            // e.g. air, water, plants, torches.
+            if(world.getBlockState(info.pos).getCollisionShape(world, info.pos).isEmpty()) {
                 return null;
             }
         }

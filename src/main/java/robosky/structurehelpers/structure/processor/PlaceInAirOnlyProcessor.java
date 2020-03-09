@@ -22,8 +22,7 @@ import robosky.structurehelpers.StructureHelpers;
 /**
  * A structure processor that only places the given BlockStates
  * in air. Useful for structures that bore through the gound,
- * as mineshafts do.
- * TODO: Place in water / fluids.
+ * as mineshafts do
  */
 public class PlaceInAirOnlyProcessor extends StructureProcessor {
 
@@ -41,7 +40,9 @@ public class PlaceInAirOnlyProcessor extends StructureProcessor {
     public StructureBlockInfo process(WorldView world, BlockPos pos, StructureBlockInfo meh,
             StructureBlockInfo info, StructurePlacementData data) {
         if(states.contains(info.state)) {
-            if(world.getBlockState(info.pos).isAir()) {
+            // place only if the existing block is non-solid
+            // e.g. air, water, plants, torches.
+            if(world.getBlockState(info.pos).getCollisionShape(world, info.pos).isEmpty()) {
                 return info;
             } else {
                 return null;
