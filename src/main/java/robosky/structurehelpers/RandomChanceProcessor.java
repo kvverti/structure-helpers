@@ -3,6 +3,8 @@ package robosky.structurehelpers;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
+
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.structure.Structure;
 import net.minecraft.structure.StructurePlacementData;
@@ -12,27 +14,46 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.WorldView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+/**
+ * A structure processor for replacing certain BlockStates with
+ * other BlockStates according to RNG.
+ */
 public class RandomChanceProcessor extends StructureProcessor {
     private final Map<BlockState, List<Entry>> entries;
     private final float weightSum;
 
-    public RandomChanceProcessor(Map<BlockState, List<Entry>> entries) {
+    private RandomChanceProcessor(Map<BlockState, List<Entry>> entries) {
         this.entries = entries;
         weightSum = (float) entries.values().stream().flatMap(List::stream).mapToDouble(entry -> entry.weight).sum();
     }
 
-    public static class Entry {
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Entry {
         public final float weight;
         public final BlockState targetState;
 
-        public Entry(float weight, BlockState targetState) {
+        private Entry(float weight, BlockState targetState) {
             this.weight = weight;
             this.targetState = targetState;
+        }
+
+        public static Entry of(BlockState target, float weight) {
+            return new Entry(weight, target);
+        }
+
+        public static Entry of(Block target, float weight) {
+            return of(target.getDefaultState(), weight);
         }
 
         public <T> Dynamic<T> serialize(DynamicOps<T> ops) {
@@ -80,5 +101,31 @@ public class RandomChanceProcessor extends StructureProcessor {
     public static RandomChanceProcessor deserialize(Dynamic<?> dynamic) {
         return new RandomChanceProcessor(dynamic.get("Entries").asMap(BlockState::deserialize, dyn ->
                 dyn.asList(Entry::deserialize)));
+    }
+
+    /**
+     * Builder for {@link RandomChanceProcessor}.
+     */
+    public static final class Builder {
+
+        private final Map<BlockState, List<Entry>> entryMap = new HashMap<>();
+
+        private Builder() {}
+
+        public Builder add(BlockState state, Entry... entries) {
+            entryMap.computeIfAbsent(state, k -> new ArrayList<>())
+                .addAll(Arrays.asList(entries));
+            return this;
+        }
+
+        public Builder add(Block block, Entry... entries) {
+            return add(block.getDefaultState(), entries);
+        }
+
+        public RandomChanceProcessor build() {
+            Map<BlockState, List<Entry>> map = ImmutableMap.copyOf(entryMap);
+            entryMap.clear(); // prevent leakage in case of builder reuse
+            return new RandomChanceProcessor(map);
+        }
     }
 }

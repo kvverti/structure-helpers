@@ -10,6 +10,7 @@ import net.minecraft.structure.pool.SinglePoolElement;
 import net.minecraft.structure.pool.StructurePool.Projection;
 import net.minecraft.structure.pool.StructurePoolElementType;
 import net.minecraft.structure.processor.BlockIgnoreStructureProcessor;
+import net.minecraft.structure.processor.StructureProcessor;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
@@ -62,7 +63,11 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
     }
 
     public ExtendedSinglePoolElement(String name, RotationType rotation) {
-        super(StructureHelpers.id(name).toString(), ImmutableList.of(), Projection.RIGID);
+        this(name, rotation, ImmutableList.of());
+    }
+
+    public ExtendedSinglePoolElement(String name, RotationType rotation, ImmutableList<StructureProcessor> processors) {
+        super(StructureHelpers.id(name).toString(), processors, Projection.RIGID);
         this.rotation = rotation;
     }
 
