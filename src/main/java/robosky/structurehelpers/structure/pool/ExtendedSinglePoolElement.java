@@ -61,13 +61,13 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
         }
         this.rotation = typ;
     }
-
-    public ExtendedSinglePoolElement(String name, RotationType rotation) {
-        this(name, rotation, ImmutableList.of());
+    
+    public ExtendedSinglePoolElement(Identifier location, RotationType rotation) {
+        this(location, rotation, ImmutableList.of());
     }
 
-    public ExtendedSinglePoolElement(String name, RotationType rotation, ImmutableList<StructureProcessor> processors) {
-        super(StructureHelpers.id(name).toString(), processors, Projection.RIGID);
+    public ExtendedSinglePoolElement(Identifier location, RotationType rotation, ImmutableList<StructureProcessor> processors) {
+        super(location.toString(), processors, Projection.RIGID);
         this.rotation = rotation;
     }
 
