@@ -14,6 +14,7 @@ import net.minecraft.util.registry.Registry;
 import robosky.structurehelpers.block.LootDataBlock;
 import robosky.structurehelpers.block.LootDataBlockEntity;
 import robosky.structurehelpers.network.ServerStructHelpPackets;
+import robosky.structurehelpers.structure.processor.*;
 
 public class StructureHelpers implements ModInitializer {
 
@@ -23,6 +24,16 @@ public class StructureHelpers implements ModInitializer {
         Registry.STRUCTURE_PROCESSOR,
         new Identifier(MODID, "random-chance-processor"),
         RandomChanceProcessor::deserialize);
+
+    public static final StructureProcessorType IN_GROUND_ONLY_TYPE = Registry.register(
+        Registry.STRUCTURE_PROCESSOR,
+        new Identifier(MODID, "in_ground_only_processor"),
+        PlaceInGroundOnlyProcessor::deserialize);
+
+    public static final StructureProcessorType IN_AIR_ONLY_TYPE = Registry.register(
+        Registry.STRUCTURE_PROCESSOR,
+        new Identifier(MODID, "in_air_only_processor"),
+        PlaceInAirOnlyProcessor::deserialize);
 
     public static final Block LOOT_DATA_BLOCK = Registry.register(
         Registry.BLOCK,
