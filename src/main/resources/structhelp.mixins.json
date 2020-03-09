@@ -3,6 +3,7 @@
   "package": "robosky.structurehelpers.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "JigsawBlockEntityMixin",
     "LocateCommandMixin",
     "SimpleStructurePieceMixin",
     "StructurePoolBasedGeneratorMixin"
