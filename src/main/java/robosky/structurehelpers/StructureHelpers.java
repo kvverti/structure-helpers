@@ -25,15 +25,10 @@ public class StructureHelpers implements ModInitializer {
         new Identifier(MODID, "random-chance-processor"),
         RandomChanceProcessor::deserialize);
 
-    public static final StructureProcessorType IN_GROUND_ONLY_TYPE = Registry.register(
+    public static final StructureProcessorType AIR_GROUND_REPLACE_TYPE = Registry.register(
         Registry.STRUCTURE_PROCESSOR,
-        new Identifier(MODID, "in_ground_only_processor"),
-        PlaceInGroundOnlyProcessor::deserialize);
-
-    public static final StructureProcessorType IN_AIR_ONLY_TYPE = Registry.register(
-        Registry.STRUCTURE_PROCESSOR,
-        new Identifier(MODID, "in_air_only_processor"),
-        PlaceInAirOnlyProcessor::deserialize);
+        new Identifier(MODID, "air_ground_replacement_processor"),
+        AirGroundReplacementProcessor::deserialize);
 
     public static final Block LOOT_DATA_BLOCK = Registry.register(
         Registry.BLOCK,
