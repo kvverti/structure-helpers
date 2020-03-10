@@ -20,31 +20,25 @@ import net.minecraft.world.WorldView;
 import robosky.structurehelpers.StructureHelpers;
 
 /**
- * A structure processor that only places the given BlockStates
- * in air. Useful for structures that bore through the gound,
- * as mineshafts do
+ * Replaces only solid blocks, like Stronghold walls do
  */
-public class PlaceInAirOnlyProcessor extends StructureProcessor {
+public class OnlyInSolidProcessor extends StructureProcessor {
 
     private final List<BlockState> states;
 
-    private PlaceInAirOnlyProcessor(List<BlockState> states) {
+    private OnlyInSolidProcessor(List<BlockState> states) {
         this.states = states;
     }
 
-    public static PlaceInAirOnlyProcessor create(BlockState... states) {
-        return new PlaceInAirOnlyProcessor(ImmutableList.copyOf(states));
+    public static OnlyInSolidProcessor create(BlockState... states) {
+        return new OnlyInSolidProcessor(ImmutableList.copyOf(states));
     }
 
     @Override
     public StructureBlockInfo process(WorldView world, BlockPos pos, StructureBlockInfo meh,
             StructureBlockInfo info, StructurePlacementData data) {
         if(states.contains(info.state)) {
-            // place only if the existing block is non-solid
-            // e.g. air, water, plants, torches.
             if(world.getBlockState(info.pos).getCollisionShape(world, info.pos).isEmpty()) {
-                return info;
-            } else {
                 return null;
             }
         }
@@ -53,7 +47,7 @@ public class PlaceInAirOnlyProcessor extends StructureProcessor {
 
     @Override
     protected StructureProcessorType getType() {
-        return StructureHelpers.IN_AIR_ONLY_TYPE;
+        return StructureHelpers.IN_SOLID_ONLY_TYPE;
     }
 
     @Override
@@ -66,8 +60,8 @@ public class PlaceInAirOnlyProcessor extends StructureProcessor {
         return new Dynamic<>(ops, ops.createMap(map));
     }
 
-    public static PlaceInAirOnlyProcessor deserialize(Dynamic<?> dyn) {
-        return new PlaceInAirOnlyProcessor(dyn.get("States")
+    public static OnlyInSolidProcessor deserialize(Dynamic<?> dyn) {
+        return new OnlyInSolidProcessor(dyn.get("States")
             .asList(BlockState::deserialize));
     }
 }

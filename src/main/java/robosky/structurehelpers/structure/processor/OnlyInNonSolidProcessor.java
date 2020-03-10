@@ -20,29 +20,25 @@ import net.minecraft.world.WorldView;
 import robosky.structurehelpers.StructureHelpers;
 
 /**
- * A structure processor that only places the given BlockStates
- * if it would not replace air. Useful to avoid breaking the surface
- * or caves, as vanilla stringholds do.
+ * Replaces only non-solid blocks (air, fluids, plants, etc.), like Mineshaft bridges do
  */
-public class PlaceInGroundOnlyProcessor extends StructureProcessor {
+public class OnlyInNonSolidProcessor extends StructureProcessor {
 
     private final List<BlockState> states;
 
-    private PlaceInGroundOnlyProcessor(List<BlockState> states) {
+    private OnlyInNonSolidProcessor(List<BlockState> states) {
         this.states = states;
     }
 
-    public static PlaceInGroundOnlyProcessor create(BlockState... states) {
-        return new PlaceInGroundOnlyProcessor(ImmutableList.copyOf(states));
+    public static OnlyInNonSolidProcessor create(BlockState... states) {
+        return new OnlyInNonSolidProcessor(ImmutableList.copyOf(states));
     }
 
     @Override
     public StructureBlockInfo process(WorldView world, BlockPos pos, StructureBlockInfo meh,
             StructureBlockInfo info, StructurePlacementData data) {
         if(states.contains(info.state)) {
-            // do not place if the existing block is non-solid
-            // e.g. air, water, plants, torches.
-            if(world.getBlockState(info.pos).getCollisionShape(world, info.pos).isEmpty()) {
+            if(!world.getBlockState(info.pos).getCollisionShape(world, info.pos).isEmpty()) {
                 return null;
             }
         }
@@ -51,7 +47,7 @@ public class PlaceInGroundOnlyProcessor extends StructureProcessor {
 
     @Override
     protected StructureProcessorType getType() {
-        return StructureHelpers.IN_GROUND_ONLY_TYPE;
+        return StructureHelpers.IN_NON_SOLID_ONLY_TYPE;
     }
 
     @Override
@@ -64,8 +60,8 @@ public class PlaceInGroundOnlyProcessor extends StructureProcessor {
         return new Dynamic<>(ops, ops.createMap(map));
     }
 
-    public static PlaceInGroundOnlyProcessor deserialize(Dynamic<?> dyn) {
-        return new PlaceInGroundOnlyProcessor(dyn.get("States")
+    public static OnlyInNonSolidProcessor deserialize(Dynamic<?> dyn) {
+        return new OnlyInNonSolidProcessor(dyn.get("States")
             .asList(BlockState::deserialize));
     }
 }

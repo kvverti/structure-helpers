@@ -1,7 +1,7 @@
 package robosky.structurehelpers.iface;
 
 /**
- * Provides accessors for the fields added to JigsawBlockEntity.
+ * JigsawBlockEntity additional fields accessors
  */
 public interface JigsawOffsetData {
 

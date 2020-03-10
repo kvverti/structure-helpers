@@ -19,8 +19,8 @@ import net.minecraft.util.registry.Registry;
 import robosky.structurehelpers.StructureHelpers;
 
 /**
- * A single pool element that has extended capabilities, such as
- * rotation disabling and structure block support.
+ * Single pool element with capabilities of the rotation control and
+ * structure block support
  */
 public class ExtendedSinglePoolElement extends SinglePoolElement {
 
@@ -28,22 +28,22 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
         Registry.register(Registry.STRUCTURE_POOL_ELEMENT, StructureHelpers.id("metadata_element"), ExtendedSinglePoolElement::new);
 
     /**
-     * The rotation behavior of an {@link ExtendedSinglePoolElement}.
+     * The rotation behavior of an {@link ExtendedSinglePoolElement}
      */
     public enum RotationType {
         /**
-         * No rotation shall be applied to the pool element.
+         * No rotation shall be applied to the pool element
          */
         NONE,
 
         /**
-         * The element may be rotated about the vertical axis (vanilla default)
+         * The element may be rotated horizontally (vanilla default)
          */
         RANDOM,
 
         /**
-         * The element's rotation will be inherited from the element that
-         * triggered this element's generation.
+         * The rotation will be inherited from the element which has
+         * triggered the generation
          */
         INHERITED
     }
@@ -79,7 +79,7 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
         return rotation;
     }
 
-    // serialzation
+    // Serialization
     @Override
     public <T> Dynamic<T> method_16625(DynamicOps<T> ops) {
         T value = super.method_16625(ops).getValue();

@@ -6,7 +6,7 @@ import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 
 /**
- * Common data between the C2S and S2C loot data packets.
+ * Common loot data packets data
  */
 public final class LootDataPacketData {
 
