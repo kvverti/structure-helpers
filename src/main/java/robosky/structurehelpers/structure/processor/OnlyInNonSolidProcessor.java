@@ -51,7 +51,7 @@ public class OnlyInNonSolidProcessor extends StructureProcessor {
     }
 
     @Override
-    protected <T> Dynamic<T> method_16666(DynamicOps<T> ops) {
+    protected <T> Dynamic<T> rawToDynamic(DynamicOps<T> ops) {
         Map<T, T> map = ImmutableMap.of(
             ops.createString("States"),
             ops.createList(states.stream()

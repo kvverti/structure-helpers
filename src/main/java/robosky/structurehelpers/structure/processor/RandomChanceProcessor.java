@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import robosky.structurehelpers.StructureHelpers;
 
 /**
- * Replaces given block with another randomly chosen from the given pool
+ * Replaces given block with another randomly chosen from the given pool.
  */
 public class RandomChanceProcessor extends StructureProcessor {
     private final Map<BlockState, List<Entry>> entries;
@@ -92,7 +92,7 @@ public class RandomChanceProcessor extends StructureProcessor {
     }
 
     @Override
-    protected <T> Dynamic<T> method_16666(DynamicOps<T> ops) {
+    protected <T> Dynamic<T> rawToDynamic(DynamicOps<T> ops) {
         Map<T, T> map = entries.entrySet().stream().collect(Collectors.toMap(entry -> BlockState.serialize(ops, entry
                 .getKey()).getValue(), entry -> ops.createList(entry.getValue().stream().map(e -> e.serialize(ops)
                 .getValue())), (a, b) -> b));

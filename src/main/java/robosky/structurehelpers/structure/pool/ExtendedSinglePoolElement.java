@@ -20,7 +20,7 @@ import robosky.structurehelpers.StructureHelpers;
 
 /**
  * Single pool element with capabilities of the rotation control and
- * structure block support
+ * structure block support.
  */
 public class ExtendedSinglePoolElement extends SinglePoolElement {
 
@@ -28,38 +28,38 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
         Registry.register(Registry.STRUCTURE_POOL_ELEMENT, StructureHelpers.id("metadata_element"), ExtendedSinglePoolElement::new);
 
     /**
-     * The rotation behavior of an {@link ExtendedSinglePoolElement}
+     * The rotation behavior of an {@link ExtendedSinglePoolElement}.
      */
     public enum RotationType {
         /**
-         * No rotation shall be applied to the pool element
+         * No rotation shall be applied to the pool element.
          */
         NONE,
 
         /**
-         * The element may be rotated horizontally (vanilla default)
+         * The element may be rotated in the horizontal plane (vanilla default).
          */
         RANDOM,
 
         /**
          * The rotation will be inherited from the element which has
-         * triggered the generation
+         * triggered the generation.
          */
         INHERITED
     }
 
     private final RotationType rotation;
 
-    public ExtendedSinglePoolElement(Dynamic<?> dyn) {
-        super(dyn);
-        String str = dyn.get("rotation_type").asString("RANDOM");
-        RotationType typ;
+    public ExtendedSinglePoolElement(Dynamic<?> dynamic) {
+        super(dynamic);
+        String str = dynamic.get("rotation_type").asString("RANDOM");
+        RotationType rotation;
         try {
-            typ = RotationType.valueOf(str);
+            rotation = RotationType.valueOf(str);
         } catch(IllegalArgumentException e) {
-            typ = RotationType.RANDOM;
+            rotation = RotationType.RANDOM;
         }
-        this.rotation = typ;
+        this.rotation = rotation;
     }
     
     public ExtendedSinglePoolElement(Identifier location, RotationType rotation) {
@@ -81,8 +81,8 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
 
     // Serialization
     @Override
-    public <T> Dynamic<T> method_16625(DynamicOps<T> ops) {
-        T value = super.method_16625(ops).getValue();
+    public <T> Dynamic<T> rawToDynamic(DynamicOps<T> ops) {
+        T value = super.rawToDynamic(ops).getValue();
         return new Dynamic<>(ops, ops.mergeInto(value, ops.createString("rotation_type"), ops.createString(rotation.name())));
     }
 
@@ -93,8 +93,8 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
 
     // add/remove processors
     @Override
-    protected StructurePlacementData method_16616(BlockRotation rot, BlockBox bbox) {
-      StructurePlacementData data = super.method_16616(rot, bbox);
+    protected StructurePlacementData createPlacementData(BlockRotation rot, BlockBox bbox) {
+      StructurePlacementData data = super.createPlacementData(rot, bbox);
       // allow air and structure blocks to work properly
       data.removeProcessor(BlockIgnoreStructureProcessor.IGNORE_AIR_AND_STRUCTURE_BLOCKS);
       return data;
