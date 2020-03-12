@@ -8,6 +8,9 @@
     "SimpleStructurePieceMixin",
     "StructurePoolBasedGeneratorMixin"
   ],
+  "client": [
+    "client.JigsawBlockScreenMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

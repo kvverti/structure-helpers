@@ -8,9 +8,11 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
+import net.minecraft.util.math.BlockPos;
 
 import robosky.structurehelpers.StructureHelpers;
 import robosky.structurehelpers.block.LootDataBlockEntity;
+import robosky.structurehelpers.iface.JigsawOffsetData;
 
 public final class ServerStructHelpPackets {
 
@@ -18,6 +20,8 @@ public final class ServerStructHelpPackets {
 
     public static final Identifier LOOT_DATA_UPDATE =
         new Identifier(StructureHelpers.MODID, "loot_data_update");
+    public static final Identifier JIGSAW_OFFSET_UPDATE =
+        new Identifier(StructureHelpers.MODID, "jigsaw_offset_update");
 
     /**
      * Updates loot data sent from the client to the server.
@@ -37,7 +41,23 @@ public final class ServerStructHelpPackets {
         });
     }
 
+    /**
+     * Updates the jigsaw offset state when a player sets it.
+     */
+    private static void updateJigsawOffset(PacketContext ctx, PacketByteBuf buf) {
+        BlockPos pos = buf.readBlockPos();
+        byte offset = buf.readByte();
+        PlayerEntity player = ctx.getPlayer();
+        ctx.getTaskQueue().execute(() -> {
+            BlockEntity be = player.getEntityWorld().getBlockEntity(pos);
+            if(be instanceof JigsawOffsetData) {
+                ((JigsawOffsetData)be).structhelp_setOffset(offset);
+            }
+        });
+    }
+
     public static void init() {
         ServerSidePacketRegistry.INSTANCE.register(LOOT_DATA_UPDATE, ServerStructHelpPackets::updateLootData);
+        ServerSidePacketRegistry.INSTANCE.register(JIGSAW_OFFSET_UPDATE, ServerStructHelpPackets::updateJigsawOffset);
     }
 }
