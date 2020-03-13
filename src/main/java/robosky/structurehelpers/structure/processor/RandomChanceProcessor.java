@@ -4,7 +4,11 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
+import java.util.function.Function;
+import java.util.stream.Stream;
+
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.structure.Structure;
 import net.minecraft.structure.StructurePlacementData;
@@ -94,15 +98,26 @@ public class RandomChanceProcessor extends StructureProcessor {
 
     @Override
     protected <T> Dynamic<T> method_16666(DynamicOps<T> ops) {
-        Map<T, T> map = entries.entrySet().stream().collect(Collectors.toMap(entry -> BlockState.serialize(ops, entry
-                .getKey()).getValue(), entry -> ops.createList(entry.getValue().stream().map(e -> e.serialize(ops)
-                .getValue())), (a, b) -> b));
-        return new Dynamic<>(ops, ops.createMap(ImmutableMap.of(ops.createString("Entries"), ops.createMap(map))));
+        Stream<T> s = entries.entrySet().stream()
+            .map(e -> ops.createMap(ImmutableMap.of(
+                ops.createString("Key"), BlockState.serialize(ops, e.getKey()).getValue(),
+                ops.createString("Replacements"), ops.createList(e.getValue()
+                    .stream().map(e2 -> e2.serialize(ops).getValue()))
+            )));
+        return new Dynamic<>(ops, ops.createMap(ImmutableMap.of(
+            ops.createString("Entries"), ops.createList(s)
+        )));
     }
 
-    public static RandomChanceProcessor deserialize(Dynamic<?> dynamic) {
-        return new RandomChanceProcessor(dynamic.get("Entries").asMap(BlockState::deserialize, dyn ->
-                dyn.asList(Entry::deserialize)));
+    public static RandomChanceProcessor deserialize(Dynamic<?> dyn) {
+        Map<BlockState, List<Entry>> entries = dyn.get("Entries")
+            .asList(Function.identity())
+            .stream()
+            .collect(Collectors.toMap(
+                dy -> dy.get("Key").map(BlockState::deserialize).orElse(Blocks.AIR.getDefaultState()),
+                dy -> dy.get("Replacements").asList(Entry::deserialize)
+            ));
+        return new RandomChanceProcessor(entries);
     }
 
     /**
