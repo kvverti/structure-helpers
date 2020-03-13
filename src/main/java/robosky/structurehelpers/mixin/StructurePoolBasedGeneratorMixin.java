@@ -12,6 +12,7 @@ import net.minecraft.structure.Structure.StructureBlockInfo;
 import net.minecraft.structure.pool.StructurePoolElement;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockBox;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 
@@ -19,6 +20,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -204,19 +206,23 @@ public abstract class StructurePoolBasedGeneratorMixin {
      * Translates the new piece according to the offsets defined in
      * the jigsaw block connection.
      */
-    @ModifyVariable(
+    @ModifyArg(
         method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;II)V",
-        ordinal = 1,
+        index = 2,
         at = @At(
-            value = "STORE",
+            value = "INVOKE",
+            target = "Lnet/minecraft/structure/pool/StructurePoolBasedGenerator$PieceFactory;create(Lnet/minecraft/structure/StructureManager;Lnet/minecraft/structure/pool/StructurePoolElement;Lnet/minecraft/util/math/BlockPos;ILnet/minecraft/util/BlockRotation;Lnet/minecraft/util/math/BlockBox;)Lnet/minecraft/structure/PoolStructurePiece;",
             ordinal = 0
         )
     )
-    private PoolStructurePiece offsetPiece(PoolStructurePiece newPiece) {
-        newPiece.translate(srcOffsetX + dstOffsetX, srcOffsetY + dstOffsetY, srcOffsetZ + dstOffsetZ);
-        return newPiece;
+    private BlockPos offsetPos(BlockPos pos) {
+        return pos.add(srcOffsetX + dstOffsetX, srcOffsetY + dstOffsetY, srcOffsetZ + dstOffsetZ);
     }
 
+    /**
+     * Translates the new piece bounding box according to the offsets
+     * defined in the jigsaw block connection.
+     */
     @ModifyVariable(
         method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;II)V",
         ordinal = 3,
