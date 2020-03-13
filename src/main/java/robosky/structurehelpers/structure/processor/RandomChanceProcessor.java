@@ -47,9 +47,10 @@ public class RandomChanceProcessor extends StructureProcessor {
 
     public static final class Entry {
         public final float weight;
+        /*@Nullable*/
         public final BlockState targetState;
 
-        private Entry(float weight, BlockState targetState) {
+        private Entry(float weight, /*@Nullable*/ BlockState targetState) {
             this.weight = weight;
             this.targetState = targetState;
         }
@@ -62,14 +63,22 @@ public class RandomChanceProcessor extends StructureProcessor {
             return of(target.getDefaultState(), weight);
         }
 
+        public static Entry ofEmpty(float weight) {
+            return of((BlockState)null, weight);
+        }
+
         public <T> Dynamic<T> serialize(DynamicOps<T> ops) {
-            return new Dynamic<>(ops, ops.createMap(ImmutableMap.of(ops.createString("Weight"), ops.createFloat(weight),
-                    ops.createString("Target"), BlockState.serialize(ops, targetState).getValue())));
+            ImmutableMap.Builder<T, T> b = ImmutableMap.builder();
+            b.put(ops.createString("Weight"), ops.createFloat(weight));
+            if(targetState != null) {
+                b.put(ops.createString("Target"), BlockState.serialize(ops, targetState).getValue());
+            }
+            return new Dynamic<>(ops, ops.createMap(b.build()));
         }
 
         public static Entry deserialize(Dynamic<?> dynamic) {
             float weight = dynamic.get("Weight").asFloat(0);
-            BlockState tgt = BlockState.deserialize(dynamic.get("Target").orElseEmptyMap());
+            BlockState tgt = dynamic.get("Target").map(BlockState::deserialize).orElse(null);
             return new Entry(weight, tgt);
         }
     }
@@ -84,7 +93,8 @@ public class RandomChanceProcessor extends StructureProcessor {
             for (Entry entry : entries.get(info.state)) {
                 totalWeight += entry.weight;
                 if (value < totalWeight) {
-                    return new Structure.StructureBlockInfo(info.pos, entry.targetState, null);
+                    return entry.targetState == null ? null
+                        : new Structure.StructureBlockInfo(info.pos, entry.targetState, null);
                 }
             }
         }
