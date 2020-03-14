@@ -4,5 +4,6 @@
     "gui.structure-helpers.loot_data.table": "Loot Table ID",
     "gui.structure-helpers.loot_data.replace": "Replacement State",
     "structure-helpers.updated_loot": "Set loot table: %s",
+    "jigsaw_block.structurehelpers.offset": "Attachment Offset:",
     "commands.locate.notfound": "'%s' is not a structure"
 }

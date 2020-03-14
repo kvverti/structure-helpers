@@ -4,7 +4,11 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
+import java.util.function.Function;
+import java.util.stream.Stream;
+
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.structure.Structure;
 import net.minecraft.structure.StructurePlacementData;
@@ -42,9 +46,10 @@ public class RandomChanceProcessor extends StructureProcessor {
 
     public static final class Entry {
         public final float weight;
+        /*@Nullable*/
         public final BlockState targetState;
 
-        private Entry(float weight, BlockState targetState) {
+        private Entry(float weight, /*@Nullable*/ BlockState targetState) {
             this.weight = weight;
             this.targetState = targetState;
         }
@@ -57,14 +62,22 @@ public class RandomChanceProcessor extends StructureProcessor {
             return of(target.getDefaultState(), weight);
         }
 
+        public static Entry ofEmpty(float weight) {
+            return of((BlockState)null, weight);
+        }
+
         public <T> Dynamic<T> serialize(DynamicOps<T> ops) {
-            return new Dynamic<>(ops, ops.createMap(ImmutableMap.of(ops.createString("Weight"), ops.createFloat(weight),
-                    ops.createString("Target"), BlockState.serialize(ops, targetState).getValue())));
+            ImmutableMap.Builder<T, T> b = ImmutableMap.builder();
+            b.put(ops.createString("Weight"), ops.createFloat(weight));
+            if(targetState != null) {
+                b.put(ops.createString("Target"), BlockState.serialize(ops, targetState).getValue());
+            }
+            return new Dynamic<>(ops, ops.createMap(b.build()));
         }
 
         public static Entry deserialize(Dynamic<?> dynamic) {
             float weight = dynamic.get("Weight").asFloat(0);
-            BlockState tgt = BlockState.deserialize(dynamic.get("Target").orElseEmptyMap());
+            BlockState tgt = dynamic.get("Target").map(BlockState::deserialize).orElse(null);
             return new Entry(weight, tgt);
         }
     }
@@ -79,7 +92,8 @@ public class RandomChanceProcessor extends StructureProcessor {
             for (Entry entry : entries.get(info.state)) {
                 totalWeight += entry.weight;
                 if (value < totalWeight) {
-                    return new Structure.StructureBlockInfo(info.pos, entry.targetState, null);
+                    return entry.targetState == null ? null
+                        : new Structure.StructureBlockInfo(info.pos, entry.targetState, null);
                 }
             }
         }
@@ -93,15 +107,26 @@ public class RandomChanceProcessor extends StructureProcessor {
 
     @Override
     protected <T> Dynamic<T> rawToDynamic(DynamicOps<T> ops) {
-        Map<T, T> map = entries.entrySet().stream().collect(Collectors.toMap(entry -> BlockState.serialize(ops, entry
-                .getKey()).getValue(), entry -> ops.createList(entry.getValue().stream().map(e -> e.serialize(ops)
-                .getValue())), (a, b) -> b));
-        return new Dynamic<>(ops, ops.createMap(ImmutableMap.of(ops.createString("Entries"), ops.createMap(map))));
+        Stream<T> s = entries.entrySet().stream()
+            .map(e -> ops.createMap(ImmutableMap.of(
+                ops.createString("Key"), BlockState.serialize(ops, e.getKey()).getValue(),
+                ops.createString("Replacements"), ops.createList(e.getValue()
+                    .stream().map(e2 -> e2.serialize(ops).getValue()))
+            )));
+        return new Dynamic<>(ops, ops.createMap(ImmutableMap.of(
+            ops.createString("Entries"), ops.createList(s)
+        )));
     }
 
-    public static RandomChanceProcessor deserialize(Dynamic<?> dynamic) {
-        return new RandomChanceProcessor(dynamic.get("Entries").asMap(BlockState::deserialize, dyn ->
-                dyn.asList(Entry::deserialize)));
+    public static RandomChanceProcessor deserialize(Dynamic<?> dyn) {
+        Map<BlockState, List<Entry>> entries = dyn.get("Entries")
+            .asList(Function.identity())
+            .stream()
+            .collect(Collectors.toMap(
+                dy -> dy.get("Key").map(BlockState::deserialize).orElse(Blocks.AIR.getDefaultState()),
+                dy -> dy.get("Replacements").asList(Entry::deserialize)
+            ));
+        return new RandomChanceProcessor(entries);
     }
 
     /**
