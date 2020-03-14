@@ -64,7 +64,7 @@ public abstract class JigsawBlockScreenMixin extends Screen {
     )
     private void initOffsetField(CallbackInfo info) {
         offsetField = new TextFieldWidget(
-            this.font,
+            this.textRenderer,
             this.width / 2 - 152,
             120,
             300,
@@ -117,7 +117,7 @@ public abstract class JigsawBlockScreenMixin extends Screen {
         )
     )
     private void renderOffsetField(int x, int y, float f, CallbackInfo info) {
-        this.drawString(this.font, I18n.translate("jigsaw_block.structurehelpers.offset"), this.width / 2 - 153, 110, 10526880);
+        this.drawString(this.textRenderer, I18n.translate("jigsaw_block.structurehelpers.offset"), this.width / 2 - 153, 110, 10526880);
         offsetField.render(x, y, f);
     }
 

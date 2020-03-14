@@ -59,12 +59,12 @@ public abstract class SimpleStructurePieceMixin extends StructurePiece {
         slice = @Slice(
             from = @At(
                 value = "INVOKE:FIRST",
-                target = "Lnet/minecraft/structure/Structure;method_15172(Lnet/minecraft/world/IWorld;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/structure/StructurePlacementData;I)Z"
+                target = "Lnet/minecraft/structure/Structure;place(Lnet/minecraft/world/IWorld;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/structure/StructurePlacementData;I)Z"
             )
         )
     )
     private void handleLootData(IWorld world, ChunkGenerator<?> generator, Random rand, BlockBox box, ChunkPos chunkPos, CallbackInfoReturnable<Boolean> info) {
-        List<Structure.StructureBlockInfo> ls = this.structure.method_16445(this.pos, this.placementData, StructureHelpers.LOOT_DATA_BLOCK);
+        List<Structure.StructureBlockInfo> ls = this.structure.getInfosForBlock(this.pos, this.placementData, StructureHelpers.LOOT_DATA_BLOCK);
         for (Structure.StructureBlockInfo bi : ls) {
             if (bi.tag != null) {
                 BlockEntity be = world.getBlockEntity(bi.pos.down());
