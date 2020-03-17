@@ -169,7 +169,10 @@ public abstract class StructurePoolBasedGeneratorMixin {
         return generatingChildren ? 0 : this.maxSize;
     }
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(
+        method = "<init>(Lnet/minecraft/util/Identifier;ILnet/minecraft/structure/pool/StructurePoolBasedGenerator$PieceFactory;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/structure/StructureManager;Lnet/minecraft/util/math/BlockPos;Ljava/util/List;Ljava/util/Random;)V",
+        at = @At("RETURN")
+    )
     private void generateChildren(Identifier id, int i, PieceFactory factory, ChunkGenerator<?> generator, StructureManager manager, BlockPos pos, List<StructurePiece> pieces, Random rand, CallbackInfo info) {
         generatingChildren = true;
         for(StructurePiece piece : new ArrayList<>(this.children)) {
