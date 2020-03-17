@@ -12,7 +12,7 @@ import net.minecraft.util.math.BlockPos;
 
 import robosky.structurehelpers.StructureHelpers;
 import robosky.structurehelpers.block.LootDataBlockEntity;
-import robosky.structurehelpers.iface.JigsawOffsetData;
+import robosky.structurehelpers.iface.JigsawAccessorData;
 
 public final class ServerStructHelpPackets {
 
@@ -46,12 +46,12 @@ public final class ServerStructHelpPackets {
      */
     private static void updateJigsawOffset(PacketContext ctx, PacketByteBuf buf) {
         BlockPos pos = buf.readBlockPos();
-        byte offset = buf.readByte();
+        boolean childJunction = buf.readBoolean();
         PlayerEntity player = ctx.getPlayer();
         ctx.getTaskQueue().execute(() -> {
             BlockEntity be = player.getEntityWorld().getBlockEntity(pos);
-            if(be instanceof JigsawOffsetData) {
-                ((JigsawOffsetData)be).structhelp_setOffset(offset);
+            if(be instanceof JigsawAccessorData) {
+                ((JigsawAccessorData)be).structhelp_setChildJunction(childJunction);
             }
         });
     }

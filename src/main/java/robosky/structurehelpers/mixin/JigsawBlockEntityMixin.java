@@ -11,40 +11,41 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import robosky.structurehelpers.iface.JigsawOffsetData;
+import robosky.structurehelpers.iface.JigsawAccessorData;
 
 @Mixin(JigsawBlockEntity.class)
-public abstract class JigsawBlockEntityMixin extends BlockEntity implements JigsawOffsetData {
+public abstract class JigsawBlockEntityMixin extends BlockEntity implements JigsawAccessorData {
 
     /**
-     * The offset is how many blocks in or out this jigsaw junction
-     * should be translated. This allows for e.g. flush doorways like
-     * those that generate in vanilla strongholds.
+     * Whether this jigsaw is a normal junction or a child junction. Child
+     * junctions are not checked for collision and may be placed anywhere
+     * within a structure pool element. This allows for e.g. flush doorways
+     * like those that generate in vanilla strongholds.
      */
     @Unique
-    private int offset;
+    private boolean childJunction;
 
     private JigsawBlockEntityMixin() {
         super(null);
     }
 
     @Override
-    public int structhelp_getOffset() {
-        return offset;
+    public boolean structhelp_isChildJunction() {
+        return childJunction;
     }
 
     @Override
-    public void structhelp_setOffset(int offset) {
-        this.offset = offset & 0xff;
+    public void structhelp_setChildJunction(boolean child) {
+        this.childJunction = child;
     }
 
     @Inject(method = "toTag", at = @At("RETURN"))
     private void writeOffsetToTag(CompoundTag tag, CallbackInfoReturnable<CompoundTag> info) {
-        tag.putByte("StructHelp_Offset", (byte)offset);
+        tag.putBoolean(CHILD_JUNCTION, childJunction);
     }
 
     @Inject(method = "fromTag", at = @At("RETURN"))
     private void readOffsetFromTag(CompoundTag tag, CallbackInfo info) {
-        offset = tag.getByte("StructHelp_Offset");
+        childJunction = tag.getBoolean(CHILD_JUNCTION);
     }
 }
