@@ -98,7 +98,7 @@ public abstract class StructurePoolBasedGeneratorMixin {
      * generation happens in the constructor of this class, so any added
      * field with a setter would be initialized too late. Therefore, the
      * placement range information must be passed as a parameter. The least
-     * hacky parameter with with to pass this info is the children out
+     * hacky parameter with which to pass this info is the children out
      * parameter. This is a ModifyVariable injector because callback injectors
      * can only be injected at RETURN in constructors, which is too late.
      */
