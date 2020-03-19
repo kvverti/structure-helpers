@@ -71,8 +71,12 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
         this.rotation = typ;
     }
 
-    public ExtendedSinglePoolElement(Identifier location, RotationType rotation) {
-        this(location, rotation, ImmutableList.of());
+    public ExtendedSinglePoolElement(Identifier location) {
+        this(location, ImmutableList.of());
+    }
+
+    public ExtendedSinglePoolElement(Identifier location, ImmutableList<StructureProcessor> processors) {
+        this(location, RotationType.RANDOM, processors);
     }
 
     public ExtendedSinglePoolElement(Identifier location, RotationType rotation, ImmutableList<StructureProcessor> processors) {
