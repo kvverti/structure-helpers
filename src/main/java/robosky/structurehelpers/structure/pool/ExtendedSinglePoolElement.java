@@ -50,9 +50,9 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
 
     private final RotationType rotation;
 
-    public ExtendedSinglePoolElement(Dynamic<?> dynamic) {
-        super(dynamic);
-        String str = dynamic.get("rotation_type").asString("RANDOM");
+    public ExtendedSinglePoolElement(Dynamic<?> dyn) {
+        super(dyn);
+        String str = dyn.get("rotation_type").asString("RANDOM");
         RotationType rotation;
         try {
             rotation = RotationType.valueOf(str);
