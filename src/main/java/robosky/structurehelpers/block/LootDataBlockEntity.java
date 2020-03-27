@@ -2,6 +2,7 @@ package robosky.structurehelpers.block;
 
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.block.entity.BlockEntity;
@@ -59,8 +60,8 @@ public class LootDataBlockEntity extends BlockEntity implements BlockEntityClien
     }
 
     @Override
-    public void fromTag(CompoundTag tag) {
-        super.fromTag(tag);
+    public void fromTag(BlockState state, CompoundTag tag) {
+        super.fromTag(state, tag);
         fromClientTag(tag);
     }
 }

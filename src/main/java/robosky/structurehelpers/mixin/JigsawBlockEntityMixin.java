@@ -1,5 +1,6 @@
 package robosky.structurehelpers.mixin;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.JigsawBlockEntity;
 import net.minecraft.nbt.CompoundTag;
@@ -45,7 +46,7 @@ public abstract class JigsawBlockEntityMixin extends BlockEntity implements Jigs
     }
 
     @Inject(method = "fromTag", at = @At("RETURN"))
-    private void readOffsetFromTag(CompoundTag tag, CallbackInfo info) {
+    private void readOffsetFromTag(BlockState state, CompoundTag tag, CallbackInfo info) {
         childJunction = tag.getBoolean(CHILD_JUNCTION);
     }
 }

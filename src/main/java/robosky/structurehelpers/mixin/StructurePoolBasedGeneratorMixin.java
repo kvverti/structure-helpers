@@ -22,8 +22,8 @@ import net.minecraft.structure.StructureManager;
 import net.minecraft.structure.PoolStructurePiece;
 import net.minecraft.structure.pool.StructurePoolElement;
 import net.minecraft.util.BlockRotation;
-import net.minecraft.util.BooleanBiFunction;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
@@ -192,35 +192,6 @@ public abstract class StructurePoolBasedGeneratorMixin {
     }
 
     /**
-     * Modify the list of BlockRotations depending on the type requested
-     * by the {@link ExtendedSinglePoolElement}.
-     */
-    @ModifyVariable(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;II)V",
-        ordinal = 2,
-        at = @At(
-            value = "STORE",
-            ordinal = 0
-        )
-    )
-    private Iterator<BlockRotation> getRotations(Iterator<BlockRotation> itr) {
-        if(elementToPlace != null) {
-            assert baseStructurePiece != null : "getRotations - baseStructurePiece";
-            switch(elementToPlace.rotationType()) {
-                case NONE:
-                    return ImmutableList.of(BlockRotation.NONE).iterator();
-                case INHERITED:
-                    return ImmutableList.of(baseStructurePiece.getRotation()).iterator();
-                case RANDOM:
-                default:
-                    return itr;
-            }
-        } else {
-            return itr;
-        }
-    }
-
-    /**
      * Increment the current extended pool element placement count.
      */
     @ModifyArg(
@@ -276,7 +247,7 @@ public abstract class StructurePoolBasedGeneratorMixin {
         method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;II)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/util/shape/VoxelShapes;matchesAnywhere(Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/BooleanBiFunction;)Z",
+            target = "Lnet/minecraft/util/shape/VoxelShapes;matchesAnywhere(Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/function/BooleanBiFunction;)Z",
             ordinal = 0
         )
     )
@@ -333,7 +304,7 @@ public abstract class StructurePoolBasedGeneratorMixin {
                 BlockBox blockBox = poolPiece.getBoundingBox();
                 int x = (blockBox.maxX + blockBox.minX) / 2;
                 int z = (blockBox.maxZ + blockBox.minZ) / 2;
-                int y = generator.method_20402(x, z, Heightmap.Type.WORLD_SURFACE_WG);
+                int y = generator.getHeightOnGround(x, z, Heightmap.Type.WORLD_SURFACE_WG);
                 this.generatePiece(poolPiece, new AtomicReference<>(VoxelShapes.empty()), y + 80, 0);
             }
         }

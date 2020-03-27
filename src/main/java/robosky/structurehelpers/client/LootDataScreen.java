@@ -12,9 +12,9 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.PacketByteBuf;
 
 import robosky.structurehelpers.block.LootDataBlockEntity;
 import robosky.structurehelpers.network.ServerStructHelpPackets;

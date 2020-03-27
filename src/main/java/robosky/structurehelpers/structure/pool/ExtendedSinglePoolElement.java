@@ -3,7 +3,6 @@ package robosky.structurehelpers.structure.pool;
 import com.google.common.collect.ImmutableList;
 
 import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
 
 import java.util.List;
 import java.util.Random;
@@ -36,39 +35,8 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
     public static final StructurePoolElementType TYPE =
         Registry.register(Registry.STRUCTURE_POOL_ELEMENT, StructureHelpers.id("metadata_element"), ExtendedSinglePoolElement::new);
 
-    /**
-     * The rotation behavior of an {@link ExtendedSinglePoolElement}.
-     */
-    public enum RotationType {
-        /**
-         * No rotation shall be applied to the pool element.
-         */
-        NONE,
-
-        /**
-         * The element may be rotated in the horizontal plane (vanilla default).
-         */
-        RANDOM,
-
-        /**
-         * The rotation will be inherited from the element which has
-         * triggered the generation.
-         */
-        INHERITED
-    }
-
-    private final RotationType rotation;
-
     public ExtendedSinglePoolElement(Dynamic<?> dyn) {
         super(dyn);
-        String str = dyn.get("rotation_type").asString("RANDOM");
-        RotationType rotation;
-        try {
-            rotation = RotationType.valueOf(str);
-        } catch(IllegalArgumentException e) {
-            rotation = RotationType.RANDOM;
-        }
-        this.rotation = rotation;
     }
 
     public ExtendedSinglePoolElement(Identifier location) {
@@ -76,27 +44,11 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
     }
 
     public ExtendedSinglePoolElement(Identifier location, ImmutableList<StructureProcessor> processors) {
-        this(location, RotationType.RANDOM, processors);
-    }
-
-    public ExtendedSinglePoolElement(Identifier location, RotationType rotation, ImmutableList<StructureProcessor> processors) {
         super(location.toString(), processors, Projection.RIGID);
-        this.rotation = rotation;
     }
 
     public final Identifier location() {
         return this.location;
-    }
-
-    public final RotationType rotationType() {
-        return rotation;
-    }
-
-    // Serialization
-    @Override
-    public <T> Dynamic<T> rawToDynamic(DynamicOps<T> ops) {
-        T value = super.rawToDynamic(ops).getValue();
-        return new Dynamic<>(ops, ops.mergeInto(value, ops.createString("rotation_type"), ops.createString(rotation.name())));
     }
 
     @Override
@@ -115,8 +67,8 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
 
     @Override
     public boolean generate(StructureManager manager, IWorld world, ChunkGenerator<?> generator,
-            BlockPos pos, BlockRotation rotation, BlockBox box, Random rand) {
-        boolean ret = super.generate(manager, world, generator, pos, rotation, box, rand);
+            BlockPos pos, BlockPos pos2, BlockRotation rotation, BlockBox box, Random rand) {
+        boolean ret = super.generate(manager, world, generator, pos, pos2, rotation, box, rand);
         // process loot data blocks
         if(ret) {
             List<StructureBlockInfo> ls = manager.getStructureOrBlank(this.location)

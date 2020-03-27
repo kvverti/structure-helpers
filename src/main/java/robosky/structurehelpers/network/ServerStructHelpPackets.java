@@ -5,9 +5,9 @@ import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 
 import robosky.structurehelpers.StructureHelpers;
