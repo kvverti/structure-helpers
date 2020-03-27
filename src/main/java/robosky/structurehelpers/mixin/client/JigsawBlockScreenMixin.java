@@ -17,6 +17,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import robosky.structurehelpers.iface.JigsawAccessorData;
@@ -53,23 +55,62 @@ public abstract class JigsawBlockScreenMixin extends Screen {
         at = @At(
             value = "INVOKE",
             target = "Ljava/util/List;add(Ljava/lang/Object;)Z",
-            ordinal = 2,
+            ordinal = 3,
             shift = At.Shift.AFTER,
             remap = false
         )
     )
     private void initCxnTypeField(CallbackInfo info) {
         junctionTypeButton = this.addButton(new ButtonWidget(
-            this.width / 2 - 154, 160, 150, 20,
+            this.width / 2 - 154, 180, 150, 20,
             "<uninitialized>",
             btn -> {
                 childJunction ^= true;
                 updateJunctionTypeButton();
             }
         ));
-        this.children.add(junctionTypeButton);
+        // this.children.add(junctionTypeButton);
         childJunction = ((JigsawAccessorData)this.jigsaw).structhelp_isChildJunction();
         updateJunctionTypeButton();
+    }
+
+    @ModifyVariable(
+        method = "init",
+        ordinal = 0,
+        at = @At(
+            value = "STORE",
+            ordinal = 0
+        )
+    )
+    private int relocateJointButtonHorizontally(int offsetX) {
+        // cancels (this.width / 2 - 152)
+        return 152 + 4;
+    }
+
+    @ModifyArg(
+        method = "init",
+        index = 1,
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/gui/widget/ButtonWidget;<init>(IIIILjava/lang/String;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V",
+            ordinal = 2
+        )
+    )
+    private int relocateJointButtonVertically(int posY) {
+        return 180;
+    }
+
+    @ModifyArg(
+        method = "init",
+        index = 2,
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/gui/widget/ButtonWidget;<init>(IIIILjava/lang/String;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V",
+            ordinal = 2
+        )
+    )
+    private int adjustJointButtonLength(int length) {
+        return 150;
     }
 
     @Unique
@@ -83,12 +124,52 @@ public abstract class JigsawBlockScreenMixin extends Screen {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/gui/widget/TextFieldWidget;render(IIF)V",
-            ordinal = 1,
+            ordinal = 3,
             shift = At.Shift.AFTER
         )
     )
-    private void renderOffsetField(int x, int y, float f, CallbackInfo info) {
-        this.drawString(this.textRenderer, I18n.translate("jigsaw_block.structurehelpers.connection_type"), this.width / 2 - 153, 150, 10526880);
+    private void renderJunctionTypeField(int x, int y, float f, CallbackInfo info) {
+        this.drawString(this.textRenderer, I18n.translate("jigsaw_block.structurehelpers.connection_type"), this.width / 2 - 153, 170, 10526880);
         junctionTypeButton.render(x, y, f);
+    }
+
+    @ModifyArg(
+        method = "render",
+        index = 2,
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/gui/screen/ingame/JigsawBlockScreen;drawString(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)V",
+            ordinal = 4
+        )
+    )
+    private int offsetJointButtonLabelHorizontally(int posX) {
+        return posX + 154 + 4;
+    }
+
+    @ModifyArg(
+        method = "render",
+        index = 3,
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/gui/screen/ingame/JigsawBlockScreen;drawString(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)V",
+            ordinal = 4
+        )
+    )
+    private int offsetJointButtonLabelVertically(int posY) {
+        return 170;
+    }
+
+    @ModifyArg(
+        method = "render",
+        index = 4,
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/gui/screen/ingame/JigsawBlockScreen;drawString(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)V",
+            ordinal = 4
+        )
+    )
+    private int setJointButtonLabelColor(int color) {
+        // gray
+        return 10526880;
     }
 }
