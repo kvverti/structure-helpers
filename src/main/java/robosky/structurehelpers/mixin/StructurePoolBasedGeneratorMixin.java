@@ -241,7 +241,6 @@ public abstract class StructurePoolBasedGeneratorMixin {
         PoolStructurePiece piece = (PoolStructurePiece)obj;
         if(piece.getPoolElement() instanceof ExtendedSinglePoolElement) {
             ExtendedSinglePoolElement element = (ExtendedSinglePoolElement)piece.getPoolElement();
-            System.out.println(element);
             if(elementMinMax.containsKey(element.location())) {
                 elementUses.put(element.location(), elementUses.getInt(element.location()) + 1);
             }

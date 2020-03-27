@@ -22,7 +22,7 @@ public class StructureHelpers implements ModInitializer {
 
     public static final StructureProcessorType RANDOM_CHANCE_TYPE = Registry.register(
         Registry.STRUCTURE_PROCESSOR,
-        new Identifier(MODID, "random-chance-processor"),
+        new Identifier(MODID, "random_chance_processor"),
         RandomChanceProcessor::deserialize);
 
     public static final StructureProcessorType AIR_GROUND_REPLACE_TYPE = Registry.register(
