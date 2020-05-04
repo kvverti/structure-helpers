@@ -12,6 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -51,7 +52,7 @@ public abstract class SimpleStructurePieceMixin extends StructurePiece {
             )
         )
     )
-    private void handleLootData(IWorld world, ChunkGenerator<?> generator, Random rand, BlockBox box, ChunkPos chunkPos, BlockPos blockPos, CallbackInfoReturnable<Boolean> info) {
+    private void handleLootData(IWorld world, StructureAccessor accessor, ChunkGenerator<?> generator, Random rand, BlockBox box, ChunkPos chunkPos, BlockPos blockPos, CallbackInfoReturnable<Boolean> info) {
         List<Structure.StructureBlockInfo> ls = this.structure.getInfosForBlock(this.pos, this.placementData, StructureHelpers.LOOT_DATA_BLOCK);
         for (Structure.StructureBlockInfo bi : ls) {
             LootDataUtil.handleLootData(world, bi);

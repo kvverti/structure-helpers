@@ -17,6 +17,7 @@ import net.minecraft.block.JigsawBlock;
 import net.minecraft.structure.Structure.StructureBlockInfo;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.pool.EmptyPoolElement;
+import net.minecraft.structure.pool.StructurePoolBasedGenerator;
 import net.minecraft.structure.pool.StructurePoolBasedGenerator.PieceFactory;
 import net.minecraft.structure.StructureManager;
 import net.minecraft.structure.PoolStructurePiece;
@@ -47,6 +48,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import robosky.structurehelpers.iface.ElementRange;
 import robosky.structurehelpers.iface.JigsawAccessorData;
+import robosky.structurehelpers.iface.StructurePoolGeneratorAccessor;
 import robosky.structurehelpers.structure.pool.ExtendedSinglePoolElement;
 
 /**
@@ -55,7 +57,7 @@ import robosky.structurehelpers.structure.pool.ExtendedSinglePoolElement;
  * and co.
  */
 @Mixin(targets = "net.minecraft.structure.pool.StructurePoolBasedGenerator$StructurePoolGenerator")
-public abstract class StructurePoolBasedGeneratorMixin {
+public abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGeneratorAccessor {
 
     @Unique
     private Iterator<StructurePoolElement> elementIterator;
@@ -89,37 +91,29 @@ public abstract class StructurePoolBasedGeneratorMixin {
     @Shadow @Final private List<StructurePiece> children;
 
     @Shadow
-    private native void generatePiece(PoolStructurePiece piece, AtomicReference<VoxelShape> shape, int i, int j);
+    public native void generatePiece(PoolStructurePiece piece, AtomicReference<VoxelShape> shape, int i, int j, boolean bl);
 
-    /**
-     * This is the most massive hack! Structure pool placement ranges
-     * should be defined per structure, not per pool element, because
-     * pool elements can be members of multiple pools. However, all the
-     * generation happens in the constructor of this class, so any added
-     * field with a setter would be initialized too late. Therefore, the
-     * placement range information must be passed as a parameter. The least
-     * hacky parameter with which to pass this info is the children out
-     * parameter. This is a ModifyVariable injector because callback injectors
-     * can only be injected at RETURN in constructors, which is too late.
-     */
-    @ModifyVariable(
-        method = "<init>(Lnet/minecraft/util/Identifier;ILnet/minecraft/structure/pool/StructurePoolBasedGenerator$PieceFactory;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/structure/StructureManager;Lnet/minecraft/util/math/BlockPos;Ljava/util/List;Ljava/util/Random;)V",
-        ordinal = 0,
-        at = @At(
-            value = "LOAD",
-            ordinal = 0
-        )
-    )
-    private List<?> extractRoomMinMax(List<?> ls) {
-        if(!ls.isEmpty() && ls.get(0) instanceof ElementRange) {
-            for(Object obj : ls) {
-                ElementRange data = (ElementRange)obj;
-                elementMinMax.put(data.id, data);
-                elementUses.put(data.id, 0);
-            }
-            ls.clear();
+    @Override
+    public void structhelp_setRoomMinMax(Map<Identifier, ElementRange> elementMinMax) {
+        this.elementMinMax.putAll(elementMinMax);
+        for(Identifier id : elementMinMax.keySet()) {
+            elementUses.put(id, 0);
         }
-        return ls;
+    }
+
+    @Override
+    public void structhelp_setGeneratingChildren() {
+        generatingChildren = true;
+    }
+
+    @Override
+    public boolean structhelp_softCheckMinMaxConstraints() {
+        for(Object2IntMap.Entry<Identifier> entry : elementUses.object2IntEntrySet()) {
+            if(entry.getIntValue() < elementMinMax.get(entry.getKey()).min) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -127,10 +121,10 @@ public abstract class StructurePoolBasedGeneratorMixin {
      * ModifyVariable.
      */
     @Inject(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;II)V",
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;IIZ)V",
         at = @At("HEAD")
     )
-    private void saveLocalHeadState(PoolStructurePiece piece, AtomicReference<VoxelShape> atomicReference, int i, int j, CallbackInfo info) {
+    private void saveLocalHeadState(PoolStructurePiece piece, AtomicReference<VoxelShape> atomicReference, int i, int j, boolean b, CallbackInfo info) {
         baseStructurePiece = piece;
     }
 
@@ -139,7 +133,7 @@ public abstract class StructurePoolBasedGeneratorMixin {
      * elements that should not be placed.
      */
     @ModifyVariable(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;II)V",
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;IIZ)V",
         ordinal = 1,
         at = @At(
             value = "STORE",
@@ -158,7 +152,7 @@ public abstract class StructurePoolBasedGeneratorMixin {
      * capturing lots of local variables with an Inject.
      */
     @ModifyVariable(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;II)V",
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;IIZ)V",
         ordinal = 1,
         at = @At(
             value = "STORE",
@@ -196,8 +190,8 @@ public abstract class StructurePoolBasedGeneratorMixin {
      */
     @ModifyArg(
         method = {
-            "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;II)V",
-            "<init>(Lnet/minecraft/util/Identifier;ILnet/minecraft/structure/pool/StructurePoolBasedGenerator$PieceFactory;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/structure/StructureManager;Lnet/minecraft/util/math/BlockPos;Ljava/util/List;Ljava/util/Random;)V"
+            "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;IIZ)V",
+            "<init>" // move to enclosing class mixin
         },
         at = @At(
             value = "INVOKE",
@@ -223,7 +217,7 @@ public abstract class StructurePoolBasedGeneratorMixin {
      * Skips child junctions when generating normal connections and visa-versa.
      */
     @Redirect(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;II)V",
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;IIZ)V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/block/JigsawBlock;attachmentMatches(Lnet/minecraft/structure/Structure$StructureBlockInfo;Lnet/minecraft/structure/Structure$StructureBlockInfo;)Z",
@@ -244,7 +238,7 @@ public abstract class StructurePoolBasedGeneratorMixin {
      * child elements.
      */
     @Redirect(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;II)V",
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;IIZ)V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/util/shape/VoxelShapes;matchesAnywhere(Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/function/BooleanBiFunction;)Z",
@@ -252,7 +246,7 @@ public abstract class StructurePoolBasedGeneratorMixin {
         )
     )
     private boolean disableBoundsCheckForChildGen(VoxelShape a, VoxelShape b, BooleanBiFunction filter) {
-        return generatingChildren ? false : VoxelShapes.matchesAnywhere(a, b, filter);
+        return !generatingChildren && VoxelShapes.matchesAnywhere(a, b, filter);
     }
 
     /**
@@ -262,7 +256,7 @@ public abstract class StructurePoolBasedGeneratorMixin {
      * elements have been placed their minimum number of times.
      */
     @Redirect(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;II)V",
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;IIZ)V",
         at = @At(
             value = "FIELD",
             target = "Lnet/minecraft/structure/pool/StructurePoolBasedGenerator$StructurePoolGenerator;maxSize:I"
@@ -285,34 +279,6 @@ public abstract class StructurePoolBasedGeneratorMixin {
                 }
             }
             return this.maxSize;
-        }
-    }
-
-    /**
-     * Generate child elements. Child element generation does not necessarily
-     * respect total structure piece count nor placement limits.
-     */
-    @Inject(
-        method = "<init>(Lnet/minecraft/util/Identifier;ILnet/minecraft/structure/pool/StructurePoolBasedGenerator$PieceFactory;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/structure/StructureManager;Lnet/minecraft/util/math/BlockPos;Ljava/util/List;Ljava/util/Random;)V",
-        at = @At("RETURN")
-    )
-    private void generateChildren(Identifier id, int i, PieceFactory factory, ChunkGenerator<?> generator, StructureManager manager, BlockPos pos, List<StructurePiece> pieces, Random rand, CallbackInfo info) {
-        generatingChildren = true;
-        for(StructurePiece piece : new ArrayList<>(this.children)) {
-            if(piece instanceof PoolStructurePiece) {
-                PoolStructurePiece poolPiece = (PoolStructurePiece)piece;
-                BlockBox blockBox = poolPiece.getBoundingBox();
-                int x = (blockBox.maxX + blockBox.minX) / 2;
-                int z = (blockBox.maxZ + blockBox.minZ) / 2;
-                int y = generator.getHeightOnGround(x, z, Heightmap.Type.WORLD_SURFACE_WG);
-                this.generatePiece(poolPiece, new AtomicReference<>(VoxelShapes.empty()), y + 80, 0);
-            }
-        }
-        for(Object2IntMap.Entry<Identifier> entry : elementUses.object2IntEntrySet()) {
-            if(entry.getIntValue() < elementMinMax.get(entry.getKey()).min) {
-                LogManager.getLogger(getClass()).info("StructHelp - failed to satisfy range constraints");
-                break;
-            }
         }
     }
 }

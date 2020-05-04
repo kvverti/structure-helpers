@@ -21,6 +21,7 @@ import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 import robosky.structurehelpers.StructureHelpers;
@@ -48,7 +49,7 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
     }
 
     public final Identifier location() {
-        return this.location;
+        return this.field_24015.left().orElseThrow(() -> new AssertionError("ExtendedSinglePoolElement created without ID"));
     }
 
     @Override
@@ -58,21 +59,21 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
 
     // add/remove processors
     @Override
-    protected StructurePlacementData createPlacementData(BlockRotation rot, BlockBox bbox) {
-      StructurePlacementData data = super.createPlacementData(rot, bbox);
+    protected StructurePlacementData createPlacementData(BlockRotation rot, BlockBox bbox, boolean b) {
+      StructurePlacementData data = super.createPlacementData(rot, bbox, b);
       // allow air and structure blocks to work properly
       data.removeProcessor(BlockIgnoreStructureProcessor.IGNORE_AIR_AND_STRUCTURE_BLOCKS);
       return data;
     }
 
     @Override
-    public boolean generate(StructureManager manager, IWorld world, ChunkGenerator<?> generator,
-            BlockPos pos, BlockPos pos2, BlockRotation rotation, BlockBox box, Random rand) {
-        boolean ret = super.generate(manager, world, generator, pos, pos2, rotation, box, rand);
+    public boolean generate(StructureManager manager, IWorld world, StructureAccessor accessor, ChunkGenerator<?> generator,
+            BlockPos pos, BlockPos pos2, BlockRotation rotation, BlockBox box, Random rand, boolean b) {
+        boolean ret = super.generate(manager, world, accessor, generator, pos, pos2, rotation, box, rand, b);
         // process loot data blocks
         if(ret) {
-            List<StructureBlockInfo> ls = manager.getStructureOrBlank(this.location)
-                .getInfosForBlock(pos, createPlacementData(rotation, box), StructureHelpers.LOOT_DATA_BLOCK);
+            List<StructureBlockInfo> ls = manager.getStructureOrBlank(location())
+                .getInfosForBlock(pos, createPlacementData(rotation, box, b), StructureHelpers.LOOT_DATA_BLOCK);
             for(StructureBlockInfo info : ls) {
                 LootDataUtil.handleLootData(world, info);
             }

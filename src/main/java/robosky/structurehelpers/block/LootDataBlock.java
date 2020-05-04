@@ -36,17 +36,18 @@ public class LootDataBlock extends Block implements BlockEntityProvider {
         if (!player.isCreativeLevelTwoOp()) {
             return ActionResult.PASS;
         }
-        if (!world.isClient()) {
-            BlockEntity be = world.getBlockEntity(pos);
-            if (be instanceof LootDataBlockEntity) {
-                LootDataBlockEntity ld = (LootDataBlockEntity)be;
-                LootDataPacketData data =
-                    new LootDataPacketData(pos, ld.getLootTable().toString(), ld.getReplacementState());
-                PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-                data.write(buf);
-                ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ClientStructHelpPackets.LOOT_DATA_OPEN, buf);
-            }
-        }
+        // until LibGUI updates
+//        if (!world.isClient()) {
+//            BlockEntity be = world.getBlockEntity(pos);
+//            if (be instanceof LootDataBlockEntity) {
+//                LootDataBlockEntity ld = (LootDataBlockEntity)be;
+//                LootDataPacketData data =
+//                    new LootDataPacketData(pos, ld.getLootTable().toString(), ld.getReplacementState());
+//                PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+//                data.write(buf);
+//                ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ClientStructHelpPackets.LOOT_DATA_OPEN, buf);
+//            }
+//        }
         return ActionResult.SUCCESS;
     }
 }

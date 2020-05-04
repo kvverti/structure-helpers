@@ -6,10 +6,10 @@
     "JigsawBlockEntityMixin",
     "LocateCommandMixin",
     "SimpleStructurePieceMixin",
-    "StructurePoolBasedGeneratorMixin"
+    "StructurePoolBasedGeneratorMixin",
+    "StructurePoolBasedGeneratorOuterMixin"
   ],
   "client": [
-    "client.JigsawBlockScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

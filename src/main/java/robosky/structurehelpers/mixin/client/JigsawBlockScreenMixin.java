@@ -9,7 +9,10 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.JigsawBlockScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,7 +39,8 @@ public abstract class JigsawBlockScreenMixin extends Screen {
     @Shadow @Final private JigsawBlockEntity jigsaw;
     @Shadow private ButtonWidget doneButton;
 
-    @Shadow protected native void updateDoneButtonState();
+    @Shadow
+    private native void updateDoneButtonState();
 
     private JigsawBlockScreenMixin() {
         super(null);
@@ -63,7 +67,7 @@ public abstract class JigsawBlockScreenMixin extends Screen {
     private void initCxnTypeField(CallbackInfo info) {
         junctionTypeButton = this.addButton(new ButtonWidget(
             this.width / 2 - 154, 180, 150, 20,
-            "<uninitialized>",
+            new LiteralText("<uninitialized>"),
             btn -> {
                 childJunction ^= true;
                 updateJunctionTypeButton();
@@ -115,7 +119,7 @@ public abstract class JigsawBlockScreenMixin extends Screen {
 
     @Unique
     private void updateJunctionTypeButton() {
-        junctionTypeButton.setMessage(I18n.translate("jigsaw_block.structurehelpers.connection_type."
+        junctionTypeButton.setMessage(new TranslatableText("jigsaw_block.structurehelpers.connection_type."
             + (childJunction ? "child" : "normal")));
     }
 
@@ -128,9 +132,9 @@ public abstract class JigsawBlockScreenMixin extends Screen {
             shift = At.Shift.AFTER
         )
     )
-    private void renderJunctionTypeField(int x, int y, float f, CallbackInfo info) {
-        this.drawString(this.textRenderer, I18n.translate("jigsaw_block.structurehelpers.connection_type"), this.width / 2 - 153, 170, 10526880);
-        junctionTypeButton.render(x, y, f);
+    private void renderJunctionTypeField(MatrixStack matrix, int x, int y, float f, CallbackInfo info) {
+        this.drawString(matrix, this.textRenderer, I18n.translate("jigsaw_block.structurehelpers.connection_type"), this.width / 2 - 153, 170, 10526880);
+        junctionTypeButton.render(matrix, x, y, f);
     }
 
     @ModifyArg(

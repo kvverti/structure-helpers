@@ -22,7 +22,8 @@
   },
   "entrypoints": {
     "main": [
-      "robosky.structurehelpers.StructureHelpers"
+      "robosky.structurehelpers.StructureHelpers",
+      "robosky.structurehelpers.StructureHelpersTest"
     ],
     "client": [
       "robosky.structurehelpers.StructureHelpersClient"
@@ -30,5 +31,6 @@
   },
   "mixins": [
     "structhelp.mixins.json"
-  ]
+  ],
+  "accessWidener": "structhelp.aw"
 }

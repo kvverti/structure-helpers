@@ -36,7 +36,7 @@ public final class ServerStructHelpPackets {
                 LootDataBlockEntity ld = (LootDataBlockEntity)be;
                 ld.setLootTable(data.getLootTable());
                 ld.setReplacementState(data.getReplacement());
-                player.sendMessage(new TranslatableText("structure-helpers.updated_loot", data.getLootTable()));
+                player.sendMessage(new TranslatableText("structure-helpers.updated_loot", data.getLootTable()), false);
             }
         });
     }
