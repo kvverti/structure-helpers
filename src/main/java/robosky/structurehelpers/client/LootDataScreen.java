@@ -6,19 +6,17 @@ import io.github.cottonmc.cotton.gui.widget.WButton;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
 import io.github.cottonmc.cotton.gui.widget.WTextField;
-
 import io.netty.buffer.Unpooled;
-
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
+import robosky.structurehelpers.block.LootDataBlockEntity;
+import robosky.structurehelpers.network.LootDataPacketData;
+import robosky.structurehelpers.network.ServerStructHelpPackets;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
-import robosky.structurehelpers.block.LootDataBlockEntity;
-import robosky.structurehelpers.network.ServerStructHelpPackets;
-import robosky.structurehelpers.network.LootDataPacketData;
+import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 
 /**
  * Screen class for the loot data block entity.

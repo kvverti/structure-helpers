@@ -1,30 +1,27 @@
 package robosky.structurehelpers.structure.processor;
 
-import com.google.common.collect.ImmutableMap;
-
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import static java.util.stream.Collectors.toMap;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import net.minecraft.block.Blocks;
+import com.google.common.collect.ImmutableMap;
+import com.mojang.datafixers.Dynamic;
+import com.mojang.datafixers.types.DynamicOps;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import robosky.structurehelpers.StructureHelpers;
+
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.structure.Structure.StructureBlockInfo;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.processor.StructureProcessor;
 import net.minecraft.structure.processor.StructureProcessorType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldView;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
-import robosky.structurehelpers.StructureHelpers;
-
-import static java.util.stream.Collectors.toMap;
 
 /**
  * A structure processor that only replaces certain block states with one

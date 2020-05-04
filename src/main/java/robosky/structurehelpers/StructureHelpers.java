@@ -1,20 +1,22 @@
 package robosky.structurehelpers;
 
+import robosky.structurehelpers.block.LootDataBlock;
+import robosky.structurehelpers.block.LootDataBlockEntity;
+import robosky.structurehelpers.network.ServerStructHelpPackets;
+import robosky.structurehelpers.structure.processor.AirGroundReplacementProcessor;
+import robosky.structurehelpers.structure.processor.RandomChanceProcessor;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.Block;
-import net.minecraft.block.entity.BlockEntityType;
-import net.fabricmc.api.ModInitializer;
 import net.minecraft.structure.processor.StructureProcessorType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
 import net.minecraft.util.registry.Registry;
 
-import robosky.structurehelpers.block.LootDataBlock;
-import robosky.structurehelpers.block.LootDataBlockEntity;
-import robosky.structurehelpers.network.ServerStructHelpPackets;
-import robosky.structurehelpers.structure.processor.*;
+import net.fabricmc.api.ModInitializer;
 
 public class StructureHelpers implements ModInitializer {
 

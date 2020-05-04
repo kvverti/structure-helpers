@@ -1,8 +1,17 @@
 package robosky.structurehelpers.mixin.client;
 
 import io.netty.buffer.Unpooled;
-
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import robosky.structurehelpers.iface.JigsawAccessorData;
+import robosky.structurehelpers.network.ServerStructHelpPackets;
 
 import net.minecraft.block.entity.JigsawBlockEntity;
 import net.minecraft.client.gui.screen.Screen;
@@ -14,18 +23,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import robosky.structurehelpers.iface.JigsawAccessorData;
-import robosky.structurehelpers.network.ServerStructHelpPackets;
+import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 
 @Mixin(JigsawBlockScreen.class)
 public abstract class JigsawBlockScreenMixin extends Screen {

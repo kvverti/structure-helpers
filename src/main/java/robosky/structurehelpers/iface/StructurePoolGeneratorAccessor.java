@@ -1,11 +1,8 @@
 package robosky.structurehelpers.iface;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
-import net.minecraft.structure.PoolStructurePiece;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.shape.VoxelShape;
 
 /**
  * Accessor interface for {@link net.minecraft.structure.pool.StructurePoolBasedGenerator}.

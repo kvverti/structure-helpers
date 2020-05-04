@@ -1,7 +1,8 @@
 package robosky.structurehelpers.network;
 
-import net.fabricmc.fabric.api.network.PacketContext;
-import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
+import robosky.structurehelpers.StructureHelpers;
+import robosky.structurehelpers.block.LootDataBlockEntity;
+import robosky.structurehelpers.iface.JigsawAccessorData;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -10,9 +11,8 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
-import robosky.structurehelpers.StructureHelpers;
-import robosky.structurehelpers.block.LootDataBlockEntity;
-import robosky.structurehelpers.iface.JigsawAccessorData;
+import net.fabricmc.fabric.api.network.PacketContext;
+import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 
 public final class ServerStructHelpPackets {
 

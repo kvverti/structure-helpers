@@ -1,16 +1,16 @@
 package robosky.structurehelpers.network;
 
-import net.fabricmc.fabric.api.network.PacketContext;
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
+import robosky.structurehelpers.StructureHelpers;
+import robosky.structurehelpers.block.LootDataBlockEntity;
+import robosky.structurehelpers.client.LootDataScreen;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
-import robosky.structurehelpers.StructureHelpers;
-import robosky.structurehelpers.block.LootDataBlockEntity;
-import robosky.structurehelpers.client.LootDataScreen;
+import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
+import net.fabricmc.fabric.api.network.PacketContext;
 
 public final class ClientStructHelpPackets {
 

@@ -1,11 +1,12 @@
 package robosky.structurehelpers.structure.pool;
 
-import com.google.common.collect.ImmutableList;
-
-import com.mojang.datafixers.Dynamic;
-
 import java.util.List;
 import java.util.Random;
+
+import com.google.common.collect.ImmutableList;
+import com.mojang.datafixers.Dynamic;
+import robosky.structurehelpers.StructureHelpers;
+import robosky.structurehelpers.structure.LootDataUtil;
 
 import net.minecraft.structure.Structure.StructureBlockInfo;
 import net.minecraft.structure.StructureManager;
@@ -23,9 +24,6 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
-
-import robosky.structurehelpers.StructureHelpers;
-import robosky.structurehelpers.structure.LootDataUtil;
 
 /**
  * Single pool element with capabilities of the rotation control and

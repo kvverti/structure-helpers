@@ -1,15 +1,14 @@
 package robosky.structurehelpers.block;
 
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
+import robosky.structurehelpers.StructureHelpers;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.util.InvalidIdentifierException;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.block.entity.BlockEntity;
-
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
 
-import robosky.structurehelpers.StructureHelpers;
+import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 
 public class LootDataBlockEntity extends BlockEntity implements BlockEntityClientSerializable {
 
