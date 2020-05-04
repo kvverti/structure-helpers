@@ -46,7 +46,7 @@ public class StructureHelpers implements ModInitializer {
             new Identifier(MODID, "loot_data"),
             BlockEntityType.Builder.create(LootDataBlockEntity::new, LOOT_DATA_BLOCK).build(null));
 
-    public static final Identifier id(String value) {
+    public static Identifier id(String value) {
         return new Identifier(MODID, value);
     }
 

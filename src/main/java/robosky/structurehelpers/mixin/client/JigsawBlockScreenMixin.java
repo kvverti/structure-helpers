@@ -37,10 +37,6 @@ public abstract class JigsawBlockScreenMixin extends Screen {
     private boolean childJunction;
 
     @Shadow @Final private JigsawBlockEntity jigsaw;
-    @Shadow private ButtonWidget doneButton;
-
-    @Shadow
-    private native void updateDoneButtonState();
 
     private JigsawBlockScreenMixin() {
         super(null);

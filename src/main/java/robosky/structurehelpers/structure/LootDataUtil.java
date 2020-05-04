@@ -22,7 +22,7 @@ public final class LootDataUtil {
 
     private LootDataUtil() {}
 
-    public static final void handleLootData(IWorld world, StructureBlockInfo bi) {
+    public static void handleLootData(IWorld world, StructureBlockInfo bi) {
         if (bi.tag != null) {
             BlockEntity be = world.getBlockEntity(bi.pos.down());
             if (be instanceof LootableContainerBlockEntity) {

@@ -62,12 +62,6 @@ public abstract class StructurePoolBasedGeneratorMixin implements StructurePoolG
     @Unique
     private Iterator<StructurePoolElement> elementIterator;
 
-    @Unique
-    private ExtendedSinglePoolElement elementToPlace;
-
-    @Unique
-    private PoolStructurePiece baseStructurePiece;
-
     /**
      * When structure piece children are generated, the code that checks
      * for structure self-intersection is disabled.
@@ -88,10 +82,6 @@ public abstract class StructurePoolBasedGeneratorMixin implements StructurePoolG
     private final Map<Identifier, ElementRange> elementMinMax = new HashMap<>();
 
     @Shadow @Final private int maxSize;
-    @Shadow @Final private List<StructurePiece> children;
-
-    @Shadow
-    public native void generatePiece(PoolStructurePiece piece, AtomicReference<VoxelShape> shape, int i, int j, boolean bl);
 
     @Override
     public void structhelp_setRoomMinMax(Map<Identifier, ElementRange> elementMinMax) {
@@ -114,18 +104,6 @@ public abstract class StructurePoolBasedGeneratorMixin implements StructurePoolG
             }
         }
         return true;
-    }
-
-    /**
-     * Save method context that is needed but not available via
-     * ModifyVariable.
-     */
-    @Inject(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;IIZ)V",
-        at = @At("HEAD")
-    )
-    private void saveLocalHeadState(PoolStructurePiece piece, AtomicReference<VoxelShape> atomicReference, int i, int j, boolean b, CallbackInfo info) {
-        baseStructurePiece = piece;
     }
 
     /**
@@ -162,7 +140,7 @@ public abstract class StructurePoolBasedGeneratorMixin implements StructurePoolG
     private StructurePoolElement saveElementToPlace(StructurePoolElement element) {
         boolean elementValid;
         do {
-            elementToPlace = null;
+            ExtendedSinglePoolElement elementToPlace = null;
             elementValid = true;
             if(element instanceof ExtendedSinglePoolElement) {
                 elementToPlace = (ExtendedSinglePoolElement)element;
