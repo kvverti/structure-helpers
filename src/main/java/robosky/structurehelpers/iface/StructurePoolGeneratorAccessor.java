@@ -2,6 +2,8 @@ package robosky.structurehelpers.iface;
 
 import java.util.Map;
 
+import robosky.structurehelpers.structure.pool.ElementRange;
+
 import net.minecraft.util.Identifier;
 
 /**

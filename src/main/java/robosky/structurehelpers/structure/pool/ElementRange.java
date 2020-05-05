@@ -1,4 +1,4 @@
-package robosky.structurehelpers.iface;
+package robosky.structurehelpers.structure.pool;
 
 import net.minecraft.util.Identifier;
 

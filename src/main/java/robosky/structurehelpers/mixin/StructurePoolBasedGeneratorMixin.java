@@ -16,9 +16,9 @@ import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import robosky.structurehelpers.iface.ElementRange;
 import robosky.structurehelpers.iface.JigsawAccessorData;
 import robosky.structurehelpers.iface.StructurePoolGeneratorAccessor;
+import robosky.structurehelpers.structure.pool.ElementRange;
 import robosky.structurehelpers.structure.pool.ExtendedSinglePoolElement;
 
 import net.minecraft.block.JigsawBlock;

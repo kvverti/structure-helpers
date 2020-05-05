@@ -14,8 +14,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import robosky.structurehelpers.iface.ElementRange;
 import robosky.structurehelpers.iface.StructurePoolGeneratorAccessor;
+import robosky.structurehelpers.structure.pool.ElementRange;
 
 import net.minecraft.structure.PoolStructurePiece;
 import net.minecraft.structure.StructureManager;
