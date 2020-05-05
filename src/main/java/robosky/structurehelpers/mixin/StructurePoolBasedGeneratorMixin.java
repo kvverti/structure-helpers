@@ -149,17 +149,12 @@ public abstract class StructurePoolBasedGeneratorMixin implements StructurePoolG
      * Increment the current extended pool element placement count.
      */
     @ModifyArg(
-        method = {
-            "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;IIZ)V",
-            "<init>"
-            // move to enclosing class mixin
-        },
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;IIZ)V",
         at = @At(
             value = "INVOKE",
             target = "Ljava/util/List;add(Ljava/lang/Object;)Z",
             remap = false
-        ),
-        expect = 2
+        )
     )
     private Object incrementElementCount(Object obj) {
         // we can use this.elementToPlace because it is overwritten
