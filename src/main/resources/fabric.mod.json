@@ -22,8 +22,7 @@
   },
   "entrypoints": {
     "main": [
-      "robosky.structurehelpers.StructureHelpers",
-      "robosky.structurehelpers.StructureHelpersTest"
+      "robosky.structurehelpers.StructureHelpers"
     ],
     "client": [
       "robosky.structurehelpers.StructureHelpersClient"
