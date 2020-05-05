@@ -21,7 +21,8 @@ public final class ElementRange {
     /**
      * Creates an ElementRange for the structure pool element with
      * the given location, with the given inclusive range.
-     * @param id the location of the structure pool element
+     *
+     * @param id  the location of the structure pool element
      * @param min the minimum number of times to generate the element, inclusive
      * @param max the maximum number of times to generate the element, inclusive
      */

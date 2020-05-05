@@ -33,7 +33,7 @@ public class LootDataBlockEntity extends BlockEntity implements BlockEntityClien
     }
 
     public void setReplacementState(String replacementState) {
-    	this.replacementState = replacementState;
+        this.replacementState = replacementState;
     }
 
     @Override
@@ -53,7 +53,7 @@ public class LootDataBlockEntity extends BlockEntity implements BlockEntityClien
         replacementState = tag.getString("Replacement");
         try {
             lootTable = new Identifier(tag.getString("LootTable"));
-        } catch (InvalidIdentifierException e) {
+        } catch(InvalidIdentifierException e) {
             lootTable = new Identifier("minecraft:air");
         }
     }

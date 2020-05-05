@@ -50,10 +50,12 @@ public class LootDataScreen extends CottonClientScreen {
             WGridPanel root = new WGridPanel(4);
             this.setRootPanel(root);
 
-            WLabel title = new WLabel(new TranslatableText("gui.structure-helpers.loot_data.title"), WLabel.DEFAULT_TEXT_COLOR);
+            WLabel title = new WLabel(new TranslatableText("gui.structure-helpers.loot_data.title"),
+                WLabel.DEFAULT_TEXT_COLOR);
             root.add(title, 0, 0, 60, 1);
 
-            WLabel lootTableLbl = new WLabel(new TranslatableText("gui.structure-helpers.loot_data.table"), WLabel.DEFAULT_TEXT_COLOR);
+            WLabel lootTableLbl = new WLabel(new TranslatableText("gui.structure-helpers.loot_data.table"),
+                WLabel.DEFAULT_TEXT_COLOR);
             root.add(lootTableLbl, 0, 7, 60, 1);
             lootTableIn = new WTextField();
             lootTableIn.createPeers(this); // required to make text field focusable
@@ -61,7 +63,8 @@ public class LootDataScreen extends CottonClientScreen {
             lootTableIn.setText(be.getLootTable().toString());
             root.add(lootTableIn, 0, 10, 60, 1);
 
-            WLabel replaceLbl = new WLabel(new TranslatableText("gui.structure-helpers.loot_data.replace"), WLabel.DEFAULT_TEXT_COLOR);
+            WLabel replaceLbl = new WLabel(new TranslatableText("gui.structure-helpers.loot_data.replace"),
+                WLabel.DEFAULT_TEXT_COLOR);
             root.add(replaceLbl, 0, 17, 60, 1);
             replaceIn = new WTextField();
             replaceIn.createPeers(this); // required to make text field focusable

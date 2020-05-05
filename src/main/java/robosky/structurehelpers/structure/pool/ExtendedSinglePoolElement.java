@@ -32,7 +32,9 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 public class ExtendedSinglePoolElement extends SinglePoolElement {
 
     public static final StructurePoolElementType TYPE =
-        Registry.register(Registry.STRUCTURE_POOL_ELEMENT, StructureHelpers.id("metadata_element"), ExtendedSinglePoolElement::new);
+        Registry.register(Registry.STRUCTURE_POOL_ELEMENT,
+            StructureHelpers.id("metadata_element"),
+            ExtendedSinglePoolElement::new);
 
     public ExtendedSinglePoolElement(Dynamic<?> dyn) {
         super(dyn);
@@ -47,26 +49,29 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
     }
 
     public final Identifier location() {
-        return this.field_24015.left().orElseThrow(() -> new AssertionError("ExtendedSinglePoolElement created without ID"));
+        return this.field_24015.left()
+            .orElseThrow(() -> new AssertionError("ExtendedSinglePoolElement created without ID"));
     }
 
     @Override
     public StructurePoolElementType getType() {
-       return TYPE;
+        return TYPE;
     }
 
     // add/remove processors
     @Override
     protected StructurePlacementData createPlacementData(BlockRotation rot, BlockBox bbox, boolean b) {
-      StructurePlacementData data = super.createPlacementData(rot, bbox, b);
-      // allow air and structure blocks to work properly
-      data.removeProcessor(BlockIgnoreStructureProcessor.IGNORE_AIR_AND_STRUCTURE_BLOCKS);
-      return data;
+        StructurePlacementData data = super.createPlacementData(rot, bbox, b);
+        // allow air and structure blocks to work properly
+        data.removeProcessor(BlockIgnoreStructureProcessor.IGNORE_AIR_AND_STRUCTURE_BLOCKS);
+        return data;
     }
 
     @Override
-    public boolean generate(StructureManager manager, IWorld world, StructureAccessor accessor, ChunkGenerator<?> generator,
-            BlockPos pos, BlockPos pos2, BlockRotation rotation, BlockBox box, Random rand, boolean b) {
+    public boolean generate(
+        StructureManager manager, IWorld world, StructureAccessor accessor, ChunkGenerator<?> generator,
+        BlockPos pos, BlockPos pos2, BlockRotation rotation, BlockBox box, Random rand, boolean b
+    ) {
         boolean ret = super.generate(manager, world, accessor, generator, pos, pos2, rotation, box, rand, b);
         // process loot data blocks
         if(ret) {

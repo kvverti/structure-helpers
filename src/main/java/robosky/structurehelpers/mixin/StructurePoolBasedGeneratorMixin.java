@@ -61,7 +61,9 @@ public abstract class StructurePoolBasedGeneratorMixin implements StructurePoolG
     @Unique
     private final Map<Identifier, ElementRange> elementMinMax = new HashMap<>();
 
-    @Shadow @Final private int maxSize;
+    @Shadow
+    @Final
+    private int maxSize;
 
     @Override
     public void structhelp_setRoomMinMax(Map<Identifier, ElementRange> elementMinMax) {
@@ -149,7 +151,8 @@ public abstract class StructurePoolBasedGeneratorMixin implements StructurePoolG
     @ModifyArg(
         method = {
             "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;IIZ)V",
-            "<init>" // move to enclosing class mixin
+            "<init>"
+            // move to enclosing class mixin
         },
         at = @At(
             value = "INVOKE",
@@ -221,7 +224,13 @@ public abstract class StructurePoolBasedGeneratorMixin implements StructurePoolG
         ),
         expect = 2
     )
-    private int preventRecursiveChildGen(@Coerce Object self, PoolStructurePiece piece, AtomicReference<VoxelShape> atomicReference, int i, int j) {
+    private int preventRecursiveChildGen(
+        @Coerce Object self,
+        PoolStructurePiece piece,
+        AtomicReference<VoxelShape> atomicReference,
+        int i,
+        int j
+    ) {
         if(generatingChildren) {
             return Integer.MIN_VALUE;
         } else {

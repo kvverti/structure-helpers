@@ -16,7 +16,8 @@ import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 
 public final class ServerStructHelpPackets {
 
-    private ServerStructHelpPackets() {}
+    private ServerStructHelpPackets() {
+    }
 
     public static final Identifier LOOT_DATA_UPDATE =
         new Identifier(StructureHelpers.MODID, "loot_data_update");
@@ -32,7 +33,7 @@ public final class ServerStructHelpPackets {
         PlayerEntity player = ctx.getPlayer();
         ctx.getTaskQueue().execute(() -> {
             BlockEntity be = player.getEntityWorld().getBlockEntity(data.getPos());
-            if (be instanceof LootDataBlockEntity && player.isCreativeLevelTwoOp()) {
+            if(be instanceof LootDataBlockEntity && player.isCreativeLevelTwoOp()) {
                 LootDataBlockEntity ld = (LootDataBlockEntity)be;
                 ld.setLootTable(data.getLootTable());
                 ld.setReplacementState(data.getReplacement());

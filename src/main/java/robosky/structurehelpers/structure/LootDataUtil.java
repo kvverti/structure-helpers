@@ -20,12 +20,13 @@ public final class LootDataUtil {
 
     private static final BlockStateArgumentType blockStateParser = BlockStateArgumentType.blockState();
 
-    private LootDataUtil() {}
+    private LootDataUtil() {
+    }
 
     public static void handleLootData(IWorld world, StructureBlockInfo bi) {
-        if (bi.tag != null) {
+        if(bi.tag != null) {
             BlockEntity be = world.getBlockEntity(bi.pos.down());
-            if (be instanceof LootableContainerBlockEntity) {
+            if(be instanceof LootableContainerBlockEntity) {
                 LootableContainerBlockEntity lc = (LootableContainerBlockEntity)be;
                 Identifier lootTable;
                 BlockState blockState;
@@ -34,13 +35,13 @@ public final class LootDataUtil {
                 // Identifier by this point, God help us.
                 try {
                     lootTable = new Identifier(bi.tag.getString("LootTable"));
-                } catch (InvalidIdentifierException e) {
+                } catch(InvalidIdentifierException e) {
                     lootTable = new Identifier("minecraft:empty");
                 }
                 try {
                     String replacement = bi.tag.getString("Replacement");
                     blockState = blockStateParser.parse(new StringReader(replacement)).getBlockState();
-                } catch (CommandSyntaxException e) {
+                } catch(CommandSyntaxException e) {
                     blockState = Blocks.AIR.getDefaultState();
                 }
                 lc.setLootTable(lootTable, world.getRandom().nextLong());

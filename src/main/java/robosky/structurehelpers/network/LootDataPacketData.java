@@ -31,7 +31,7 @@ public final class LootDataPacketData {
     }
 
     public BlockPos getPos() {
-    	return pos;
+        return pos;
     }
 
     public Identifier getLootTable() {
@@ -39,7 +39,7 @@ public final class LootDataPacketData {
     }
 
     public String getReplacement() {
-    	return replacement;
+        return replacement;
     }
 
     public void read(PacketByteBuf buf) {

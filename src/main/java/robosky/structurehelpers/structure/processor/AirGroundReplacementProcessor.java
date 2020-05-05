@@ -43,8 +43,10 @@ public class AirGroundReplacementProcessor extends StructureProcessor {
     }
 
     @Override
-    public StructureBlockInfo process(WorldView world, BlockPos pos, BlockPos pos2, StructureBlockInfo meh,
-            StructureBlockInfo info, StructurePlacementData data) {
+    public StructureBlockInfo process(
+        WorldView world, BlockPos pos, BlockPos pos2, StructureBlockInfo meh,
+        StructureBlockInfo info, StructurePlacementData data
+    ) {
         if(stateMap.containsKey(info.state)) {
             BlockState state;
             if(world.getBlockState(info.pos).getCollisionShape(world, info.pos).isEmpty()) {

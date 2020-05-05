@@ -40,9 +40,9 @@ public abstract class LocateCommandMixin {
     @ModifyArg(
         method = "register",
         at = @At(
-          value = "INVOKE",
-          target = "Lcom/mojang/brigadier/CommandDispatcher;register(Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;)Lcom/mojang/brigadier/tree/LiteralCommandNode;",
-          remap = false
+            value = "INVOKE",
+            target = "Lcom/mojang/brigadier/CommandDispatcher;register(Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;)Lcom/mojang/brigadier/tree/LiteralCommandNode;",
+            remap = false
         )
     )
     private static LiteralArgumentBuilder<ServerCommandSource> modifyLocate(LiteralArgumentBuilder<ServerCommandSource> cmd) {

@@ -18,7 +18,6 @@ import net.minecraft.block.entity.JigsawBlockEntity;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.JigsawBlockScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.LiteralText;
@@ -37,7 +36,9 @@ public abstract class JigsawBlockScreenMixin extends Screen {
     @Unique
     private boolean childJunction;
 
-    @Shadow @Final private JigsawBlockEntity jigsaw;
+    @Shadow
+    @Final
+    private JigsawBlockEntity jigsaw;
 
     private JigsawBlockScreenMixin() {
         super(null);
@@ -135,10 +136,10 @@ public abstract class JigsawBlockScreenMixin extends Screen {
     private void updateJunctionTypeButton() {
         junctionTypeButton.setMessage(
             new TranslatableText("jigsaw_block.structurehelpers.connection_type")
-            .append(" ")
-            .append(new TranslatableText(
-                "jigsaw_block.structurehelpers.connection_type." + (childJunction ? "child" : "normal")
-            ))
+                .append(" ")
+                .append(new TranslatableText(
+                    "jigsaw_block.structurehelpers.connection_type." + (childJunction ? "child" : "normal")
+                ))
         );
     }
 

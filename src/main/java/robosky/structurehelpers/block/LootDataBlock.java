@@ -24,8 +24,15 @@ public class LootDataBlock extends Block implements BlockEntityProvider {
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult ctx) {
-        if (!player.isCreativeLevelTwoOp()) {
+    public ActionResult onUse(
+        BlockState state,
+        World world,
+        BlockPos pos,
+        PlayerEntity player,
+        Hand hand,
+        BlockHitResult ctx
+    ) {
+        if(!player.isCreativeLevelTwoOp()) {
             return ActionResult.PASS;
         }
         // until LibGUI updates

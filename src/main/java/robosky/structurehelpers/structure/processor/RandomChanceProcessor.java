@@ -35,7 +35,7 @@ public class RandomChanceProcessor extends StructureProcessor {
 
     private RandomChanceProcessor(Map<BlockState, List<Entry>> entries) {
         this.entries = entries;
-        weightSum = (float) entries.values().stream().flatMap(List::stream).mapToDouble(entry -> entry.weight).sum();
+        weightSum = (float)entries.values().stream().flatMap(List::stream).mapToDouble(entry -> entry.weight).sum();
     }
 
     public static Builder builder() {
@@ -81,15 +81,17 @@ public class RandomChanceProcessor extends StructureProcessor {
     }
 
     @Override
-    public Structure.StructureBlockInfo process(WorldView world, BlockPos pos, BlockPos pos2, Structure.StructureBlockInfo thing,
-                                                Structure.StructureBlockInfo info, StructurePlacementData data) {
+    public Structure.StructureBlockInfo process(
+        WorldView world, BlockPos pos, BlockPos pos2, Structure.StructureBlockInfo thing,
+        Structure.StructureBlockInfo info, StructurePlacementData data
+    ) {
         Random rand = new Random(MathHelper.hashCode(info.pos));
-        if (entries.containsKey(info.state)) {
+        if(entries.containsKey(info.state)) {
             float totalWeight = 0f;
             float value = rand.nextFloat() * weightSum;
-            for (Entry entry : entries.get(info.state)) {
+            for(Entry entry : entries.get(info.state)) {
                 totalWeight += entry.weight;
-                if (value < totalWeight) {
+                if(value < totalWeight) {
                     return entry.targetState == null ? null
                         : new Structure.StructureBlockInfo(info.pos, entry.targetState, null);
                 }
@@ -134,7 +136,8 @@ public class RandomChanceProcessor extends StructureProcessor {
 
         private final Map<BlockState, List<Entry>> entryMap = new HashMap<>();
 
-        private Builder() {}
+        private Builder() {
+        }
 
         public Builder add(BlockState state, Entry... entries) {
             entryMap.computeIfAbsent(state, k -> new ArrayList<>())

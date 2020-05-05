@@ -51,9 +51,20 @@ public abstract class SimpleStructurePieceMixin extends StructurePiece {
             )
         )
     )
-    private void handleLootData(IWorld world, StructureAccessor accessor, ChunkGenerator<?> generator, Random rand, BlockBox box, ChunkPos chunkPos, BlockPos blockPos, CallbackInfoReturnable<Boolean> info) {
-        List<Structure.StructureBlockInfo> ls = this.structure.getInfosForBlock(this.pos, this.placementData, StructureHelpers.LOOT_DATA_BLOCK);
-        for (Structure.StructureBlockInfo bi : ls) {
+    private void handleLootData(
+        IWorld world,
+        StructureAccessor accessor,
+        ChunkGenerator<?> generator,
+        Random rand,
+        BlockBox box,
+        ChunkPos chunkPos,
+        BlockPos blockPos,
+        CallbackInfoReturnable<Boolean> info
+    ) {
+        List<Structure.StructureBlockInfo> ls = this.structure.getInfosForBlock(this.pos,
+            this.placementData,
+            StructureHelpers.LOOT_DATA_BLOCK);
+        for(Structure.StructureBlockInfo bi : ls) {
             LootDataUtil.handleLootData(world, bi);
         }
     }

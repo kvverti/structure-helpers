@@ -14,7 +14,8 @@ import net.fabricmc.fabric.api.network.PacketContext;
 
 public final class ClientStructHelpPackets {
 
-    private ClientStructHelpPackets() {}
+    private ClientStructHelpPackets() {
+    }
 
     public static final Identifier LOOT_DATA_OPEN =
         new Identifier(StructureHelpers.MODID, "loot_data_open");
@@ -25,7 +26,7 @@ public final class ClientStructHelpPackets {
         ctx.getTaskQueue().execute(() -> {
             MinecraftClient client = MinecraftClient.getInstance();
             BlockEntity be = client.world.getBlockEntity(data.getPos());
-            if (be instanceof LootDataBlockEntity) {
+            if(be instanceof LootDataBlockEntity) {
                 LootDataBlockEntity ld = (LootDataBlockEntity)be;
                 ld.setLootTable(data.getLootTable());
                 ld.setReplacementState(data.getReplacement());
