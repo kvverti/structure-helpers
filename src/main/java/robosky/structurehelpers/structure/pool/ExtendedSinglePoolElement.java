@@ -1,11 +1,15 @@
 package robosky.structurehelpers.structure.pool;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
+import com.mojang.datafixers.types.DynamicOps;
 import robosky.structurehelpers.StructureHelpers;
+import robosky.structurehelpers.mixin.StructurePlacementDataAccessor;
 import robosky.structurehelpers.structure.LootDataUtil;
 
 import net.minecraft.structure.Structure.StructureBlockInfo;
@@ -36,16 +40,24 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
             StructureHelpers.id("metadata_element"),
             ExtendedSinglePoolElement::new);
 
+    /**
+     * Whether blocks in this element should overwrite fluids. If false,
+     * existing fluids will be merged with the structure's blocks.
+     */
+    private final boolean overwriteFluids;
+
     public ExtendedSinglePoolElement(Dynamic<?> dyn) {
         super(dyn);
+        this.overwriteFluids = dyn.get("OverwriteFluids").asBoolean(false);
     }
 
     public ExtendedSinglePoolElement(Identifier location) {
-        this(location, ImmutableList.of());
+        this(location, false, ImmutableList.of());
     }
 
-    public ExtendedSinglePoolElement(Identifier location, ImmutableList<StructureProcessor> processors) {
+    public ExtendedSinglePoolElement(Identifier location, boolean overwriteFluids, ImmutableList<StructureProcessor> processors) {
         super(location.toString(), processors, Projection.RIGID);
+        this.overwriteFluids = overwriteFluids;
     }
 
     public final Identifier location() {
@@ -58,12 +70,19 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
         return TYPE;
     }
 
+    @Override
+    public <T> Dynamic<T> rawToDynamic(DynamicOps<T> ops) {
+        Map<T, T> map = ImmutableMap.of(ops.createString("OverwriteFluids"), ops.createBoolean(overwriteFluids));
+        return new Dynamic<>(ops, ops.merge(ops.createMap(map), super.rawToDynamic(ops).getValue()));
+    }
+
     // add/remove processors
     @Override
     protected StructurePlacementData createPlacementData(BlockRotation rot, BlockBox bbox, boolean b) {
         StructurePlacementData data = super.createPlacementData(rot, bbox, b);
         // allow air and structure blocks to work properly
         data.removeProcessor(BlockIgnoreStructureProcessor.IGNORE_AIR_AND_STRUCTURE_BLOCKS);
+        ((StructurePlacementDataAccessor)data).setPlaceFluids(!overwriteFluids);
         return data;
     }
 
