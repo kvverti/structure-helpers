@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import robosky.structurehelpers.iface.JigsawAccessorData;
 import robosky.structurehelpers.network.ServerStructHelpPackets;
@@ -21,7 +22,9 @@ import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.math.Direction;
 
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 
@@ -60,14 +63,13 @@ public abstract class JigsawBlockScreenMixin extends Screen {
     )
     private void initCxnTypeField(CallbackInfo info) {
         junctionTypeButton = this.addButton(new ButtonWidget(
-            this.width / 2 - 154, 180, 150, 20,
+            this.width / 2 - 152, 150, 150, 20,
             new LiteralText("<uninitialized>"),
             btn -> {
                 childJunction ^= true;
                 updateJunctionTypeButton();
             }
         ));
-        // this.children.add(junctionTypeButton);
         childJunction = ((JigsawAccessorData)this.jigsaw).structhelp_isChildJunction();
         updateJunctionTypeButton();
     }
@@ -85,17 +87,35 @@ public abstract class JigsawBlockScreenMixin extends Screen {
         return 152 + 4;
     }
 
+    @SuppressWarnings("UnresolvedMixinReference")
     @ModifyArg(
-        method = "init",
-        index = 1,
+        method = "method_26411",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/widget/ButtonWidget;<init>(IIIILjava/lang/String;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V",
-            ordinal = 2
+            target = "Lnet/minecraft/client/gui/widget/ButtonWidget;setMessage(Lnet/minecraft/text/Text;)V"
         )
     )
-    private int relocateJointButtonVertically(int posY) {
-        return 180;
+    private Text modifyJointButtonName(Text name) {
+        return adjustJointButtonName(name);
+    }
+
+    @ModifyArg(
+        method = "init",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/gui/widget/ButtonWidget;<init>(IIIILnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V",
+            ordinal = 3
+        )
+    )
+    private Text modifyInitialJointButtonName(Text name) {
+        return adjustJointButtonName(name);
+    }
+
+    @Unique
+    private Text adjustJointButtonName(Text name) {
+        return new TranslatableText("jigsaw_block.joint_label")
+            .append(" ")
+            .append(name);
     }
 
     @ModifyArg(
@@ -103,8 +123,8 @@ public abstract class JigsawBlockScreenMixin extends Screen {
         index = 2,
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/widget/ButtonWidget;<init>(IIIILjava/lang/String;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V",
-            ordinal = 2
+            target = "Lnet/minecraft/client/gui/widget/ButtonWidget;<init>(IIIILnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V",
+            ordinal = 3
         )
     )
     private int adjustJointButtonLength(int length) {
@@ -113,61 +133,36 @@ public abstract class JigsawBlockScreenMixin extends Screen {
 
     @Unique
     private void updateJunctionTypeButton() {
-        junctionTypeButton.setMessage(new TranslatableText("jigsaw_block.structurehelpers.connection_type."
-            + (childJunction ? "child" : "normal")));
+        junctionTypeButton.setMessage(
+            new TranslatableText("jigsaw_block.structurehelpers.connection_type")
+            .append(" ")
+            .append(new TranslatableText(
+                "jigsaw_block.structurehelpers.connection_type." + (childJunction ? "child" : "normal")
+            ))
+        );
     }
 
     @Inject(
         method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/widget/TextFieldWidget;render(IIF)V",
+            target = "Lnet/minecraft/client/gui/widget/TextFieldWidget;render(Lnet/minecraft/client/util/math/MatrixStack;IIF)V",
             ordinal = 3,
             shift = At.Shift.AFTER
         )
     )
     private void renderJunctionTypeField(MatrixStack matrix, int x, int y, float f, CallbackInfo info) {
-        this.drawString(matrix, this.textRenderer, I18n.translate("jigsaw_block.structurehelpers.connection_type"), this.width / 2 - 153, 170, 10526880);
         junctionTypeButton.render(matrix, x, y, f);
     }
 
-    @ModifyArg(
+    @Redirect(
         method = "render",
-        index = 2,
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/screen/ingame/JigsawBlockScreen;drawString(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)V",
-            ordinal = 4
+            target = "Lnet/minecraft/util/math/Direction$Axis;isVertical()Z"
         )
     )
-    private int offsetJointButtonLabelHorizontally(int posX) {
-        return posX + 154 + 4;
-    }
-
-    @ModifyArg(
-        method = "render",
-        index = 3,
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/screen/ingame/JigsawBlockScreen;drawString(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)V",
-            ordinal = 4
-        )
-    )
-    private int offsetJointButtonLabelVertically(int posY) {
-        return 170;
-    }
-
-    @ModifyArg(
-        method = "render",
-        index = 4,
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/screen/ingame/JigsawBlockScreen;drawString(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)V",
-            ordinal = 4
-        )
-    )
-    private int setJointButtonLabelColor(int color) {
-        // gray
-        return 10526880;
+    private boolean cancelJointButtonLabelRendering(Direction.Axis axis) {
+        return false;
     }
 }

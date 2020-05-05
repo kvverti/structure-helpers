@@ -10,6 +10,7 @@
     "StructurePoolBasedGeneratorOuterMixin"
   ],
   "client": [
+    "client.JigsawBlockScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
