@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import robosky.structurehelpers.iface.StructurePoolGeneratorAddition;
 import robosky.structurehelpers.structure.pool.ElementRange;
@@ -24,6 +25,7 @@ import net.minecraft.structure.pool.StructurePoolBasedGenerator;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -118,5 +120,24 @@ public abstract class StructurePoolBasedGeneratorOuterMixin {
             LogManager.getLogger(StructurePoolBasedGenerator.class)
                 .info("StructHelp - failed to satisfy range constraints");
         }
+    }
+
+    @Redirect(
+        method = "addPieces",
+        at = @At(
+            value = "NEW",
+            target = "(DDDDDD)Lnet/minecraft/util/math/Box;"
+        )
+    )
+    private static Box expandMaxStructureBounds(
+        double minX,
+        double minY,
+        double minZ,
+        double maxX,
+        double maxY,
+        double maxZ
+    ) {
+        final int offset = 256 - 80; // 80 is the existing offset
+        return new Box(minX, minY - offset, minZ, maxX, maxY + offset, maxZ);
     }
 }
