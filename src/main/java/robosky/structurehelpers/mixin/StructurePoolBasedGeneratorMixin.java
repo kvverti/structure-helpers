@@ -132,13 +132,13 @@ public abstract class StructurePoolBasedGeneratorMixin implements StructurePoolG
                     if(uses + 1 > elementMinMax.get(tmpElement.location()).max) {
                         if(elementIterator.hasNext()) {
                             element = elementIterator.next();
+                            elementValid = false;
                         } else {
                             // fortunately, the code immediately after this
                             // checks for this value and breaks the loop if
                             // this value is found
                             element = EmptyPoolElement.INSTANCE;
                         }
-                        elementValid = false;
                     }
                 }
             }
