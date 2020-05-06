@@ -9,7 +9,7 @@ import net.minecraft.util.Identifier;
 /**
  * Accessor interface for {@link net.minecraft.structure.pool.StructurePoolBasedGenerator}.
  */
-public interface StructurePoolGeneratorAccessor {
+public interface StructurePoolGeneratorAddition {
 
     /**
      * Sets the element placement range map for the current structure.

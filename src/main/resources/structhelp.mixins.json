@@ -6,9 +6,10 @@
         "JigsawBlockEntityMixin",
         "LocateCommandMixin",
         "SimpleStructurePieceMixin",
+        "StructurePlacementDataAccessor",
         "StructurePoolBasedGeneratorMixin",
         "StructurePoolBasedGeneratorOuterMixin",
-        "StructurePlacementDataAccessor"
+        "StructurePoolGeneratorAccessor"
     ],
     "client": [
         "client.JigsawBlockScreenMixin"

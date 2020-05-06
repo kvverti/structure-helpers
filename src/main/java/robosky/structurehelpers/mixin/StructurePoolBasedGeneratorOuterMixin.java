@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import robosky.structurehelpers.iface.StructurePoolGeneratorAccessor;
+import robosky.structurehelpers.iface.StructurePoolGeneratorAddition;
 import robosky.structurehelpers.structure.pool.ElementRange;
 
 import net.minecraft.structure.PoolStructurePiece;
@@ -75,7 +75,7 @@ public abstract class StructurePoolBasedGeneratorOuterMixin {
     private static StructurePoolBasedGenerator.StructurePoolGenerator setElementMinMaxForStructure(
         StructurePoolBasedGenerator.StructurePoolGenerator gen
     ) {
-        ((StructurePoolGeneratorAccessor)(Object)gen).structhelp_setRoomMinMax(elementMinMax);
+        ((StructurePoolGeneratorAddition)(Object)gen).structhelp_setRoomMinMax(elementMinMax);
         poolGenerator = gen;
         return gen;
     }
@@ -99,7 +99,7 @@ public abstract class StructurePoolBasedGeneratorOuterMixin {
         boolean b2,
         CallbackInfo info
     ) {
-        ((StructurePoolGeneratorAccessor)(Object)poolGenerator).structhelp_setGeneratingChildren();
+        ((StructurePoolGeneratorAddition)(Object)poolGenerator).structhelp_setGeneratingChildren();
         for(StructurePiece piece : new ArrayList<>(pieces)) {
             if(piece instanceof PoolStructurePiece) {
                 PoolStructurePiece poolPiece = (PoolStructurePiece)piece;
@@ -107,10 +107,14 @@ public abstract class StructurePoolBasedGeneratorOuterMixin {
                 int x = (blockBox.maxX + blockBox.minX) / 2;
                 int z = (blockBox.maxZ + blockBox.minZ) / 2;
                 int y = generator.getHeightOnGround(x, z, Heightmap.Type.WORLD_SURFACE_WG);
-                poolGenerator.generatePiece(poolPiece, new AtomicReference<>(VoxelShapes.empty()), y + 80, 0, b1);
+                ((StructurePoolGeneratorAccessor)(Object)poolGenerator).callGeneratePiece(poolPiece,
+                    new AtomicReference<>(VoxelShapes.empty()),
+                    y + 80,
+                    0,
+                    b1);
             }
         }
-        if(!((StructurePoolGeneratorAccessor)(Object)poolGenerator).structhelp_softCheckMinMaxConstraints()) {
+        if(!((StructurePoolGeneratorAddition)(Object)poolGenerator).structhelp_softCheckMinMaxConstraints()) {
             LogManager.getLogger(StructurePoolBasedGenerator.class)
                 .info("StructHelp - failed to satisfy range constraints");
         }

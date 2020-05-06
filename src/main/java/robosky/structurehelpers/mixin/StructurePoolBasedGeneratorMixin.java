@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import robosky.structurehelpers.iface.JigsawAccessorData;
-import robosky.structurehelpers.iface.StructurePoolGeneratorAccessor;
+import robosky.structurehelpers.iface.StructurePoolGeneratorAddition;
 import robosky.structurehelpers.structure.pool.ElementRange;
 import robosky.structurehelpers.structure.pool.ExtendedSinglePoolElement;
 
@@ -25,6 +25,7 @@ import net.minecraft.block.JigsawBlock;
 import net.minecraft.structure.PoolStructurePiece;
 import net.minecraft.structure.Structure.StructureBlockInfo;
 import net.minecraft.structure.pool.EmptyPoolElement;
+import net.minecraft.structure.pool.StructurePoolBasedGenerator;
 import net.minecraft.structure.pool.StructurePoolElement;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.function.BooleanBiFunction;
@@ -36,8 +37,8 @@ import net.minecraft.util.shape.VoxelShapes;
  * to use the data provided by {@link ExtendedSinglePoolElement}
  * and co.
  */
-@Mixin(targets = "net.minecraft.structure.pool.StructurePoolBasedGenerator$StructurePoolGenerator")
-public abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGeneratorAccessor {
+@Mixin(StructurePoolBasedGenerator.StructurePoolGenerator.class)
+public abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGeneratorAddition {
 
     @Unique
     private Iterator<StructurePoolElement> elementIterator;
