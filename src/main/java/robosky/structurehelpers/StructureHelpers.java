@@ -4,7 +4,7 @@ import robosky.structurehelpers.block.LootDataBlock;
 import robosky.structurehelpers.block.LootDataBlockEntity;
 import robosky.structurehelpers.network.ServerStructHelpPackets;
 import robosky.structurehelpers.structure.processor.AirGroundReplacementProcessor;
-import robosky.structurehelpers.structure.processor.RandomChanceProcessor;
+import robosky.structurehelpers.structure.processor.WeightedChanceProcessor;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -25,7 +25,7 @@ public class StructureHelpers implements ModInitializer {
     public static final StructureProcessorType RANDOM_CHANCE_TYPE = Registry.register(
         Registry.STRUCTURE_PROCESSOR,
         new Identifier(MODID, "random_chance_processor"),
-        RandomChanceProcessor::deserialize);
+        WeightedChanceProcessor::deserialize);
 
     public static final StructureProcessorType AIR_GROUND_REPLACE_TYPE = Registry.register(
         Registry.STRUCTURE_PROCESSOR,

@@ -29,11 +29,11 @@ import net.minecraft.world.WorldView;
 /**
  * Replaces given block with another randomly chosen from the given pool.
  */
-public class RandomChanceProcessor extends StructureProcessor {
+public class WeightedChanceProcessor extends StructureProcessor {
     private final Map<BlockState, List<Entry>> entries;
     private final float weightSum;
 
-    private RandomChanceProcessor(Map<BlockState, List<Entry>> entries) {
+    private WeightedChanceProcessor(Map<BlockState, List<Entry>> entries) {
         this.entries = entries;
         weightSum = (float)entries.values().stream().flatMap(List::stream).mapToDouble(entry -> entry.weight).sum();
     }
@@ -118,7 +118,7 @@ public class RandomChanceProcessor extends StructureProcessor {
         )));
     }
 
-    public static RandomChanceProcessor deserialize(Dynamic<?> dyn) {
+    public static WeightedChanceProcessor deserialize(Dynamic<?> dyn) {
         Map<BlockState, List<Entry>> entries = dyn.get("Entries")
             .asList(Function.identity())
             .stream()
@@ -126,11 +126,11 @@ public class RandomChanceProcessor extends StructureProcessor {
                 dy -> dy.get("Key").map(BlockState::deserialize).orElse(Blocks.AIR.getDefaultState()),
                 dy -> dy.get("Replacements").asList(Entry::deserialize)
             ));
-        return new RandomChanceProcessor(entries);
+        return new WeightedChanceProcessor(entries);
     }
 
     /**
-     * Builder for {@link RandomChanceProcessor}.
+     * Builder for {@link WeightedChanceProcessor}.
      */
     public static final class Builder {
 
@@ -149,10 +149,10 @@ public class RandomChanceProcessor extends StructureProcessor {
             return add(block.getDefaultState(), entries);
         }
 
-        public RandomChanceProcessor build() {
+        public WeightedChanceProcessor build() {
             Map<BlockState, List<Entry>> map = ImmutableMap.copyOf(entryMap);
             entryMap.clear(); // prevent leakage in case of builder reuse
-            return new RandomChanceProcessor(map);
+            return new WeightedChanceProcessor(map);
         }
     }
 }
