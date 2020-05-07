@@ -1,9 +1,9 @@
 package robosky.structurehelpers.structure;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import robosky.structurehelpers.iface.ExtendedStructurePoolBasedGeneratorData;
 import robosky.structurehelpers.structure.pool.ElementRange;
 
 import net.minecraft.structure.PoolStructurePiece;
@@ -37,9 +37,8 @@ public final class ExtendedStructures {
         boolean b1,
         boolean generateAtSurface
     ) {
-        // purposeful heap pollution - ranges go in, pieces come out >:)
-        @SuppressWarnings("unchecked")
-        List<PoolStructurePiece> children = (List<PoolStructurePiece>)(List<?>)new ArrayList<>(ranges);
+        ExtendedStructurePoolBasedGeneratorData data =
+            new ExtendedStructurePoolBasedGeneratorData(ranges, 0, 0);
         StructurePoolBasedGenerator.addPieces(
             startPoolId,
             size,
@@ -47,10 +46,10 @@ public final class ExtendedStructures {
             generator,
             manager,
             pos,
-            children,
+            data,
             random,
             b1, // don't know what this does yet
             generateAtSurface);
-        return children;
+        return data.delegate();
     }
 }

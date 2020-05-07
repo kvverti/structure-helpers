@@ -1,20 +1,18 @@
 package robosky.structurehelpers.mixin;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.logging.log4j.LogManager;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import robosky.structurehelpers.iface.ExtendedStructurePoolBasedGeneratorData;
 import robosky.structurehelpers.iface.StructurePoolGeneratorAddition;
 import robosky.structurehelpers.structure.pool.ElementRange;
 
@@ -30,14 +28,15 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
+/**
+ * Note: because this class is accessed from multiple threads, there is no mutable
+ * static state added to this class. Instead, the state is passed into this class
+ * via the {@code List} method parameter.
+ *
+ * @see ExtendedStructurePoolBasedGeneratorData
+ */
 @Mixin(StructurePoolBasedGenerator.class)
 public abstract class StructurePoolBasedGeneratorOuterMixin {
-
-    @Unique
-    private static final Map<Identifier, ElementRange> elementMinMax = new HashMap<>();
-
-    @Unique
-    private static StructurePoolBasedGenerator.StructurePoolGenerator poolGenerator;
 
     /**
      * Extract element placement ranges from the child element list
@@ -57,10 +56,10 @@ public abstract class StructurePoolBasedGeneratorOuterMixin {
         boolean bl2,
         CallbackInfo info
     ) {
-        if(!ls.isEmpty() && ls.get(0) instanceof ElementRange) {
-            for(Object obj : ls) {
-                ElementRange data = (ElementRange)obj;
-                elementMinMax.put(data.id, data);
+        if(ls instanceof ExtendedStructurePoolBasedGeneratorData) {
+            ExtendedStructurePoolBasedGeneratorData data = (ExtendedStructurePoolBasedGeneratorData)ls;
+            for(ElementRange range : data.getElementPlacementRanges()) {
+                data.putElementMinMax(range.id, range);
             }
             ls.clear();
         }
@@ -77,8 +76,11 @@ public abstract class StructurePoolBasedGeneratorOuterMixin {
     private static StructurePoolBasedGenerator.StructurePoolGenerator setElementMinMaxForStructure(
         StructurePoolBasedGenerator.StructurePoolGenerator gen
     ) {
-        ((StructurePoolGeneratorAddition)(Object)gen).structhelp_setRoomMinMax(elementMinMax);
-        poolGenerator = gen;
+        // we get our parameters through gen.children
+        List<? super PoolStructurePiece> pieces = ((StructurePoolGeneratorAccessor)(Object)gen).getChildren();
+        if(pieces instanceof ExtendedStructurePoolBasedGeneratorData) {
+            ((ExtendedStructurePoolBasedGeneratorData)pieces).setPoolGenerator((StructurePoolGeneratorAddition)(Object)gen);
+        }
         return gen;
     }
 
@@ -86,7 +88,6 @@ public abstract class StructurePoolBasedGeneratorOuterMixin {
      * Generate child elements. Child element generation does not necessarily
      * respect total structure piece count nor placement limits.
      */
-    @SuppressWarnings("ConstantConditions")
     @Inject(method = "addPieces", at = @At("RETURN"))
     private static void generateChildren(
         Identifier id,
@@ -95,33 +96,37 @@ public abstract class StructurePoolBasedGeneratorOuterMixin {
         ChunkGenerator<?> generator,
         StructureManager manager,
         BlockPos pos,
-        List<StructurePiece> pieces,
+        List<PoolStructurePiece> pieces,
         Random rand,
         boolean b1,
         boolean b2,
         CallbackInfo info
     ) {
-        ((StructurePoolGeneratorAddition)(Object)poolGenerator).structhelp_setGeneratingChildren();
-        for(StructurePiece piece : new ArrayList<>(pieces)) {
-            if(piece instanceof PoolStructurePiece) {
-                PoolStructurePiece poolPiece = (PoolStructurePiece)piece;
-                BlockBox blockBox = poolPiece.getBoundingBox();
-                int x = (blockBox.maxX + blockBox.minX) / 2;
-                int z = (blockBox.maxZ + blockBox.minZ) / 2;
-                int y = generator.getHeightOnGround(x, z, Heightmap.Type.WORLD_SURFACE_WG);
-                ((StructurePoolGeneratorAccessor)(Object)poolGenerator).callGeneratePiece(poolPiece,
-                    new AtomicReference<>(VoxelShapes.empty()),
-                    y + 80,
-                    0,
-                    b1);
+        if(pieces instanceof ExtendedStructurePoolBasedGeneratorData) {
+            ExtendedStructurePoolBasedGeneratorData data = (ExtendedStructurePoolBasedGeneratorData)pieces;
+            data.getPoolGenerator().structhelp_setGeneratingChildren();
+            for(StructurePiece piece : new ArrayList<>(pieces)) {
+                if(piece instanceof PoolStructurePiece) {
+                    PoolStructurePiece poolPiece = (PoolStructurePiece)piece;
+                    BlockBox blockBox = poolPiece.getBoundingBox();
+                    int x = (blockBox.maxX + blockBox.minX) / 2;
+                    int z = (blockBox.maxZ + blockBox.minZ) / 2;
+                    int y = generator.getHeightOnGround(x, z, Heightmap.Type.WORLD_SURFACE_WG);
+                    ((StructurePoolGeneratorAccessor)data.getPoolGenerator()).callGeneratePiece(poolPiece,
+                        new AtomicReference<>(VoxelShapes.empty()),
+                        y + 80,
+                        0,
+                        b1);
+                }
             }
-        }
-        if(!((StructurePoolGeneratorAddition)(Object)poolGenerator).structhelp_softCheckMinMaxConstraints()) {
-            LogManager.getLogger(StructurePoolBasedGenerator.class)
-                .info("StructHelp - failed to satisfy range constraints");
+            if(!data.getPoolGenerator().structhelp_softCheckMinMaxConstraints()) {
+                LogManager.getLogger(StructurePoolBasedGenerator.class)
+                    .info("StructHelp - failed to satisfy range constraints");
+            }
         }
     }
 
+    @SuppressWarnings("UnresolvedMixinReference")
     @Redirect(
         method = "addPieces",
         at = @At(
