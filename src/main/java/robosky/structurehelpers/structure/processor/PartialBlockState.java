@@ -1,17 +1,22 @@
 package robosky.structurehelpers.structure.processor;
 
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toMap;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.registry.Registry;
 
 /**
@@ -128,29 +133,31 @@ public final class PartialBlockState {
      * Deserializes a {@code PartialBlockState} from a {@link Dynamic}.
      */
     public static PartialBlockState fromDynamic(Dynamic<?> dyn) {
-        Block block;
-        try {
-            Identifier blockId = new Identifier(dyn.get("Block").asString(""));
-            block = Registry.BLOCK.get(blockId);
-        } catch(InvalidIdentifierException e) {
-            block = null;
-        }
-        if(block == null) {
-            block = Registry.BLOCK.get(Registry.BLOCK.getDefaultId());
-        }
+        Block block = dyn.get("Block")
+            .asString()
+            .map(Identifier::tryParse)
+            .map(Registry.BLOCK::get)
+            .orElse(Blocks.AIR);
+
         Map<String, Property<?>> props = new HashMap<>();
         for(Property<?> prop : block.getDefaultState().getProperties()) {
             props.put(prop.getName(), prop);
         }
-        Map<String, String> map = dyn.get("PropertyEntries").asMap(d -> d.asString(""), d -> d.asString(""));
-        ImmutableMap.Builder<Property<?>, Comparable<?>> b = ImmutableMap.builder();
-        for(Map.Entry<String, String> entry : map.entrySet()) {
-            Property<?> key = props.get(entry.getKey());
-            if(key != null) {
-                key.parse(entry.getValue()).ifPresent(v -> b.put(key, v));
-            }
-        }
-        return new PartialBlockState(block, b.build());
+
+        ImmutableMap<Property<?>, Comparable<?>> propertyEntries = dyn.get("PropertyEntries")
+            .asStream()
+            .flatMap(entry -> entry.get("Property")
+                .asString()
+                .map(props::get)
+                .flatMap(p -> entry.get("Value")
+                    .asString()
+                    .flatMap(p::parse)
+                    .map(v -> Pair.of(p, v)))
+                .map(Stream::of)
+                .orElse(Stream.empty()))
+            .collect(collectingAndThen(toMap(Pair::getFirst, Pair::getSecond), ImmutableMap::copyOf));
+
+        return new PartialBlockState(block, propertyEntries);
     }
 
     private static <T extends Comparable<T>> String value(Property<T> prop, Comparable<?> val) {
