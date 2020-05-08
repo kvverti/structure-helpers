@@ -30,10 +30,11 @@ import net.minecraft.world.WorldView;
  * Replaces given block with another randomly chosen from the given pool.
  */
 public class WeightedChanceProcessor extends StructureProcessor {
-    private final Map<BlockState, List<Entry>> entries;
+
+    private final Map<PartialBlockState, List<Entry>> entries;
     private final float weightSum;
 
-    private WeightedChanceProcessor(Map<BlockState, List<Entry>> entries) {
+    private WeightedChanceProcessor(Map<PartialBlockState, List<Entry>> entries) {
         this.entries = entries;
         weightSum = (float)entries.values().stream().flatMap(List::stream).mapToDouble(entry -> entry.weight).sum();
     }
@@ -45,37 +46,41 @@ public class WeightedChanceProcessor extends StructureProcessor {
     public static final class Entry {
         public final float weight;
         /*@Nullable*/
-        public final BlockState targetState;
+        public final PartialBlockState targetState;
 
-        private Entry(float weight, /*@Nullable*/ BlockState targetState) {
+        private Entry(float weight, /*@Nullable*/ PartialBlockState targetState) {
             this.weight = weight;
             this.targetState = targetState;
         }
 
+        public static Entry ofEmpty(float weight) {
+            return of((PartialBlockState)null, weight);
+        }
+
         public static Entry of(BlockState target, float weight) {
-            return new Entry(weight, target);
+            return of(PartialBlockState.of(target), weight);
         }
 
         public static Entry of(Block target, float weight) {
-            return of(target.getDefaultState(), weight);
+            return of(PartialBlockState.of(target), weight);
         }
 
-        public static Entry ofEmpty(float weight) {
-            return of((BlockState)null, weight);
+        public static Entry of(PartialBlockState target, float weight) {
+            return new Entry(weight, target);
         }
 
         public <T> Dynamic<T> serialize(DynamicOps<T> ops) {
             ImmutableMap.Builder<T, T> b = ImmutableMap.builder();
             b.put(ops.createString("Weight"), ops.createFloat(weight));
             if(targetState != null) {
-                b.put(ops.createString("Target"), BlockState.serialize(ops, targetState).getValue());
+                b.put(ops.createString("Target"), targetState.toDynamic(ops).getValue());
             }
             return new Dynamic<>(ops, ops.createMap(b.build()));
         }
 
         public static Entry deserialize(Dynamic<?> dynamic) {
             float weight = dynamic.get("Weight").asFloat(0);
-            BlockState tgt = dynamic.get("Target").map(BlockState::deserialize).orElse(null);
+            PartialBlockState tgt = dynamic.get("Target").map(PartialBlockState::fromDynamic).orElse(null);
             return new Entry(weight, tgt);
         }
     }
@@ -86,15 +91,19 @@ public class WeightedChanceProcessor extends StructureProcessor {
         Structure.StructureBlockInfo info, StructurePlacementData data
     ) {
         Random rand = new Random(MathHelper.hashCode(info.pos));
-        if(entries.containsKey(info.state)) {
-            float totalWeight = 0f;
-            float value = rand.nextFloat() * weightSum;
-            for(Entry entry : entries.get(info.state)) {
-                totalWeight += entry.weight;
-                if(value < totalWeight) {
-                    return entry.targetState == null ? null
-                        : new Structure.StructureBlockInfo(info.pos, entry.targetState, null);
+        for(Map.Entry<PartialBlockState, List<Entry>> entry : entries.entrySet()) {
+            PartialBlockState pbs = entry.getKey();
+            if(pbs.matches(info.state)) {
+                float totalWeight = 0f;
+                float value = rand.nextFloat() * weightSum;
+                for(Entry e : entry.getValue()) {
+                    totalWeight += e.weight;
+                    if(value < totalWeight) {
+                        return e.targetState == null ? null
+                            : new Structure.StructureBlockInfo(info.pos, e.targetState.map(info.state), null);
+                    }
                 }
+                break;
             }
         }
         return info;
@@ -109,7 +118,7 @@ public class WeightedChanceProcessor extends StructureProcessor {
     protected <T> Dynamic<T> rawToDynamic(DynamicOps<T> ops) {
         Stream<T> s = entries.entrySet().stream()
             .map(e -> ops.createMap(ImmutableMap.of(
-                ops.createString("Key"), BlockState.serialize(ops, e.getKey()).getValue(),
+                ops.createString("Key"), e.getKey().toDynamic(ops).getValue(),
                 ops.createString("Replacements"), ops.createList(e.getValue()
                     .stream().map(e2 -> e2.serialize(ops).getValue()))
             )));
@@ -119,11 +128,11 @@ public class WeightedChanceProcessor extends StructureProcessor {
     }
 
     public static WeightedChanceProcessor deserialize(Dynamic<?> dyn) {
-        Map<BlockState, List<Entry>> entries = dyn.get("Entries")
+        Map<PartialBlockState, List<Entry>> entries = dyn.get("Entries")
             .asList(Function.identity())
             .stream()
             .collect(Collectors.toMap(
-                dy -> dy.get("Key").map(BlockState::deserialize).orElse(Blocks.AIR.getDefaultState()),
+                dy -> dy.get("Key").map(PartialBlockState::fromDynamic).orElse(PartialBlockState.of(Blocks.AIR)),
                 dy -> dy.get("Replacements").asList(Entry::deserialize)
             ));
         return new WeightedChanceProcessor(entries);
@@ -134,23 +143,27 @@ public class WeightedChanceProcessor extends StructureProcessor {
      */
     public static final class Builder {
 
-        private final Map<BlockState, List<Entry>> entryMap = new HashMap<>();
+        private final Map<PartialBlockState, List<Entry>> entryMap = new HashMap<>();
 
         private Builder() {
         }
 
-        public Builder add(BlockState state, Entry... entries) {
+        public Builder add(PartialBlockState state, Entry... entries) {
             entryMap.computeIfAbsent(state, k -> new ArrayList<>())
                 .addAll(Arrays.asList(entries));
             return this;
         }
 
+        public Builder add(BlockState state, Entry... entries) {
+            return add(PartialBlockState.of(state), entries);
+        }
+
         public Builder add(Block block, Entry... entries) {
-            return add(block.getDefaultState(), entries);
+            return add(PartialBlockState.of(block), entries);
         }
 
         public WeightedChanceProcessor build() {
-            Map<BlockState, List<Entry>> map = ImmutableMap.copyOf(entryMap);
+            Map<PartialBlockState, List<Entry>> map = ImmutableMap.copyOf(entryMap);
             entryMap.clear(); // prevent leakage in case of builder reuse
             return new WeightedChanceProcessor(map);
         }
