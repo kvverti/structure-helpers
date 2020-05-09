@@ -43,6 +43,9 @@ public class WeightedChanceProcessor extends StructureProcessor {
         return new Builder();
     }
 
+    /**
+     * A record of a {@link PartialBlockState} with a weight.
+     */
     public static final class Entry {
         public final float weight;
         /*@Nullable*/

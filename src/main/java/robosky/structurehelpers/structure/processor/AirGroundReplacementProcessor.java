@@ -38,6 +38,9 @@ public class AirGroundReplacementProcessor extends StructureProcessor {
         this.stateMap = entries.stream().collect(toMap(e -> e.key, e -> e));
     }
 
+    /**
+     * Creates a new processor with the given entries.
+     */
     public static AirGroundReplacementProcessor create(Entry... entries) {
         return new AirGroundReplacementProcessor(Arrays.asList(entries));
     }

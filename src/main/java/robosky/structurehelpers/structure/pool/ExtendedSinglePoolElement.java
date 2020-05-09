@@ -30,8 +30,8 @@ import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 /**
- * Single pool element with capabilities of the rotation control and
- * structure block support.
+ * Single pool element with structure block support and other
+ * extended capabilities.
  */
 public class ExtendedSinglePoolElement extends SinglePoolElement {
 
@@ -51,15 +51,30 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
         this.overwriteFluids = dyn.get("OverwriteFluids").asBoolean(false);
     }
 
+    /**
+     * Constructs an element with the given location which does not overwrite fluids and has
+     * no structure processors.
+     * @param location The structure element ID.
+     */
     public ExtendedSinglePoolElement(Identifier location) {
         this(location, false, ImmutableList.of());
     }
 
+    /**
+     * Constructs an element with the given properties.
+     * @param location The structure element ID.
+     * @param overwriteFluids If true, waterloggable blocks in this element will overwrite fluids instead
+     *                        of merging with them.
+     * @param processors A list of structure processors that will be applied to this element.
+     */
     public ExtendedSinglePoolElement(Identifier location, boolean overwriteFluids, ImmutableList<StructureProcessor> processors) {
         super(location.toString(), processors, Projection.RIGID);
         this.overwriteFluids = overwriteFluids;
     }
 
+    /**
+     * The structure element ID.
+     */
     public final Identifier location() {
         return this.field_24015.left()
             .orElseThrow(() -> new AssertionError("ExtendedSinglePoolElement created without ID"));
