@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "structure-helpers-dev",
+  "version": "${version}",
+  "name": "Structure Helpers Dev",
+  "description": "Development aid for Structure Helpers",
+  "authors": [
+    "kwerti"
+  ],
+  "license": "MIT",
+  "icon": "assets/structure-helpers/icon.png",
+  "environment": "*",
+  "depends": {
+    "fabricloader": ">=0.4.0"
+  },
+  "suggests": {
+    "flamingo": "*"
+  },
+  "entrypoints": {
+    "main": [
+      "robosky.structurehelpersdev.StructureHelpersTest"
+    ]
+  }
+}
