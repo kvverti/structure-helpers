@@ -164,6 +164,28 @@ public final class PartialBlockState {
         return prop.name(prop.getType().cast(val));
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if(this == o) {
+            return true;
+        }
+        if(o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PartialBlockState that = (PartialBlockState)o;
+        if(!block.equals(that.block)) {
+            return false;
+        }
+        return propertyEntries.equals(that.propertyEntries);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = block.hashCode();
+        result = 31 * result + propertyEntries.hashCode();
+        return result;
+    }
+
     /**
      * Builder for {@link PartialBlockState}.
      *
