@@ -140,9 +140,36 @@ public abstract class StructurePoolBasedGeneratorOuterMixin {
         double minZ,
         double maxX,
         double maxY,
-        double maxZ
+        double maxZ,
+        Identifier id,
+        int i,
+        StructurePoolBasedGenerator.PieceFactory factory,
+        ChunkGenerator<?> generator,
+        StructureManager manager,
+        BlockPos pos,
+        List<PoolStructurePiece> pieces,
+        Random rand,
+        boolean b1,
+        boolean b2
     ) {
-        final int offset = 256 - 80; // 80 is the existing offset
-        return new Box(minX, minY - offset, minZ, maxX, maxY + offset, maxZ);
+        final int vanillaExtent = 80;
+        if(pieces instanceof ExtendedStructurePoolBasedGeneratorData) {
+            ExtendedStructurePoolBasedGeneratorData data = (ExtendedStructurePoolBasedGeneratorData)pieces;
+            int extentH = data.getExtentH() - vanillaExtent;
+            int extentV = data.getExtentV() - vanillaExtent;
+            if(extentH <= -vanillaExtent) {
+                extentH = 0;
+            }
+            if(extentV <= -vanillaExtent) {
+                extentV = 0;
+            }
+            return new Box(minX - extentH,
+                minY - extentV,
+                minZ - extentH,
+                maxX + extentH,
+                maxY + extentV,
+                maxZ + extentH);
+        }
+        return new Box(minX, minY, minZ, maxX, maxY, maxZ);
     }
 }

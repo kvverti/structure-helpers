@@ -22,13 +22,19 @@ public final class ExtendedStructures {
      * Wrapper for {@link StructurePoolBasedGenerator#addPieces} that handles passing element placement
      * ranges.
      *
-     * @param ranges A list of element placement ranges.
+     * @param ranges           A list of element placement ranges.
+     * @param horizontalExtent The hard maximum number of blocks away from the start the structure can generate horizontally.
+     *                         If zero, the vanilla value of 80 is used.
+     * @param verticalExtent   The hard maximum number of blocks away from the start the structure can generate vertically.
+     *                         If zero, the vanilla value of 80 is used.
      * @return A list of placed structure elements.
      */
     public static List<PoolStructurePiece> addPieces(
         List<? extends ElementRange> ranges,
+        int horizontalExtent,
+        int verticalExtent,
         Identifier startPoolId,
-        int size,
+        int iterations,
         StructurePoolBasedGenerator.PieceFactory pieceFactory,
         ChunkGenerator<?> generator,
         StructureManager manager,
@@ -38,10 +44,10 @@ public final class ExtendedStructures {
         boolean generateAtSurface
     ) {
         ExtendedStructurePoolBasedGeneratorData data =
-            new ExtendedStructurePoolBasedGeneratorData(ranges, 0, 0);
+            new ExtendedStructurePoolBasedGeneratorData(ranges, horizontalExtent, verticalExtent);
         StructurePoolBasedGenerator.addPieces(
             startPoolId,
-            size,
+            iterations,
             pieceFactory,
             generator,
             manager,
