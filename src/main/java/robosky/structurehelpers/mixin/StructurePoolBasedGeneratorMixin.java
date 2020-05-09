@@ -221,27 +221,39 @@ public abstract class StructurePoolBasedGeneratorMixin implements StructurePoolG
         expect = 2
     )
     private int preventRecursiveChildGen(
-        @Coerce Object self,
+        StructurePoolBasedGenerator.StructurePoolGenerator self,
         PoolStructurePiece piece,
         AtomicReference<VoxelShape> atomicReference,
-        int i,
-        int j
+        int minY,
+        int currentSize,
+        boolean b1
     ) {
+        // note: self == this
         if(generatingChildren) {
+            // allow placing non-terminal children, but not recursive generation
+            // (currentSize != maxSize) is true, (currentSize + 1 <= maxSize) is false
             return Integer.MIN_VALUE;
         } else {
             // if there are more than this number of generation steps
-            // beyond the maximum size, assume unsatisfiable constrants
+            // beyond the maximum size, assume unsatisfiable constraints
             // and force generation to stop
             final int MAX_EXTRA_ITRS = 4;
-            if(j - this.maxSize <= MAX_EXTRA_ITRS) {
+            if(currentSize - this.maxSize <= MAX_EXTRA_ITRS) {
                 for(Object2IntMap.Entry<Identifier> entry : elementUses.object2IntEntrySet()) {
                     if(entry.getIntValue() < elementMinMax.get(entry.getKey()).min) {
+                        // continue normal generation past max size
+                        // (currentSize != maxSize) is true, (currentSize + 1 <= maxSize) is true
                         return Integer.MAX_VALUE;
                     }
                 }
             }
-            return this.maxSize;
+            // preserve vanilla behavior, extending terminal-only placement to
+            // iterations past the max
+            // If currentSize >= maxSize:
+            //   (currentSize != maxSize) is false, (currentSize + 1 <= maxSize) is false
+            // If currentSize < maxSize:
+            //   (currentSize != maxSize) is true, (currentSize + 1 <= maxSize) is true
+            return Math.max(this.maxSize, currentSize);
         }
     }
 }
