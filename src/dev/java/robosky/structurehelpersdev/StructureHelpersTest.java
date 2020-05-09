@@ -9,6 +9,7 @@ import robosky.structurehelpers.structure.ExtendedStructures;
 import robosky.structurehelpers.structure.piece.ExtendedStructurePiece;
 import robosky.structurehelpers.structure.pool.ElementRange;
 import robosky.structurehelpers.structure.pool.ExtendedSinglePoolElement;
+import robosky.structurehelpers.structure.processor.AirGroundReplacementProcessor;
 import robosky.structurehelpers.structure.processor.PartialBlockState;
 import robosky.structurehelpers.structure.processor.WeightedChanceProcessor;
 import robosky.structurehelpers.structure.processor.WeightedChanceProcessor.Entry;
@@ -71,23 +72,21 @@ class TestStructureFeature extends AbstractTempleFeature<DefaultFeatureConfig> {
     }
 
     static {
-        ImmutableList<StructureProcessor> ls = ImmutableList.of(
-            WeightedChanceProcessor.builder()
-                .add(Blocks.STONE_BRICKS,
-                    Entry.of(Blocks.STONE_BRICKS, 0.6f),
-                    Entry.of(Blocks.CRACKED_STONE_BRICKS, 0.2f),
-                    Entry.of(Blocks.MOSSY_STONE_BRICKS, 0.2f))
-                .build()
-        );
-        WeightedChanceProcessor.Builder builder = WeightedChanceProcessor.builder();
-        builder.add(Blocks.END_PORTAL_FRAME,
-            Entry.of(PartialBlockState.builder(Blocks.END_PORTAL_FRAME).with(Properties.EYE, true).build(), 0.5f),
-            Entry.of(PartialBlockState.builder(Blocks.END_PORTAL_FRAME).with(Properties.EYE, false).build(), 0.5f)
-        );
-        ImmutableList<StructureProcessor> endLs = ImmutableList.<StructureProcessor>builder()
-            .addAll(ls)
-            .add(builder.build())
+        WeightedChanceProcessor stoneDecor = WeightedChanceProcessor.builder()
+            .add(Blocks.STONE_BRICKS,
+                Entry.of(Blocks.STONE_BRICKS, 0.6f),
+                Entry.of(Blocks.CRACKED_STONE_BRICKS, 0.2f),
+                Entry.of(Blocks.MOSSY_STONE_BRICKS, 0.2f))
             .build();
+        AirGroundReplacementProcessor decay =
+            AirGroundReplacementProcessor.create(AirGroundReplacementProcessor.Entry.groundOnly(Blocks.STONE_BRICKS));
+        ImmutableList<StructureProcessor> ls = ImmutableList.of(decay, stoneDecor);
+        ImmutableList<StructureProcessor> childLs = ImmutableList.of(stoneDecor);
+        ImmutableList<StructureProcessor> endLs = ImmutableList.of(stoneDecor,
+            WeightedChanceProcessor.builder().add(Blocks.END_PORTAL_FRAME,
+                Entry.of(PartialBlockState.builder(Blocks.END_PORTAL_FRAME).with(Properties.EYE, true).build(), 0.5f),
+                Entry.of(PartialBlockState.builder(Blocks.END_PORTAL_FRAME).with(Properties.EYE, false).build(), 0.5f)
+            ).build());
         StructurePoolBasedGenerator.REGISTRY.add(
             new StructurePool(
                 id("start"),
@@ -126,8 +125,8 @@ class TestStructureFeature extends AbstractTempleFeature<DefaultFeatureConfig> {
                     Pair.of(new ExtendedSinglePoolElement(id("corner"), true, ls), 2),
                     Pair.of(new ExtendedSinglePoolElement(id("spiral_top"), true, ls), 1),
                     Pair.of(new ExtendedSinglePoolElement(id("spiral_bottom"), true, ls), 1),
-                    Pair.of(new ExtendedSinglePoolElement(id("room"), true, ls), 7)
-//                    Pair.of(new ExtendedSinglePoolElement(id("end_portal"), true, endLs), 1)
+                    Pair.of(new ExtendedSinglePoolElement(id("room"), true, ls), 7),
+                    Pair.of(new ExtendedSinglePoolElement(id("end_portal"), true, endLs), 1)
                 ),
                 Projection.RIGID
             )
@@ -159,9 +158,9 @@ class TestStructureFeature extends AbstractTempleFeature<DefaultFeatureConfig> {
                 id("doors"),
                 new Identifier("empty"),
                 ImmutableList.of(
-                    Pair.of(new ExtendedSinglePoolElement(id("wooden_door"), true, ls), 1),
-                    Pair.of(new ExtendedSinglePoolElement(id("iron_door"), true, ls), 1),
-                    Pair.of(new ExtendedSinglePoolElement(id("empty_door"), true, ls), 1)
+                    Pair.of(new ExtendedSinglePoolElement(id("wooden_door"), true, childLs), 1),
+                    Pair.of(new ExtendedSinglePoolElement(id("iron_door"), true, childLs), 1),
+                    Pair.of(new ExtendedSinglePoolElement(id("empty_door"), true, childLs), 1)
                 ),
                 Projection.RIGID
             )
@@ -171,8 +170,8 @@ class TestStructureFeature extends AbstractTempleFeature<DefaultFeatureConfig> {
                 id("deco"),
                 new Identifier("empty"),
                 ImmutableList.of(
-                    Pair.of(new ExtendedSinglePoolElement(id("torch"), true, ls), 1),
-                    Pair.of(new ExtendedSinglePoolElement(id("fountain"), true, ls), 1)
+                    Pair.of(new ExtendedSinglePoolElement(id("torch"), true, childLs), 1),
+                    Pair.of(new ExtendedSinglePoolElement(id("fountain"), true, childLs), 1)
                 ),
                 Projection.RIGID
             )
@@ -229,7 +228,7 @@ class TestStructureFeature extends AbstractTempleFeature<DefaultFeatureConfig> {
                 TYPE,
                 generator,
                 manager,
-                new BlockPos(chunkX * 16, 100, chunkZ * 16),
+                new BlockPos(chunkX * 16, 30, chunkZ * 16),
                 this.random,
                 false, // don't know what this does yet
                 false);
