@@ -1,0 +1,11 @@
+robosky.structurehelpers
+robosky.structurehelpers.block
+robosky.structurehelpers.client
+robosky.structurehelpers.iface
+robosky.structurehelpers.mixin
+robosky.structurehelpers.mixin.client
+robosky.structurehelpers.network
+robosky.structurehelpers.structure
+robosky.structurehelpers.structure.piece
+robosky.structurehelpers.structure.pool
+robosky.structurehelpers.structure.processor
