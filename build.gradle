@@ -24,19 +24,12 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-
-	modImplementation ("io.github.cottonmc:LibGui:${project.libgui_version}") {
-		exclude group: "net.fabricmc.fabric-api"
-		exclude group: "io.github.prospector.modmenu"
-	}
-	include "io.github.cottonmc:LibGui:${project.libgui_version}"
 }
 
 javadoc {
 	options.links = [
 			"https://docs.oracle.com/javase/8/docs/api/",
-			"https://guava.dev/releases/21.0/api/docs/",
-			"https://cottonmc.github.io/docs/libgui/"
+			"https://guava.dev/releases/21.0/api/docs/"
 	]
 }
 
