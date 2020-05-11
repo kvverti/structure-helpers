@@ -5,7 +5,7 @@ import static java.util.stream.Collectors.toMap;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
+import java.util.Optional;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
@@ -146,15 +146,15 @@ public final class PartialBlockState {
 
         ImmutableMap<Property<?>, Comparable<?>> propertyEntries = dyn.get("PropertyEntries")
             .asStream()
-            .flatMap(entry -> entry.get("Property")
+            .map(entry -> entry.get("Property")
                 .asString()
                 .map(props::get)
                 .flatMap(p -> entry.get("Value")
                     .asString()
                     .flatMap(p::parse)
-                    .map(v -> Pair.of(p, v)))
-                .map(Stream::of)
-                .orElse(Stream.empty()))
+                    .map(v -> Pair.of(p, v))))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
             .collect(collectingAndThen(toMap(Pair::getFirst, Pair::getSecond), ImmutableMap::copyOf));
 
         return new PartialBlockState(block, propertyEntries);
