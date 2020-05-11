@@ -38,7 +38,7 @@ import net.minecraft.util.shape.VoxelShapes;
  * and co.
  */
 @Mixin(StructurePoolBasedGenerator.StructurePoolGenerator.class)
-public abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGeneratorAddition {
+abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGeneratorAddition {
 
     @Unique
     private Iterator<StructurePoolElement> elementIterator;

@@ -22,7 +22,7 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.world.gen.feature.StructureFeature;
 
 @Mixin(LocateCommand.class)
-public abstract class LocateCommandMixin {
+abstract class LocateCommandMixin {
 
     private static final SuggestionProvider<ServerCommandSource> SUGGESTIONS =
         (ctx, builder) -> {

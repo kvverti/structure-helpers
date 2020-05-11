@@ -25,7 +25,7 @@ import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 @Mixin(SimpleStructurePiece.class)
-public abstract class SimpleStructurePieceMixin extends StructurePiece {
+abstract class SimpleStructurePieceMixin extends StructurePiece {
 
     @Shadow
     protected Structure structure;

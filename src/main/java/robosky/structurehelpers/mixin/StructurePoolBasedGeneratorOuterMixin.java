@@ -36,7 +36,7 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
  * @see ExtendedStructurePoolBasedGeneratorData
  */
 @Mixin(StructurePoolBasedGenerator.class)
-public abstract class StructurePoolBasedGeneratorOuterMixin {
+abstract class StructurePoolBasedGeneratorOuterMixin {
 
     /**
      * Extract element placement ranges from the child element list

@@ -28,7 +28,7 @@ import net.minecraft.util.math.Direction;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 
 @Mixin(JigsawBlockScreen.class)
-public abstract class JigsawBlockScreenMixin extends Screen {
+abstract class JigsawBlockScreenMixin extends Screen {
 
     @Unique
     private ButtonWidget junctionTypeButton;

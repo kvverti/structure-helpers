@@ -14,7 +14,7 @@ import net.minecraft.block.entity.JigsawBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 
 @Mixin(JigsawBlockEntity.class)
-public abstract class JigsawBlockEntityMixin extends BlockEntity implements JigsawAccessorData {
+abstract class JigsawBlockEntityMixin extends BlockEntity implements JigsawAccessorData {
 
     /**
      * Whether this jigsaw is a normal junction or a child junction. Child
