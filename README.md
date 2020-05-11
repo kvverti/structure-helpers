@@ -1,12 +1,33 @@
 # Structure Helpers
 
-## Usage
-This mod is intended to be included in other mods. 
+Structure Helpers is a library that makes designing jigsaw structures easier and more straightforward. Its basic features include:
 
-Currently the mod adds one structure processor, `robosky.structurehelpers.RandomChanceProcessor`, 
-which allows blocks of the modder's choice to be replaced with a random selection from a pool with predefined weights.
+- Removing the restriction on jigsaw structures to 160x160x160 blocks.
+- Adding new structure data blocks for commonly used structure metadata.
+- Ensuring that structure pool elements are placed a certain number of times in each structure.
+- Allowing structure pool elements to have sub-elements.
+- New structure processors.
 
-Examples where this would be useful include vanilla strongholds, which use a similar random table to pick between
-stone brick variants.
+Generated code documentation is available per version on the GitHub project pages website.
 
-Dependency information will be provided once a maven exists. For now, get the binary from github releases.
+- [2.0.0](https://kvverti.github.io/structure-helpers/2.0.0/javadoc/)
+
+Usage documentation may be found on the [wiki pages](https://github.com/kvverti/structure-helpers/wiki).
+
+## Dependents
+
+Structure Helpers is available through GitHub releases. JitPack provides a somewhat nice maven interface for these releases.
+
+In `build.gradle`
+
+```groovy
+repositories {
+  maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+  modImplementation 'com.github.kvverti:structure-helpers:${structure_helpers_version}'
+}
+```
+
+where `structure_helpers_version` is your version of choice. Versions may be found under [releases](https://github.com/kvverti/structure-helpers/releases).
