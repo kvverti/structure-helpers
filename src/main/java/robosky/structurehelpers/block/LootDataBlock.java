@@ -42,7 +42,6 @@ public class LootDataBlock extends Block implements BlockEntityProvider {
         if(!player.isCreativeLevelTwoOp()) {
             return ActionResult.PASS;
         }
-        // until LibGUI updates
         if(!world.isClient()) {
             BlockEntity be = world.getBlockEntity(pos);
             if(be instanceof LootDataBlockEntity) {
