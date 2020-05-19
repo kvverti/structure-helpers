@@ -1,9 +1,12 @@
 package robosky.structurehelpers.block;
 
+import robosky.structurehelpers.client.SpawnDataScreen;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -34,6 +37,12 @@ public class SpawnDataBlock extends Block implements BlockEntityProvider {
     ) {
         if(!player.isCreativeLevelTwoOp()) {
             return ActionResult.PASS;
+        }
+        if(world.isClient) {
+            BlockEntity be = world.getBlockEntity(pos);
+            if(be instanceof SpawnDataBlockEntity) {
+                MinecraftClient.getInstance().openScreen(new SpawnDataScreen((SpawnDataBlockEntity)be));
+            }
         }
 //        if(!world.isClient()) {
 //            BlockEntity be = world.getBlockEntity(pos);
