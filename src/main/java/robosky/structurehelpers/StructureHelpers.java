@@ -24,28 +24,23 @@ public class StructureHelpers implements ModInitializer {
 
     public static final StructureProcessorType RANDOM_CHANCE_TYPE = Registry.register(
         Registry.STRUCTURE_PROCESSOR,
-        new Identifier(MODID, "random_chance_processor"),
+        id("random_chance_processor"),
         WeightedChanceProcessor::deserialize);
 
     public static final StructureProcessorType AIR_GROUND_REPLACE_TYPE = Registry.register(
         Registry.STRUCTURE_PROCESSOR,
-        new Identifier(MODID, "air_ground_replacement_processor"),
+        id("air_ground_replacement_processor"),
         AirGroundReplacementProcessor::deserialize);
 
     public static final Block LOOT_DATA_BLOCK = Registry.register(
         Registry.BLOCK,
-        new Identifier(MODID, "loot_data"),
+        id("loot_data"),
         new LootDataBlock(Block.Settings.copy(Blocks.BEDROCK)));
-
-    public static final Item LOOT_DATA_ITEM = Registry.register(
-        Registry.ITEM,
-        new Identifier(MODID, "loot_data"),
-        new BlockItem(LOOT_DATA_BLOCK, new Item.Settings().rarity(Rarity.EPIC)));
 
     public static final BlockEntityType<LootDataBlockEntity> LOOT_DATA_ENTITY_TYPE =
         Registry.register(
             Registry.BLOCK_ENTITY_TYPE,
-            new Identifier(MODID, "loot_data"),
+            id("loot_data"),
             BlockEntityType.Builder.create(LootDataBlockEntity::new, LOOT_DATA_BLOCK).build(null));
 
     public static Identifier id(String value) {
@@ -55,5 +50,11 @@ public class StructureHelpers implements ModInitializer {
     @Override
     public void onInitialize() {
         ServerStructHelpPackets.init();
+    }
+
+    static {
+        Registry.register(Registry.ITEM,
+            id("loot_data"),
+            new BlockItem(LOOT_DATA_BLOCK, new Item.Settings().rarity(Rarity.EPIC)));
     }
 }
