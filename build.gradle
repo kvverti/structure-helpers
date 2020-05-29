@@ -29,7 +29,9 @@ dependencies {
 javadoc {
 	options.links = [
 			"https://docs.oracle.com/javase/8/docs/api/",
-			"https://guava.dev/releases/21.0/api/docs/"
+			"https://guava.dev/releases/21.0/api/docs/",
+			"https://maven.fabricmc.net/docs/yarn-" + project.yarn_mappings + "/",
+			"https://maven.fabricmc.net/docs/fabric-api-" + project.fabric_api_version + "/"
 	]
 }
 
