@@ -105,7 +105,7 @@ abstract class JigsawBlockScreenMixin extends Screen {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/gui/widget/ButtonWidget;<init>(IIIILnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V",
-            ordinal = 3
+            ordinal = 0
         )
     )
     private Text modifyInitialJointButtonName(Text name) {
