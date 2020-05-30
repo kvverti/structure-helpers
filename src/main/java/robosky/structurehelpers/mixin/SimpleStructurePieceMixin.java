@@ -20,7 +20,7 @@ import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
@@ -47,14 +47,14 @@ abstract class SimpleStructurePieceMixin extends StructurePiece {
         slice = @Slice(
             from = @At(
                 value = "INVOKE:FIRST",
-                target = "Lnet/minecraft/structure/Structure;place(Lnet/minecraft/world/IWorld;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/structure/StructurePlacementData;I)Z"
+                target = "Lnet/minecraft/structure/Structure;place(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/structure/StructurePlacementData;Ljava/util/Random;I)Z"
             )
         )
     )
     private void handleLootData(
-        IWorld world,
+        ServerWorldAccess world,
         StructureAccessor accessor,
-        ChunkGenerator<?> generator,
+        ChunkGenerator generator,
         Random rand,
         BlockBox box,
         ChunkPos chunkPos,

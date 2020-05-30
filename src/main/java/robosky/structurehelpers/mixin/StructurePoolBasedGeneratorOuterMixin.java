@@ -3,8 +3,8 @@ package robosky.structurehelpers.mixin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.logging.log4j.LogManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -47,7 +47,7 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
         Identifier startPoolId,
         int size,
         StructurePoolBasedGenerator.PieceFactory pieceFactory,
-        ChunkGenerator<?> chunkGenerator,
+        ChunkGenerator chunkGenerator,
         StructureManager structureManager,
         BlockPos blockPos,
         List<?> ls,
@@ -93,7 +93,7 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
         Identifier id,
         int i,
         StructurePoolBasedGenerator.PieceFactory factory,
-        ChunkGenerator<?> generator,
+        ChunkGenerator generator,
         StructureManager manager,
         BlockPos pos,
         List<PoolStructurePiece> pieces,
@@ -113,7 +113,7 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
                     int z = (blockBox.maxZ + blockBox.minZ) / 2;
                     int y = generator.getHeightOnGround(x, z, Heightmap.Type.WORLD_SURFACE_WG);
                     ((StructurePoolGeneratorAccessor)data.getPoolGenerator()).callGeneratePiece(poolPiece,
-                        new AtomicReference<>(VoxelShapes.empty()),
+                        new MutableObject<>(VoxelShapes.empty()),
                         y + 80,
                         0,
                         b1);
@@ -144,7 +144,7 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
         Identifier id,
         int i,
         StructurePoolBasedGenerator.PieceFactory factory,
-        ChunkGenerator<?> generator,
+        ChunkGenerator generator,
         StructureManager manager,
         BlockPos pos,
         List<PoolStructurePiece> pieces,

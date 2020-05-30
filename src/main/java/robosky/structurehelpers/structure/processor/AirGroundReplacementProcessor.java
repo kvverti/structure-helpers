@@ -1,17 +1,12 @@
 package robosky.structurehelpers.structure.processor;
 
-import java.util.List;
-import java.util.stream.Stream;
-
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import robosky.structurehelpers.StructureHelpers;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.structure.Structure.StructureBlockInfo;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.processor.StructureProcessor;
@@ -25,6 +20,12 @@ import net.minecraft.world.WorldView;
  * in the ground.
  */
 public class AirGroundReplacementProcessor extends StructureProcessor {
+
+    public static final Codec<AirGroundReplacementProcessor> CODEC = Entry.CODEC
+        .listOf()
+        .xmap(ls -> new AirGroundReplacementProcessor(ImmutableList.copyOf(ls)), proc -> proc.entries)
+        .fieldOf("Entries")
+        .codec();
 
     private final ImmutableList<Entry> entries;
 
@@ -59,22 +60,8 @@ public class AirGroundReplacementProcessor extends StructureProcessor {
     }
 
     @Override
-    protected StructureProcessorType getType() {
+    protected StructureProcessorType<AirGroundReplacementProcessor> getType() {
         return StructureHelpers.AIR_GROUND_REPLACE_TYPE;
-    }
-
-    @Override
-    protected <T> Dynamic<T> rawToDynamic(DynamicOps<T> ops) {
-        Stream<T> entries = this.entries.stream()
-            .map(e -> e.serialize(ops).getValue());
-        return new Dynamic<>(ops, ops.createMap(ImmutableMap.of(
-            ops.createString("Entries"), ops.createList(entries)
-        )));
-    }
-
-    public static AirGroundReplacementProcessor deserialize(Dynamic<?> dyn) {
-        List<Entry> entries = dyn.get("Entries").asList(Entry::deserialize);
-        return new AirGroundReplacementProcessor(ImmutableList.copyOf(entries));
     }
 
     /**
@@ -82,6 +69,13 @@ public class AirGroundReplacementProcessor extends StructureProcessor {
      * a block under that condition.
      */
     public static final class Entry {
+
+        public static final Codec<Entry> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            PartialBlockState.CODEC.fieldOf("Key").forGetter(e -> e.key),
+            PartialBlockState.CODEC.optionalFieldOf("Air", null).forGetter(e -> e.air),
+            PartialBlockState.CODEC.optionalFieldOf("Ground", null).forGetter(e -> e.ground)
+        ).apply(inst, Entry::new));
+
         public final PartialBlockState key;
         /*@Nullable*/
         public final PartialBlockState air;
@@ -160,26 +154,6 @@ public class AirGroundReplacementProcessor extends StructureProcessor {
          */
         public static Entry groundOnly(Block key) {
             return groundOnly(PartialBlockState.of(key));
-        }
-
-        public <T> Dynamic<T> serialize(DynamicOps<T> ops) {
-            ImmutableMap.Builder<T, T> states = ImmutableMap.builder();
-            states.put(ops.createString("Key"), key.toDynamic(ops).getValue());
-            if(air != null) {
-                states.put(ops.createString("Air"), air.toDynamic(ops).getValue());
-            }
-            if(ground != null) {
-                states.put(ops.createString("Ground"), ground.toDynamic(ops).getValue());
-            }
-            return new Dynamic<>(ops, ops.createMap(states.build()));
-        }
-
-        public static Entry deserialize(Dynamic<?> dyn) {
-            return new Entry(
-                dyn.get("Key").map(PartialBlockState::fromDynamic).orElse(PartialBlockState.of(Blocks.VOID_AIR)),
-                dyn.get("Air").map(PartialBlockState::fromDynamic).orElse(null),
-                dyn.get("Ground").map(PartialBlockState::fromDynamic).orElse(null)
-            );
         }
     }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import robosky.structurehelpers.StructureHelpers;
+import robosky.structurehelpers.mixin.StructureFeatureAccess;
 import robosky.structurehelpers.structure.ExtendedStructures;
 import robosky.structurehelpers.structure.piece.ExtendedStructurePiece;
 import robosky.structurehelpers.structure.pool.ElementRange;
@@ -26,18 +27,15 @@ import net.minecraft.structure.processor.StructureProcessor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.source.BiomeSource;
+import net.minecraft.world.gen.ChunkRandom;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
-import net.minecraft.world.gen.decorator.Decorator;
-import net.minecraft.world.gen.decorator.NopeDecoratorConfig;
-import net.minecraft.world.gen.feature.AbstractTempleFeature;
-import net.minecraft.world.gen.feature.DefaultFeatureConfig;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.StructureFeature;
+import net.minecraft.world.gen.feature.StructurePoolFeatureConfig;
 
 import net.fabricmc.api.ModInitializer;
 
@@ -45,21 +43,18 @@ public class StructureHelpersTest implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        TestStructureFeature feature = Registry.register(Registry.FEATURE,
-            StructureHelpers.id("test_dungeon"),
-            new TestStructureFeature());
-        Registry.register(Registry.STRUCTURE_FEATURE, StructureHelpers.id("test_dungeon"), feature);
-        Feature.STRUCTURES.put(feature.getName(), feature);
+        TestStructureFeature feature = StructureFeatureAccess.callRegister(
+            StructureHelpers.id("test_dungeon").toString(),
+            new TestStructureFeature(),
+            GenerationStep.Feature.UNDERGROUND_STRUCTURES);
         for(Biome biome : Registry.BIOME) {
-            biome.addStructureFeature(feature.configure(FeatureConfig.DEFAULT));
-            biome.addFeature(GenerationStep.Feature.UNDERGROUND_STRUCTURES,
-                feature.configure(DefaultFeatureConfig.DEFAULT)
-                    .createDecoratedFeature(Decorator.NOPE.configure(NopeDecoratorConfig.DEFAULT)));
+            biome.addStructureFeature(feature.configure(
+                new StructurePoolFeatureConfig(TestStructureFeature.id("start"), 16)));
         }
     }
 }
 
-class TestStructureFeature extends AbstractTempleFeature<DefaultFeatureConfig> {
+class TestStructureFeature extends StructureFeature<StructurePoolFeatureConfig> {
 
     public static final ExtendedStructurePiece.Factory TYPE = Registry.register(
         Registry.STRUCTURE_PIECE,
@@ -67,7 +62,7 @@ class TestStructureFeature extends AbstractTempleFeature<DefaultFeatureConfig> {
         ExtendedStructurePiece.newFactory()
     );
 
-    private static Identifier id(String s) {
+    static Identifier id(String s) {
         return new Identifier("tut", s);
     }
 
@@ -179,33 +174,33 @@ class TestStructureFeature extends AbstractTempleFeature<DefaultFeatureConfig> {
     }
 
     public TestStructureFeature() {
-        super(DefaultFeatureConfig::deserialize);
+        super(StructurePoolFeatureConfig.CODEC);
     }
 
     @Override
-    protected int getSeedModifier(ChunkGeneratorConfig config) {
-        return 0;
-    }
-
-    @Override
-    public StructureStartFactory getStructureStartFactory() {
+    public StructureStartFactory<StructurePoolFeatureConfig> getStructureStartFactory() {
         return Start::new;
     }
 
     @Override
-    public String getName() {
-        return StructureHelpers.id("structure_helpers_test").toString();
+    protected boolean shouldStartAt(
+        ChunkGenerator chunkGenerator,
+        BiomeSource biomeSource,
+        long l,
+        ChunkRandom chunkRandom,
+        int i,
+        int j,
+        Biome biome,
+        ChunkPos chunkPos,
+        StructurePoolFeatureConfig featureConfig
+    ) {
+        return i % 8 == 0 && j % 8 == 0 && chunkRandom.nextInt(5) == 0;
     }
 
-    @Override
-    public int getRadius() {
-        return 8;
-    }
-
-    private static class Start extends StructureStart {
+    private static class Start extends StructureStart<StructurePoolFeatureConfig> {
 
         public Start(
-            StructureFeature<?> feature,
+            StructureFeature<StructurePoolFeatureConfig> feature,
             int chunkX,
             int chunkZ,
             BlockBox box,
@@ -217,14 +212,19 @@ class TestStructureFeature extends AbstractTempleFeature<DefaultFeatureConfig> {
 
         @Override
         public void init(
-            ChunkGenerator<?> generator, StructureManager manager, int chunkX, int chunkZ, Biome biome
+            ChunkGenerator generator,
+            StructureManager manager,
+            int chunkX,
+            int chunkZ,
+            Biome biome,
+            StructurePoolFeatureConfig config
         ) {
             List<PoolStructurePiece> pieces = ExtendedStructures.addPieces(
                 ImmutableList.of(ElementRange.of(id("end_portal"), 1, 1)),
                 0,
                 256,
-                id("start"),
-                32,
+                config.startPool,
+                config.size,
                 TYPE,
                 generator,
                 manager,

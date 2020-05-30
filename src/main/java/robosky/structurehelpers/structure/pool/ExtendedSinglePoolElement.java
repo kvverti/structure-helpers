@@ -1,22 +1,23 @@
 package robosky.structurehelpers.structure.pool;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import robosky.structurehelpers.StructureHelpers;
 import robosky.structurehelpers.mixin.StructurePlacementDataAccessor;
 import robosky.structurehelpers.structure.LootDataUtil;
 
+import net.minecraft.structure.Structure;
 import net.minecraft.structure.Structure.StructureBlockInfo;
 import net.minecraft.structure.StructureManager;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.pool.SinglePoolElement;
 import net.minecraft.structure.pool.StructurePool.Projection;
+import net.minecraft.structure.pool.StructurePoolElement;
 import net.minecraft.structure.pool.StructurePoolElementType;
 import net.minecraft.structure.processor.BlockIgnoreStructureProcessor;
 import net.minecraft.structure.processor.StructureProcessor;
@@ -25,7 +26,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
@@ -35,10 +36,17 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
  */
 public class ExtendedSinglePoolElement extends SinglePoolElement {
 
-    public static final StructurePoolElementType TYPE =
+    public static final Codec<ExtendedSinglePoolElement> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+        SinglePoolElement.method_28882(),
+        SinglePoolElement.method_28880(),
+        StructurePoolElement.method_28883(),
+        Codec.BOOL.fieldOf("OverwriteFluids").forGetter(e -> e.overwriteFluids)
+    ).apply(inst, ExtendedSinglePoolElement::new));
+
+    public static final StructurePoolElementType<ExtendedSinglePoolElement> TYPE =
         Registry.register(Registry.STRUCTURE_POOL_ELEMENT,
             StructureHelpers.id("metadata_element"),
-            ExtendedSinglePoolElement::new);
+            () -> CODEC);
 
     /**
      * Whether blocks in this element should overwrite fluids. If false,
@@ -46,14 +54,10 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
      */
     private final boolean overwriteFluids;
 
-    public ExtendedSinglePoolElement(Dynamic<?> dyn) {
-        super(dyn);
-        this.overwriteFluids = dyn.get("OverwriteFluids").asBoolean(false);
-    }
-
     /**
      * Constructs an element with the given location which does not overwrite fluids and has
      * no structure processors.
+     *
      * @param location The structure element ID.
      */
     public ExtendedSinglePoolElement(Identifier location) {
@@ -62,13 +66,27 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
 
     /**
      * Constructs an element with the given properties.
-     * @param location The structure element ID.
+     *
+     * @param location        The structure element ID.
      * @param overwriteFluids If true, waterloggable blocks in this element will overwrite fluids instead
      *                        of merging with them.
-     * @param processors A list of structure processors that will be applied to this element.
+     * @param processors      A list of structure processors that will be applied to this element.
      */
-    public ExtendedSinglePoolElement(Identifier location, boolean overwriteFluids, ImmutableList<StructureProcessor> processors) {
-        super(location.toString(), processors, Projection.RIGID);
+    public ExtendedSinglePoolElement(
+        Identifier location,
+        boolean overwriteFluids,
+        ImmutableList<StructureProcessor> processors
+    ) {
+        this(Either.left(location), processors, Projection.RIGID, overwriteFluids);
+    }
+
+    private ExtendedSinglePoolElement(
+        Either<Identifier, Structure> location,
+        List<StructureProcessor> processors,
+        Projection projection,
+        boolean overwriteFluids
+    ) {
+        super(location, processors, projection);
         this.overwriteFluids = overwriteFluids;
     }
 
@@ -81,14 +99,8 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
     }
 
     @Override
-    public StructurePoolElementType getType() {
+    public StructurePoolElementType<ExtendedSinglePoolElement> getType() {
         return TYPE;
-    }
-
-    @Override
-    public <T> Dynamic<T> rawToDynamic(DynamicOps<T> ops) {
-        Map<T, T> map = ImmutableMap.of(ops.createString("OverwriteFluids"), ops.createBoolean(overwriteFluids));
-        return new Dynamic<>(ops, ops.merge(ops.createMap(map), super.rawToDynamic(ops).getValue()));
     }
 
     // add/remove processors
@@ -103,7 +115,7 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
 
     @Override
     public boolean generate(
-        StructureManager manager, IWorld world, StructureAccessor accessor, ChunkGenerator<?> generator,
+        StructureManager manager, ServerWorldAccess world, StructureAccessor accessor, ChunkGenerator generator,
         BlockPos pos, BlockPos pos2, BlockRotation rotation, BlockBox box, Random rand, boolean b
     ) {
         boolean ret = super.generate(manager, world, accessor, generator, pos, pos2, rotation, box, rand, b);

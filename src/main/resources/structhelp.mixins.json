@@ -6,6 +6,7 @@
         "JigsawBlockEntityMixin",
         "LocateCommandMixin",
         "SimpleStructurePieceMixin",
+        "StructureFeatureAccess",
         "StructurePlacementDataAccessor",
         "StructurePoolBasedGeneratorMixin",
         "StructurePoolBasedGeneratorOuterMixin",

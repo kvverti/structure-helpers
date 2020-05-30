@@ -35,7 +35,7 @@ abstract class LocateCommandMixin {
 
 
     @Shadow
-    private static native int execute(ServerCommandSource src, String arg) throws CommandSyntaxException;
+    private static native int execute(ServerCommandSource src, StructureFeature<?> sf) throws CommandSyntaxException;
 
     @ModifyArg(
         method = "register",
@@ -52,7 +52,7 @@ abstract class LocateCommandMixin {
                 Identifier id = ctx.getArgument("structure", Identifier.class);
                 StructureFeature<?> feature = Registry.STRUCTURE_FEATURE.get(id);
                 if(feature != null) {
-                    return execute(ctx.getSource(), feature.getName());
+                    return execute(ctx.getSource(), feature);
                 } else {
                     throw NOT_FOUND_EXCEPTION.create(id);
                 }

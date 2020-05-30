@@ -3,16 +3,15 @@ package robosky.structurehelpers.mixin;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -94,7 +93,7 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
      * elements that should not be placed.
      */
     @ModifyVariable(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;IIZ)V",
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Lorg/apache/commons/lang3/mutable/MutableObject;IIZ)V",
         ordinal = 1,
         at = @At(
             value = "STORE",
@@ -113,7 +112,7 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
      * capturing lots of local variables with an Inject.
      */
     @ModifyVariable(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;IIZ)V",
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Lorg/apache/commons/lang3/mutable/MutableObject;IIZ)V",
         ordinal = 1,
         at = @At(
             value = "STORE",
@@ -150,7 +149,7 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
      * Increment the current extended pool element placement count.
      */
     @ModifyArg(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;IIZ)V",
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Lorg/apache/commons/lang3/mutable/MutableObject;IIZ)V",
         at = @At(
             value = "INVOKE",
             target = "Ljava/util/List;add(Ljava/lang/Object;)Z",
@@ -174,7 +173,7 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
      * Skips child junctions when generating normal connections and visa-versa.
      */
     @Redirect(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;IIZ)V",
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Lorg/apache/commons/lang3/mutable/MutableObject;IIZ)V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/block/JigsawBlock;attachmentMatches(Lnet/minecraft/structure/Structure$StructureBlockInfo;Lnet/minecraft/structure/Structure$StructureBlockInfo;)Z",
@@ -195,7 +194,7 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
      * child elements.
      */
     @Redirect(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;IIZ)V",
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Lorg/apache/commons/lang3/mutable/MutableObject;IIZ)V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/util/shape/VoxelShapes;matchesAnywhere(Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/function/BooleanBiFunction;)Z",
@@ -213,7 +212,7 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
      * elements have been placed their minimum number of times.
      */
     @Redirect(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Ljava/util/concurrent/atomic/AtomicReference;IIZ)V",
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Lorg/apache/commons/lang3/mutable/MutableObject;IIZ)V",
         at = @At(
             value = "FIELD",
             target = "Lnet/minecraft/structure/pool/StructurePoolBasedGenerator$StructurePoolGenerator;maxSize:I"
@@ -223,7 +222,7 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
     private int preventRecursiveChildGen(
         StructurePoolBasedGenerator.StructurePoolGenerator self,
         PoolStructurePiece piece,
-        AtomicReference<VoxelShape> atomicReference,
+        MutableObject<VoxelShape> atomicReference,
         int minY,
         int currentSize,
         boolean b1

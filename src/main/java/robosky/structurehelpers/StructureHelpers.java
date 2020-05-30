@@ -22,15 +22,15 @@ public class StructureHelpers implements ModInitializer {
 
     public static final String MODID = "structure-helpers";
 
-    public static final StructureProcessorType RANDOM_CHANCE_TYPE = Registry.register(
+    public static final StructureProcessorType<WeightedChanceProcessor> RANDOM_CHANCE_TYPE = Registry.register(
         Registry.STRUCTURE_PROCESSOR,
         id("random_chance_processor"),
-        WeightedChanceProcessor::deserialize);
+        () -> WeightedChanceProcessor.CODEC);
 
-    public static final StructureProcessorType AIR_GROUND_REPLACE_TYPE = Registry.register(
+    public static final StructureProcessorType<AirGroundReplacementProcessor> AIR_GROUND_REPLACE_TYPE = Registry.register(
         Registry.STRUCTURE_PROCESSOR,
         id("air_ground_replacement_processor"),
-        AirGroundReplacementProcessor::deserialize);
+        () -> AirGroundReplacementProcessor.CODEC);
 
     public static final Block LOOT_DATA_BLOCK = Registry.register(
         Registry.BLOCK,

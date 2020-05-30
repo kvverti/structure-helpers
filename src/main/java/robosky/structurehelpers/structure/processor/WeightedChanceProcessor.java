@@ -1,23 +1,21 @@
 package robosky.structurehelpers.structure.processor;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import robosky.structurehelpers.StructureHelpers;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.structure.Structure;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.processor.StructureProcessor;
@@ -30,6 +28,17 @@ import net.minecraft.world.WorldView;
  * Replaces given block with another randomly chosen from the given pool.
  */
 public class WeightedChanceProcessor extends StructureProcessor {
+
+    public static final Codec<WeightedChanceProcessor> CODEC = RecordCodecBuilder.<Map.Entry<PartialBlockState, List<Entry>>>create(
+        inst -> inst.group(
+            PartialBlockState.CODEC.fieldOf("Key").forGetter(Map.Entry::getKey),
+            Entry.CODEC.listOf().fieldOf("Replacements").forGetter(Map.Entry::getValue)
+        ).apply(inst, AbstractMap.SimpleImmutableEntry::new))
+        .listOf()
+        .fieldOf("Entries")
+        .xmap(es -> new WeightedChanceProcessor(ImmutableMap.copyOf(es)),
+            proc -> ImmutableList.copyOf(proc.entries.entrySet()))
+        .codec();
 
     private final Map<PartialBlockState, List<Entry>> entries;
     private final float weightSum;
@@ -47,6 +56,12 @@ public class WeightedChanceProcessor extends StructureProcessor {
      * A record of a {@link PartialBlockState} with a weight.
      */
     public static final class Entry {
+
+        public static final Codec<Entry> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            Codec.FLOAT.fieldOf("Weight").forGetter(e -> e.weight),
+            PartialBlockState.CODEC.fieldOf("Target").forGetter(e -> e.targetState)
+        ).apply(inst, Entry::new));
+
         public final float weight;
         /*@Nullable*/
         public final PartialBlockState targetState;
@@ -70,21 +85,6 @@ public class WeightedChanceProcessor extends StructureProcessor {
 
         public static Entry of(PartialBlockState target, float weight) {
             return new Entry(weight, target);
-        }
-
-        public <T> Dynamic<T> serialize(DynamicOps<T> ops) {
-            ImmutableMap.Builder<T, T> b = ImmutableMap.builder();
-            b.put(ops.createString("Weight"), ops.createFloat(weight));
-            if(targetState != null) {
-                b.put(ops.createString("Target"), targetState.toDynamic(ops).getValue());
-            }
-            return new Dynamic<>(ops, ops.createMap(b.build()));
-        }
-
-        public static Entry deserialize(Dynamic<?> dynamic) {
-            float weight = dynamic.get("Weight").asFloat(0);
-            PartialBlockState tgt = dynamic.get("Target").map(PartialBlockState::fromDynamic).orElse(null);
-            return new Entry(weight, tgt);
         }
     }
 
@@ -113,32 +113,8 @@ public class WeightedChanceProcessor extends StructureProcessor {
     }
 
     @Override
-    protected StructureProcessorType getType() {
+    protected StructureProcessorType<WeightedChanceProcessor> getType() {
         return StructureHelpers.RANDOM_CHANCE_TYPE;
-    }
-
-    @Override
-    protected <T> Dynamic<T> rawToDynamic(DynamicOps<T> ops) {
-        Stream<T> s = entries.entrySet().stream()
-            .map(e -> ops.createMap(ImmutableMap.of(
-                ops.createString("Key"), e.getKey().toDynamic(ops).getValue(),
-                ops.createString("Replacements"), ops.createList(e.getValue()
-                    .stream().map(e2 -> e2.serialize(ops).getValue()))
-            )));
-        return new Dynamic<>(ops, ops.createMap(ImmutableMap.of(
-            ops.createString("Entries"), ops.createList(s)
-        )));
-    }
-
-    public static WeightedChanceProcessor deserialize(Dynamic<?> dyn) {
-        Map<PartialBlockState, List<Entry>> entries = dyn.get("Entries")
-            .asList(Function.identity())
-            .stream()
-            .collect(Collectors.toMap(
-                dy -> dy.get("Key").map(PartialBlockState::fromDynamic).orElse(PartialBlockState.of(Blocks.AIR)),
-                dy -> dy.get("Replacements").asList(Entry::deserialize)
-            ));
-        return new WeightedChanceProcessor(entries);
     }
 
     /**

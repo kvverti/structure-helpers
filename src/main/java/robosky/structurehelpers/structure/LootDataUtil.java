@@ -11,7 +11,7 @@ import net.minecraft.command.arguments.BlockStateArgumentType;
 import net.minecraft.structure.Structure.StructureBlockInfo;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.WorldAccess;
 
 /**
  * Contains misc. loot data handling functions.
@@ -23,7 +23,7 @@ public final class LootDataUtil {
     private LootDataUtil() {
     }
 
-    public static void handleLootData(IWorld world, StructureBlockInfo bi) {
+    public static void handleLootData(WorldAccess world, StructureBlockInfo bi) {
         if(bi.tag != null) {
             BlockEntity be = world.getBlockEntity(bi.pos.down());
             if(be instanceof LootableContainerBlockEntity) {

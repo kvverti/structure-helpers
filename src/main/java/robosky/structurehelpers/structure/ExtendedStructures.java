@@ -36,7 +36,7 @@ public final class ExtendedStructures {
         Identifier startPoolId,
         int iterations,
         StructurePoolBasedGenerator.PieceFactory pieceFactory,
-        ChunkGenerator<?> generator,
+        ChunkGenerator generator,
         StructureManager manager,
         BlockPos pos,
         Random random,
