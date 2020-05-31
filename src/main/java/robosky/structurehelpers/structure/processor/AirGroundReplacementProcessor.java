@@ -7,6 +7,7 @@ import robosky.structurehelpers.StructureHelpers;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.structure.Structure.StructureBlockInfo;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.processor.StructureProcessor;
@@ -49,11 +50,11 @@ public class AirGroundReplacementProcessor extends StructureProcessor {
             if(entry.key.matches(info.state)) {
                 BlockState state;
                 if(world.getBlockState(info.pos).getCollisionShape(world, info.pos).isEmpty()) {
-                    state = entry.air == null ? null : entry.air.map(info.state);
+                    state = entry.air.map(info.state);
                 } else {
-                    state = entry.ground == null ? null : entry.ground.map(info.state);
+                    state = entry.ground.map(info.state);
                 }
-                return state == null ? null : new StructureBlockInfo(info.pos, state, null);
+                return state.getBlock() == Blocks.STRUCTURE_VOID ? null : new StructureBlockInfo(info.pos, state, null);
             }
         }
         return info;
@@ -70,22 +71,22 @@ public class AirGroundReplacementProcessor extends StructureProcessor {
      */
     public static final class Entry {
 
+        private static final PartialBlockState EMPTY = PartialBlockState.of(Blocks.STRUCTURE_VOID);
+
         public static final Codec<Entry> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             PartialBlockState.CODEC.fieldOf("Key").forGetter(e -> e.key),
-            PartialBlockState.CODEC.optionalFieldOf("Air", null).forGetter(e -> e.air),
-            PartialBlockState.CODEC.optionalFieldOf("Ground", null).forGetter(e -> e.ground)
+            PartialBlockState.CODEC.optionalFieldOf("Air", EMPTY).forGetter(e -> e.air),
+            PartialBlockState.CODEC.optionalFieldOf("Ground", EMPTY).forGetter(e -> e.ground)
         ).apply(inst, Entry::new));
 
         public final PartialBlockState key;
-        /*@Nullable*/
         public final PartialBlockState air;
-        /*@Nullable*/
         public final PartialBlockState ground;
 
         private Entry(
             PartialBlockState key,
-            /*@Nullable*/ PartialBlockState air,
-            /*@Nullable*/ PartialBlockState ground
+            PartialBlockState air,
+            PartialBlockState ground
         ) {
             this.key = key;
             this.air = air;
@@ -107,6 +108,12 @@ public class AirGroundReplacementProcessor extends StructureProcessor {
             /*@Nullable*/ PartialBlockState air,
             /*@Nullable*/ PartialBlockState ground
         ) {
+            if(air == null) {
+                air = EMPTY;
+            }
+            if(ground == null) {
+                ground = EMPTY;
+            }
             return new Entry(key, air, ground);
         }
 
@@ -121,14 +128,16 @@ public class AirGroundReplacementProcessor extends StructureProcessor {
          * @see #of(PartialBlockState, PartialBlockState, PartialBlockState)
          */
         public static Entry of(Block key, /*@Nullable*/ Block air, /*@Nullable*/ Block ground) {
-            return of(PartialBlockState.of(key), PartialBlockState.of(air), PartialBlockState.of(ground));
+            return of(PartialBlockState.of(key),
+                air == null ? null : PartialBlockState.of(air),
+                ground == null ? null : PartialBlockState.of(ground));
         }
 
         /**
          * Creates an entry for placing the given state unchanged in air, and ignoring in the ground.
          */
         public static Entry airOnly(PartialBlockState key) {
-            return of(key, key, null);
+            return of(key, key, EMPTY);
         }
 
         /**
@@ -144,7 +153,7 @@ public class AirGroundReplacementProcessor extends StructureProcessor {
          * Creates an entry for placing the given state unchanged in the ground, and ignoring in air.
          */
         public static Entry groundOnly(PartialBlockState key) {
-            return new Entry(key, null, key);
+            return new Entry(key, EMPTY, key);
         }
 
         /**
