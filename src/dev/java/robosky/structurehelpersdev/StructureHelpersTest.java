@@ -53,7 +53,8 @@ public class StructureHelpersTest implements ModInitializer {
                 ImmutableList.of(ElementRange.of(TestStructureFeature.id("end_portal"), 1, 1)),
                 0,
                 256,
-                TestStructureFeature.id("start"), 16));
+                TestStructureFeature.id("start"),
+                16));
         for(Biome biome : Registry.BIOME) {
             biome.addStructureFeature(configuredFeature);
         }
