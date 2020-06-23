@@ -5,15 +5,16 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import robosky.structurehelpers.StructureHelpers;
-import robosky.structurehelpersdev.mixin.StructureFeatureAccess;
 import robosky.structurehelpers.structure.ExtendedStructures;
 import robosky.structurehelpers.structure.piece.ExtendedStructurePiece;
 import robosky.structurehelpers.structure.pool.ElementRange;
 import robosky.structurehelpers.structure.pool.ExtendedSinglePoolElement;
+import robosky.structurehelpers.structure.pool.ExtendedStructurePoolFeatureConfig;
 import robosky.structurehelpers.structure.processor.AirGroundReplacementProcessor;
 import robosky.structurehelpers.structure.processor.PartialBlockState;
 import robosky.structurehelpers.structure.processor.WeightedChanceProcessor;
 import robosky.structurehelpers.structure.processor.WeightedChanceProcessor.Entry;
+import robosky.structurehelpersdev.mixin.StructureFeatureAccess;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.state.property.Properties;
@@ -34,8 +35,8 @@ import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.gen.ChunkRandom;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.gen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.gen.feature.StructureFeature;
-import net.minecraft.world.gen.feature.StructurePoolFeatureConfig;
 
 import net.fabricmc.api.ModInitializer;
 
@@ -47,14 +48,19 @@ public class StructureHelpersTest implements ModInitializer {
             StructureHelpers.id("test_dungeon").toString(),
             new TestStructureFeature(),
             GenerationStep.Feature.UNDERGROUND_STRUCTURES);
+        ConfiguredStructureFeature<?, ?> configuredFeature = feature.configure(
+            new ExtendedStructurePoolFeatureConfig(
+                ImmutableList.of(ElementRange.of(TestStructureFeature.id("end_portal"), 1, 1)),
+                0,
+                256,
+                TestStructureFeature.id("start"), 16));
         for(Biome biome : Registry.BIOME) {
-            biome.addStructureFeature(feature.configure(
-                new StructurePoolFeatureConfig(TestStructureFeature.id("start"), 16)));
+            biome.addStructureFeature(configuredFeature);
         }
     }
 }
 
-class TestStructureFeature extends StructureFeature<StructurePoolFeatureConfig> {
+class TestStructureFeature extends StructureFeature<ExtendedStructurePoolFeatureConfig> {
 
     public static final ExtendedStructurePiece.Factory TYPE = Registry.register(
         Registry.STRUCTURE_PIECE,
@@ -174,11 +180,11 @@ class TestStructureFeature extends StructureFeature<StructurePoolFeatureConfig> 
     }
 
     public TestStructureFeature() {
-        super(StructurePoolFeatureConfig.CODEC);
+        super(ExtendedStructurePoolFeatureConfig.CODEC);
     }
 
     @Override
-    public StructureStartFactory<StructurePoolFeatureConfig> getStructureStartFactory() {
+    public StructureStartFactory<ExtendedStructurePoolFeatureConfig> getStructureStartFactory() {
         return Start::new;
     }
 
@@ -192,15 +198,15 @@ class TestStructureFeature extends StructureFeature<StructurePoolFeatureConfig> 
         int j,
         Biome biome,
         ChunkPos chunkPos,
-        StructurePoolFeatureConfig featureConfig
+        ExtendedStructurePoolFeatureConfig featureConfig
     ) {
         return i % 8 == 0 && j % 8 == 0 && chunkRandom.nextInt(5) == 0;
     }
 
-    private static class Start extends StructureStart<StructurePoolFeatureConfig> {
+    private static class Start extends StructureStart<ExtendedStructurePoolFeatureConfig> {
 
         public Start(
-            StructureFeature<StructurePoolFeatureConfig> feature,
+            StructureFeature<ExtendedStructurePoolFeatureConfig> feature,
             int chunkX,
             int chunkZ,
             BlockBox box,
@@ -217,12 +223,12 @@ class TestStructureFeature extends StructureFeature<StructurePoolFeatureConfig> 
             int chunkX,
             int chunkZ,
             Biome biome,
-            StructurePoolFeatureConfig config
+            ExtendedStructurePoolFeatureConfig config
         ) {
             List<PoolStructurePiece> pieces = ExtendedStructures.addPieces(
-                ImmutableList.of(ElementRange.of(id("end_portal"), 1, 1)),
-                0,
-                256,
+                config.rangeConstraints,
+                config.horizontalExtent,
+                config.verticalExtent,
                 config.startPool,
                 config.size,
                 TYPE,

@@ -1,5 +1,8 @@
 package robosky.structurehelpers.structure.pool;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
 import net.minecraft.util.Identifier;
 
 /**
@@ -7,6 +10,12 @@ import net.minecraft.util.Identifier;
  * to the jigsaw structure pool element generator.
  */
 public final class ElementRange {
+
+    public static final Codec<ElementRange> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+        Identifier.CODEC.fieldOf("Id").forGetter(r -> r.id),
+        Codec.INT.fieldOf("Min").forGetter(r -> r.min),
+        Codec.INT.fieldOf("Max").forGetter(r -> r.max)
+    ).apply(inst, ElementRange::of));
 
     public final Identifier id;
     public final int min;
