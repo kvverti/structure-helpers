@@ -20,5 +20,8 @@
     "main": [
       "robosky.structurehelpersdev.StructureHelpersTest"
     ]
-  }
+  },
+  "mixins": [
+    "structhelpdev.mixins.json"
+  ]
 }

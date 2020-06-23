@@ -18,12 +18,20 @@ group = project.maven_group
 minecraft {
 	accessWidener = file("src/main/resources/structhelp.aw")
 }
+sourceSets {
+	dev {
+		compileClasspath += main.compileClasspath
+		runtimeClasspath += main.runtimeClasspath
+	}
+}
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	devImplementation sourceSets.main.output
 }
 
 javadoc {

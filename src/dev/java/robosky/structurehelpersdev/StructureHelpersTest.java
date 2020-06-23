@@ -5,7 +5,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import robosky.structurehelpers.StructureHelpers;
-import robosky.structurehelpers.mixin.StructureFeatureAccess;
+import robosky.structurehelpersdev.mixin.StructureFeatureAccess;
 import robosky.structurehelpers.structure.ExtendedStructures;
 import robosky.structurehelpers.structure.piece.ExtendedStructurePiece;
 import robosky.structurehelpers.structure.pool.ElementRange;
