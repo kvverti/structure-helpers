@@ -1,6 +1,7 @@
 package robosky.structurehelpers.mixin.client;
 
 import io.netty.buffer.Unpooled;
+import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -88,7 +89,7 @@ abstract class JigsawBlockScreenMixin extends Screen {
         return 152 + 4;
     }
 
-    @SuppressWarnings("UnresolvedMixinReference")
+    @Dynamic("Joint rotation button click listener")
     @ModifyArg(
         method = "method_26411",
         at = @At(

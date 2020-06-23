@@ -126,7 +126,6 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
         }
     }
 
-    @SuppressWarnings("UnresolvedMixinReference")
     @Redirect(
         method = "addPieces",
         at = @At(
