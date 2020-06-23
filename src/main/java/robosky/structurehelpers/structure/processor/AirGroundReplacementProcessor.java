@@ -1,5 +1,7 @@
 package robosky.structurehelpers.structure.processor;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -105,8 +107,8 @@ public class AirGroundReplacementProcessor extends StructureProcessor {
          */
         public static Entry of(
             PartialBlockState key,
-            /*@Nullable*/ PartialBlockState air,
-            /*@Nullable*/ PartialBlockState ground
+            @Nullable PartialBlockState air,
+            @Nullable PartialBlockState ground
         ) {
             if(air == null) {
                 air = EMPTY;
@@ -127,7 +129,7 @@ public class AirGroundReplacementProcessor extends StructureProcessor {
          * @return The created Entry.
          * @see #of(PartialBlockState, PartialBlockState, PartialBlockState)
          */
-        public static Entry of(Block key, /*@Nullable*/ Block air, /*@Nullable*/ Block ground) {
+        public static Entry of(Block key, @Nullable Block air, @Nullable Block ground) {
             return of(PartialBlockState.of(key),
                 air == null ? null : PartialBlockState.of(air),
                 ground == null ? null : PartialBlockState.of(ground));

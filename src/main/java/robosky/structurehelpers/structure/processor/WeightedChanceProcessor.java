@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
@@ -63,10 +65,10 @@ public class WeightedChanceProcessor extends StructureProcessor {
         ).apply(inst, Entry::new));
 
         public final float weight;
-        /*@Nullable*/
+        @Nullable
         public final PartialBlockState targetState;
 
-        private Entry(float weight, /*@Nullable*/ PartialBlockState targetState) {
+        private Entry(float weight, @Nullable PartialBlockState targetState) {
             this.weight = weight;
             this.targetState = targetState;
         }

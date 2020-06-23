@@ -184,23 +184,23 @@ public final class PartialBlockState {
                     }
                     // property
                     return Codec.STRING
-                        .<Property<?>>flatXmap(
+                        .<Property<?>>comapFlatMap(
                             n -> {
                                 Property<?> p = props.get(n);
                                 return p == null ? DataResult.error("Key: " + n) : DataResult.success(p);
                             },
-                            p -> DataResult.success(p.getName()))
+                            Property::getName)
                         .dispatch(
                             "Property",
                             Map.Entry::getKey,
                             // value
                             p -> Codec.STRING
-                                .<Map.Entry<Property<?>, Comparable<?>>>flatXmap(
+                                .<Map.Entry<Property<?>, Comparable<?>>>comapFlatMap(
                                     valueName -> p.parse(valueName)
                                         .map(v -> DataResult.success(
                                             new AbstractMap.SimpleEntry<Property<?>, Comparable<?>>(p, v)))
                                         .orElseGet(() -> DataResult.error("Value: " + valueName)),
-                                    pr -> DataResult.success(value(pr.getKey(), pr.getValue())))
+                                    pr -> value(pr.getKey(), pr.getValue()))
                                 .fieldOf("Value")
                                 .codec()
                         )
