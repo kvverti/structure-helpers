@@ -1,11 +1,13 @@
 {
-    "required": true,
-    "package": "robosky.structurehelpersdev.mixin",
-    "compatibilityLevel": "JAVA_8",
-    "mixins": [
-        "StructureFeatureAccess"
-    ],
-    "injectors": {
-        "defaultRequire": 1
+  "required": true,
+  "package": "robosky.structurehelpersdev.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "BiomeAccessor",
+    "GenerationSettingsMixin",
+    "StructureFeatureAccess"
+  ],
+  "injectors": {
+    "defaultRequire": 1
   }
 }

@@ -54,6 +54,7 @@ public class ExtendedStructureFeature extends StructureFeature<ExtendedStructure
                 feature.b,
                 feature.generateAtSurface
             );
+            this.setBoundingBoxFromChildren();
         }
     }
 }
