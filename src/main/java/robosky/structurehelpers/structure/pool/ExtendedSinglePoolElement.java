@@ -2,6 +2,8 @@ package robosky.structurehelpers.structure.pool;
 
 import java.util.List;
 import java.util.Random;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Either;
@@ -16,17 +18,19 @@ import net.minecraft.structure.Structure.StructureBlockInfo;
 import net.minecraft.structure.StructureManager;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.pool.SinglePoolElement;
+import net.minecraft.structure.pool.StructurePool;
 import net.minecraft.structure.pool.StructurePool.Projection;
 import net.minecraft.structure.pool.StructurePoolElement;
 import net.minecraft.structure.pool.StructurePoolElementType;
 import net.minecraft.structure.processor.BlockIgnoreStructureProcessor;
+import net.minecraft.structure.processor.ProcessorList;
 import net.minecraft.structure.processor.StructureProcessor;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
@@ -54,40 +58,26 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
      */
     private final boolean overwriteFluids;
 
-    /**
-     * Constructs an element with the given location which does not overwrite fluids and has
-     * no structure processors.
-     *
-     * @param location The structure element ID.
-     */
-    public ExtendedSinglePoolElement(Identifier location) {
-        this(location, false, ImmutableList.of());
-    }
-
-    /**
-     * Constructs an element with the given properties.
-     *
-     * @param location        The structure element ID.
-     * @param overwriteFluids If true, waterloggable blocks in this element will overwrite fluids instead
-     *                        of merging with them.
-     * @param processors      A list of structure processors that will be applied to this element.
-     */
-    public ExtendedSinglePoolElement(
-        Identifier location,
-        boolean overwriteFluids,
-        ImmutableList<StructureProcessor> processors
-    ) {
-        this(Either.left(location), processors, Projection.RIGID, overwriteFluids);
-    }
-
     private ExtendedSinglePoolElement(
         Either<Identifier, Structure> location,
-        List<StructureProcessor> processors,
+        Supplier<ProcessorList> processors,
         Projection projection,
         boolean overwriteFluids
     ) {
         super(location, processors, projection);
         this.overwriteFluids = overwriteFluids;
+    }
+
+    public static Function<StructurePool.Projection, ExtendedSinglePoolElement> of(Identifier location) {
+        return of(location, false, ImmutableList.of());
+    }
+
+    public static Function<StructurePool.Projection, ExtendedSinglePoolElement> of(
+        Identifier location,
+        boolean overwriteFluids,
+        ImmutableList<StructureProcessor> processors
+    ) {
+        return proj -> new ExtendedSinglePoolElement(Either.left(location), () -> new ProcessorList(processors), proj, overwriteFluids);
     }
 
     /**
@@ -115,7 +105,7 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
 
     @Override
     public boolean generate(
-        StructureManager manager, ServerWorldAccess world, StructureAccessor accessor, ChunkGenerator generator,
+        StructureManager manager, StructureWorldAccess world, StructureAccessor accessor, ChunkGenerator generator,
         BlockPos pos, BlockPos pos2, BlockRotation rotation, BlockBox box, Random rand, boolean b
     ) {
         boolean ret = super.generate(manager, world, accessor, generator, pos, pos2, rotation, box, rand, b);

@@ -7,7 +7,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.LootableContainerBlockEntity;
-import net.minecraft.command.arguments.BlockStateArgumentType;
+import net.minecraft.command.argument.BlockStateArgumentType;
 import net.minecraft.structure.Structure.StructureBlockInfo;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;

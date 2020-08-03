@@ -1,6 +1,5 @@
 package robosky.structurehelpers.mixin;
 
-
 import java.util.List;
 import java.util.Random;
 
@@ -21,6 +20,7 @@ import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
@@ -47,12 +47,12 @@ abstract class SimpleStructurePieceMixin extends StructurePiece {
         slice = @Slice(
             from = @At(
                 value = "INVOKE:FIRST",
-                target = "Lnet/minecraft/structure/Structure;place(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/structure/StructurePlacementData;Ljava/util/Random;I)Z"
+                target = "Lnet/minecraft/structure/Structure;place(Lnet/minecraft/world/ServerWorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/structure/StructurePlacementData;Ljava/util/Random;I)Z"
             )
         )
     )
     private void handleLootData(
-        ServerWorldAccess world,
+        StructureWorldAccess world,
         StructureAccessor accessor,
         ChunkGenerator generator,
         Random rand,
