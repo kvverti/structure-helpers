@@ -23,8 +23,8 @@ import net.minecraft.structure.pool.StructurePool.Projection;
 import net.minecraft.structure.pool.StructurePoolElement;
 import net.minecraft.structure.pool.StructurePoolElementType;
 import net.minecraft.structure.processor.BlockIgnoreStructureProcessor;
-import net.minecraft.structure.processor.ProcessorList;
 import net.minecraft.structure.processor.StructureProcessor;
+import net.minecraft.structure.processor.StructureProcessorList;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
@@ -60,7 +60,7 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
 
     private ExtendedSinglePoolElement(
         Either<Identifier, Structure> location,
-        Supplier<ProcessorList> processors,
+        Supplier<StructureProcessorList> processors,
         Projection projection,
         boolean overwriteFluids
     ) {
@@ -77,7 +77,7 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
         boolean overwriteFluids,
         ImmutableList<StructureProcessor> processors
     ) {
-        return proj -> new ExtendedSinglePoolElement(Either.left(location), () -> new ProcessorList(processors), proj, overwriteFluids);
+        return proj -> new ExtendedSinglePoolElement(Either.left(location), () -> new StructureProcessorList(processors), proj, overwriteFluids);
     }
 
     /**

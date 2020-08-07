@@ -5,6 +5,7 @@ import robosky.structurehelpers.block.LootDataBlockEntity;
 import robosky.structurehelpers.network.LootDataPacketData;
 import robosky.structurehelpers.network.ServerStructHelpPackets;
 
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -50,7 +51,7 @@ public class LootDataScreen extends Screen {
         centerH = this.width / 2;
         centerV = this.height / 2;
         assert this.client != null : "this.client null in LootDataScreen";
-        this.client.keyboard.enableRepeatEvents(true);
+        this.client.keyboard.setRepeatEvents(true);
         // loot table ID
         lootTableIn = new TextFieldWidget(this.textRenderer,
             centerH - guiRadius,
@@ -98,14 +99,14 @@ public class LootDataScreen extends Screen {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.renderBackground(matrices);
         // title
-        this.drawCenteredString(matrices,
+        DrawableHelper.drawCenteredString(matrices,
             this.textRenderer,
             I18n.translate("gui.structure-helpers.loot_data.title"),
             centerH,
             centerV - 80,
             0xffffff);
         // loot table ID
-        this.drawStringWithShadow(matrices,
+        DrawableHelper.drawStringWithShadow(matrices,
             this.textRenderer,
             I18n.translate("gui.structure-helpers.loot_data.table"),
             centerH - guiRadius,
@@ -113,7 +114,7 @@ public class LootDataScreen extends Screen {
             0xa0a0a0);
         lootTableIn.render(matrices, mouseX, mouseY, delta);
         // replacement state
-        this.drawStringWithShadow(matrices,
+        DrawableHelper.drawStringWithShadow(matrices,
             this.textRenderer,
             I18n.translate("gui.structure-helpers.loot_data.replace"),
             centerH - guiRadius,

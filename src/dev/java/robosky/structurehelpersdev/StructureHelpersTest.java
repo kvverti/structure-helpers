@@ -21,13 +21,13 @@ import net.minecraft.block.Blocks;
 import net.minecraft.state.property.Properties;
 import net.minecraft.structure.pool.StructurePool;
 import net.minecraft.structure.pool.StructurePool.Projection;
-import net.minecraft.structure.pool.TemplatePools;
+import net.minecraft.structure.pool.StructurePools;
 import net.minecraft.structure.processor.StructureProcessor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.GenerationStep;
-import net.minecraft.world.gen.chunk.ChunkGeneratorType;
+import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
 import net.minecraft.world.gen.chunk.StructureConfig;
 import net.minecraft.world.gen.feature.ConfiguredStructureFeature;
 
@@ -48,8 +48,8 @@ public class StructureHelpersTest implements ModInitializer {
                 () -> TestStructureFeature.START,
                 16));
         BuiltinRegistries.add(BuiltinRegistries.CONFIGURED_STRUCTURE_FEATURE, StructureHelpers.id("test_dungeon"), configuredFeature);
-        // overworld chunk generator type
-        ChunkGeneratorType.field_26355.getConfig().getStructures().put(feature, new StructureConfig(8, 4, 1));
+        BuiltinRegistries.CHUNK_GENERATOR_SETTINGS.get(ChunkGeneratorSettings.OVERWORLD)
+            .getStructuresConfig().getStructures().put(feature, new StructureConfig(8, 4, 1));
         for(Biome biome : BuiltinRegistries.BIOME) {
             // only for biomes you want your structure to appear in
             biome.getGenerationSettings().getStructureFeatures().add(() -> configuredFeature);
@@ -89,7 +89,7 @@ class TestStructureFeature extends ExtendedStructureFeature {
                 Entry.of(PartialBlockState.builder(Blocks.END_PORTAL_FRAME).with(Properties.EYE, true).build(), 0.5f),
                 Entry.of(PartialBlockState.builder(Blocks.END_PORTAL_FRAME).with(Properties.EYE, false).build(), 0.5f)
             ).build());
-        START = TemplatePools.register(
+        START = StructurePools.register(
             new StructurePool(
                 id("start"),
                 new Identifier("empty"),
@@ -99,7 +99,7 @@ class TestStructureFeature extends ExtendedStructureFeature {
                 Projection.RIGID
             )
         );
-        TemplatePools.register(
+        StructurePools.register(
             new StructurePool(
                 id("halls"),
                 new Identifier("empty"),
@@ -115,7 +115,7 @@ class TestStructureFeature extends ExtendedStructureFeature {
                 Projection.RIGID
             )
         );
-        TemplatePools.register(
+        StructurePools.register(
             new StructurePool(
                 id("halls_and_rooms"),
                 new Identifier("empty"),
@@ -133,7 +133,7 @@ class TestStructureFeature extends ExtendedStructureFeature {
                 Projection.RIGID
             )
         );
-        TemplatePools.register(
+        StructurePools.register(
             new StructurePool(
                 id("stairway-term"),
                 new Identifier("empty"),
@@ -143,7 +143,7 @@ class TestStructureFeature extends ExtendedStructureFeature {
                 Projection.RIGID
             )
         );
-        TemplatePools.register(
+        StructurePools.register(
             new StructurePool(
                 id("stairway"),
                 id("stairway-term"),
@@ -155,7 +155,7 @@ class TestStructureFeature extends ExtendedStructureFeature {
                 Projection.RIGID
             )
         );
-        TemplatePools.register(
+        StructurePools.register(
             new StructurePool(
                 id("doors"),
                 new Identifier("empty"),
@@ -167,7 +167,7 @@ class TestStructureFeature extends ExtendedStructureFeature {
                 Projection.RIGID
             )
         );
-        TemplatePools.register(
+        StructurePools.register(
             new StructurePool(
                 id("deco"),
                 new Identifier("empty"),
