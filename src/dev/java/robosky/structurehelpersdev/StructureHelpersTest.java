@@ -1,7 +1,5 @@
 package robosky.structurehelpersdev;
 
-import java.util.ArrayList;
-
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import robosky.structurehelpers.StructureHelpers;
@@ -13,10 +11,9 @@ import robosky.structurehelpers.structure.processor.AirGroundReplacementProcesso
 import robosky.structurehelpers.structure.processor.PartialBlockState;
 import robosky.structurehelpers.structure.processor.WeightedChanceProcessor;
 import robosky.structurehelpers.structure.processor.WeightedChanceProcessor.Entry;
-import robosky.structurehelpersdev.mixin.BiomeAccessor;
-import robosky.structurehelpersdev.mixin.StructureFeatureAccess;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.structure.v1.FabricStructureBuilder;
 import net.minecraft.block.Blocks;
 import net.minecraft.state.property.Properties;
 import net.minecraft.structure.pool.StructurePool;
@@ -27,19 +24,21 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.GenerationStep;
-import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
-import net.minecraft.world.gen.chunk.StructureConfig;
 import net.minecraft.world.gen.feature.ConfiguredStructureFeature;
 
 public class StructureHelpersTest implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        TestStructureFeature feature = StructureFeatureAccess.callRegister(
-            // this is the name in /locate
-            StructureHelpers.id("test_dungeon").toString(),
-            new TestStructureFeature(),
-            GenerationStep.Feature.UNDERGROUND_STRUCTURES);
+        // create and register structure feature
+        TestStructureFeature feature = FabricStructureBuilder
+            .create(StructureHelpers.id("test_dungeon"), new TestStructureFeature())
+            .step(GenerationStep.Feature.UNDERGROUND_STRUCTURES)
+            .defaultConfig(8, 4, 1)
+            .register();
+        // create and register configured feature (may also be done via datapacks for datapack biomes)
+        // sorry for the PascalCase names, they were made before I knew they were going to go into
+        // datapack JSON objects
         ConfiguredStructureFeature<?, ?> configuredFeature = feature.configure(
             new ExtendedStructurePoolFeatureConfig(
                 ImmutableList.of(ElementRange.of(TestStructureFeature.id("end_portal"), 1, 1)),
@@ -48,15 +47,9 @@ public class StructureHelpersTest implements ModInitializer {
                 () -> TestStructureFeature.START,
                 16));
         BuiltinRegistries.add(BuiltinRegistries.CONFIGURED_STRUCTURE_FEATURE, StructureHelpers.id("test_dungeon"), configuredFeature);
-        BuiltinRegistries.CHUNK_GENERATOR_SETTINGS.get(ChunkGeneratorSettings.OVERWORLD)
-            .getStructuresConfig().getStructures().put(feature, new StructureConfig(8, 4, 1));
         for(Biome biome : BuiltinRegistries.BIOME) {
             // only for biomes you want your structure to appear in
             biome.getGenerationSettings().getStructureFeatures().add(() -> configuredFeature);
-            // all biomes (until this is added to a structure API)
-            ((BiomeAccessor)(Object)biome).getField_26634()
-                .computeIfAbsent(feature.getGenerationStep().ordinal(), k -> new ArrayList<>())
-                .add(feature);
         }
     }
 }

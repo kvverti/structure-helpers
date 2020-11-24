@@ -3,9 +3,7 @@
   "package": "robosky.structurehelpersdev.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "BiomeAccessor",
-    "GenerationSettingsMixin",
-    "StructureFeatureAccess"
+    "GenerationSettingsMixin"
   ],
   "injectors": {
     "defaultRequire": 1
