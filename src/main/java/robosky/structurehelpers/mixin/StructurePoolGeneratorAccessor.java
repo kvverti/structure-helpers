@@ -17,9 +17,6 @@ import net.minecraft.util.shape.VoxelShape;
 @Mixin(StructurePoolBasedGenerator.StructurePoolGenerator.class)
 public interface StructurePoolGeneratorAccessor {
 
-    @Accessor
-    List<? super PoolStructurePiece> getChildren();
-
     @Invoker
     void callGeneratePiece(
         PoolStructurePiece piece,
