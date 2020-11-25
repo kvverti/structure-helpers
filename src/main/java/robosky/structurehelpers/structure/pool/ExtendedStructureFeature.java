@@ -19,6 +19,14 @@ public class ExtendedStructureFeature extends StructureFeature<ExtendedStructure
     private final boolean b;
     private final boolean generateAtSurface;
 
+    public ExtendedStructureFeature(int height, boolean b, boolean generateAtSurface) {
+        this(ExtendedStructurePoolFeatureConfig.CODEC, height, b, generateAtSurface);
+    }
+
+    /**
+     * @deprecated Use {@link #ExtendedStructureFeature(int, boolean, boolean)} instead.
+     */
+    @Deprecated
     public ExtendedStructureFeature(Codec<ExtendedStructurePoolFeatureConfig> codec, int height, boolean b, boolean generateAtSurface) {
         super(codec);
         this.height = height;

@@ -3,9 +3,11 @@ package robosky.structurehelpers;
 import robosky.structurehelpers.block.LootDataBlock;
 import robosky.structurehelpers.block.LootDataBlockEntity;
 import robosky.structurehelpers.network.ServerStructHelpPackets;
+import robosky.structurehelpers.structure.pool.ExtendedSinglePoolElement;
 import robosky.structurehelpers.structure.processor.AirGroundReplacementProcessor;
 import robosky.structurehelpers.structure.processor.WeightedChanceProcessor;
 
+import net.fabricmc.api.ModInitializer;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
@@ -15,8 +17,6 @@ import net.minecraft.structure.processor.StructureProcessorType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
 import net.minecraft.util.registry.Registry;
-
-import net.fabricmc.api.ModInitializer;
 
 public class StructureHelpers implements ModInitializer {
 
@@ -50,11 +50,11 @@ public class StructureHelpers implements ModInitializer {
     @Override
     public void onInitialize() {
         ServerStructHelpPackets.init();
-    }
-
-    static {
         Registry.register(Registry.ITEM,
             id("loot_data"),
             new BlockItem(LOOT_DATA_BLOCK, new Item.Settings().rarity(Rarity.EPIC)));
+        Registry.register(Registry.STRUCTURE_POOL_ELEMENT,
+            StructureHelpers.id("metadata_element"),
+            ExtendedSinglePoolElement.TYPE);
     }
 }

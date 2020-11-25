@@ -174,6 +174,6 @@ class TestStructureFeature extends ExtendedStructureFeature {
     }
 
     public TestStructureFeature() {
-        super(ExtendedStructurePoolFeatureConfig.CODEC, 30, false, false);
+        super(30, false, false);
     }
 }

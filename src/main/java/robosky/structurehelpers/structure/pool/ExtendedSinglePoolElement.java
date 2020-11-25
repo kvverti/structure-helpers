@@ -29,7 +29,6 @@ import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -47,10 +46,7 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
         Codec.BOOL.fieldOf("OverwriteFluids").forGetter(e -> e.overwriteFluids)
     ).apply(inst, ExtendedSinglePoolElement::new));
 
-    public static final StructurePoolElementType<ExtendedSinglePoolElement> TYPE =
-        Registry.register(Registry.STRUCTURE_POOL_ELEMENT,
-            StructureHelpers.id("metadata_element"),
-            () -> CODEC);
+    public static final StructurePoolElementType<ExtendedSinglePoolElement> TYPE = () -> CODEC;
 
     /**
      * Whether blocks in this element should overwrite fluids. If false,
