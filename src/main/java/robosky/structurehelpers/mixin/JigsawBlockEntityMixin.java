@@ -8,10 +8,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import robosky.structurehelpers.iface.JigsawAccessorData;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.JigsawBlockEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.math.BlockPos;
 
 @Mixin(JigsawBlockEntity.class)
 abstract class JigsawBlockEntityMixin extends BlockEntity implements JigsawAccessorData {
@@ -26,7 +26,7 @@ abstract class JigsawBlockEntityMixin extends BlockEntity implements JigsawAcces
     private boolean childJunction;
 
     private JigsawBlockEntityMixin() {
-        super(null);
+        super(null, BlockPos.ORIGIN, null);
     }
 
     @Override
@@ -39,13 +39,13 @@ abstract class JigsawBlockEntityMixin extends BlockEntity implements JigsawAcces
         this.childJunction = child;
     }
 
-    @Inject(method = "toTag", at = @At("RETURN"))
-    private void writeOffsetToTag(CompoundTag tag, CallbackInfoReturnable<CompoundTag> info) {
+    @Inject(method = "writeNbt", at = @At("RETURN"))
+    private void writeOffsetToTag(NbtCompound tag, CallbackInfoReturnable<NbtCompound> info) {
         tag.putBoolean(CHILD_JUNCTION, childJunction);
     }
 
-    @Inject(method = "fromTag", at = @At("RETURN"))
-    private void readOffsetFromTag(BlockState state, CompoundTag tag, CallbackInfo info) {
+    @Inject(method = "readNbt", at = @At("RETURN"))
+    private void readOffsetFromTag(NbtCompound tag, CallbackInfo info) {
         childJunction = tag.getBoolean(CHILD_JUNCTION);
     }
 }

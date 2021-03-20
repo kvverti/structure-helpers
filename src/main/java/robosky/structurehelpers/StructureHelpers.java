@@ -8,6 +8,7 @@ import robosky.structurehelpers.structure.processor.AirGroundReplacementProcesso
 import robosky.structurehelpers.structure.processor.WeightedChanceProcessor;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
@@ -41,7 +42,7 @@ public class StructureHelpers implements ModInitializer {
         Registry.register(
             Registry.BLOCK_ENTITY_TYPE,
             id("loot_data"),
-            BlockEntityType.Builder.create(LootDataBlockEntity::new, LOOT_DATA_BLOCK).build(null));
+            FabricBlockEntityTypeBuilder.create(LootDataBlockEntity::new, LOOT_DATA_BLOCK).build());
 
     public static Identifier id(String value) {
         return new Identifier(MODID, value);

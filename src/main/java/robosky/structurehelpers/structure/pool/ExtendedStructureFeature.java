@@ -8,7 +8,9 @@ import net.minecraft.structure.StructureManager;
 import net.minecraft.structure.pool.StructurePoolBasedGenerator;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.feature.StructureFeature;
@@ -36,20 +38,20 @@ public class ExtendedStructureFeature extends StructureFeature<ExtendedStructure
 
     @Override
     public StructureStartFactory<ExtendedStructurePoolFeatureConfig> getStructureStartFactory() {
-        return (feature, chunkX, chunkZ, box, referenceCount, worldSeed) ->
-            new Start((ExtendedStructureFeature)feature, chunkX, chunkZ, box, referenceCount, worldSeed);
+        return (feature, chunkPos, box, referenceCount, worldSeed) ->
+            new Start((ExtendedStructureFeature)feature, chunkPos, box, referenceCount, worldSeed);
     }
 
     public static class Start extends MarginedStructureStart<ExtendedStructurePoolFeatureConfig> {
 
-        public Start(ExtendedStructureFeature structureFeature, int chunkX, int chunkZ, BlockBox box, int referenceCount, long worldSeed) {
-            super(structureFeature, chunkX, chunkZ, box, referenceCount, worldSeed);
+        public Start(ExtendedStructureFeature structureFeature, ChunkPos chunkPos, BlockBox box, int referenceCount, long worldSeed) {
+            super(structureFeature, chunkPos, box, referenceCount, worldSeed);
         }
 
         @Override
-        public void init(DynamicRegistryManager dynamicRegistryManager, ChunkGenerator chunkGenerator, StructureManager structureManager, int chunkX, int chunkZ, Biome biome, ExtendedStructurePoolFeatureConfig featureConfig) {
+        public void init(DynamicRegistryManager dynamicRegistryManager, ChunkGenerator chunkGenerator, StructureManager structureManager, ChunkPos chunkPos, Biome biome, ExtendedStructurePoolFeatureConfig featureConfig, HeightLimitView view) {
             ExtendedStructureFeature feature = (ExtendedStructureFeature)this.getFeature();
-            BlockPos pos = new BlockPos(chunkX * 16, feature.height, chunkZ * 16);
+            BlockPos pos = new BlockPos(chunkPos.x * 16, feature.height, chunkPos.z * 16);
             StructurePoolBasedGenerator.method_30419(
                 dynamicRegistryManager,
                 featureConfig,
@@ -60,7 +62,8 @@ public class ExtendedStructureFeature extends StructureFeature<ExtendedStructure
                 this.children,
                 this.random,
                 feature.b,
-                feature.generateAtSurface
+                feature.generateAtSurface,
+                view
             );
             this.setBoundingBoxFromChildren();
         }

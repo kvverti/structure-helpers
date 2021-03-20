@@ -93,7 +93,7 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
      * elements that should not be placed.
      */
     @ModifyVariable(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Lorg/apache/commons/lang3/mutable/MutableObject;IIZ)V",
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Lorg/apache/commons/lang3/mutable/MutableObject;IIZLnet/minecraft/world/HeightLimitView;)V",
         ordinal = 1,
         at = @At(
             value = "STORE",
@@ -112,7 +112,7 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
      * capturing lots of local variables with an Inject.
      */
     @ModifyVariable(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Lorg/apache/commons/lang3/mutable/MutableObject;IIZ)V",
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Lorg/apache/commons/lang3/mutable/MutableObject;IIZLnet/minecraft/world/HeightLimitView;)V",
         ordinal = 1,
         at = @At(
             value = "STORE",
@@ -149,7 +149,7 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
      * Increment the current extended pool element placement count.
      */
     @ModifyArg(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Lorg/apache/commons/lang3/mutable/MutableObject;IIZ)V",
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Lorg/apache/commons/lang3/mutable/MutableObject;IIZLnet/minecraft/world/HeightLimitView;)V",
         at = @At(
             value = "INVOKE",
             target = "Ljava/util/List;add(Ljava/lang/Object;)Z",
@@ -173,7 +173,7 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
      * Skips child junctions when generating normal connections and visa-versa.
      */
     @Redirect(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Lorg/apache/commons/lang3/mutable/MutableObject;IIZ)V",
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Lorg/apache/commons/lang3/mutable/MutableObject;IIZLnet/minecraft/world/HeightLimitView;)V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/block/JigsawBlock;attachmentMatches(Lnet/minecraft/structure/Structure$StructureBlockInfo;Lnet/minecraft/structure/Structure$StructureBlockInfo;)Z",
@@ -194,7 +194,7 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
      * child elements.
      */
     @Redirect(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Lorg/apache/commons/lang3/mutable/MutableObject;IIZ)V",
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Lorg/apache/commons/lang3/mutable/MutableObject;IIZLnet/minecraft/world/HeightLimitView;)V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/util/shape/VoxelShapes;matchesAnywhere(Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/function/BooleanBiFunction;)Z",
@@ -212,7 +212,7 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
      * elements have been placed their minimum number of times.
      */
     @Redirect(
-        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Lorg/apache/commons/lang3/mutable/MutableObject;IIZ)V",
+        method = "generatePiece(Lnet/minecraft/structure/PoolStructurePiece;Lorg/apache/commons/lang3/mutable/MutableObject;IIZLnet/minecraft/world/HeightLimitView;)V",
         at = @At(
             value = "FIELD",
             target = "Lnet/minecraft/structure/pool/StructurePoolBasedGenerator$StructurePoolGenerator;maxSize:I"

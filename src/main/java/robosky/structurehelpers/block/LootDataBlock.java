@@ -4,6 +4,7 @@ import io.netty.buffer.Unpooled;
 import robosky.structurehelpers.network.ClientStructHelpPackets;
 import robosky.structurehelpers.network.LootDataPacketData;
 
+import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
@@ -14,10 +15,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-
-import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 
 public class LootDataBlock extends Block implements BlockEntityProvider {
 
@@ -26,8 +24,8 @@ public class LootDataBlock extends Block implements BlockEntityProvider {
     }
 
     @Override
-    public BlockEntity createBlockEntity(BlockView world) {
-        return new LootDataBlockEntity();
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+        return new LootDataBlockEntity(pos, state);
     }
 
     @Override

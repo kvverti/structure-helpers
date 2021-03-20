@@ -1,7 +1,6 @@
 package robosky.structurehelpers.mixin.client;
 
 import io.netty.buffer.Unpooled;
-import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -15,18 +14,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import robosky.structurehelpers.iface.JigsawAccessorData;
 import robosky.structurehelpers.network.ServerStructHelpPackets;
 
+import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.minecraft.block.entity.JigsawBlockEntity;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.JigsawBlockScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.Direction;
-
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 
 @Mixin(JigsawBlockScreen.class)
 abstract class JigsawBlockScreenMixin extends Screen {
@@ -89,35 +87,46 @@ abstract class JigsawBlockScreenMixin extends Screen {
         return 152 + 4;
     }
 
-    @Dynamic("Joint rotation button click listener")
-    @ModifyArg(
-        method = "method_26411",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/widget/ButtonWidget;setMessage(Lnet/minecraft/text/Text;)V"
-        )
-    )
-    private Text modifyJointButtonName(Text name) {
-        return adjustJointButtonName(name);
-    }
+//    @Dynamic("Joint rotation button click listener")
+//    @ModifyArg(
+//        method = "method_26411",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/gui/widget/ButtonWidget;setMessage(Lnet/minecraft/text/Text;)V"
+//        )
+//    )
+//    private Text modifyJointButtonName(Text name) {
+//        return adjustJointButtonName(name);
+//    }
+//
+//    @ModifyArg(
+//        method = "init",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/gui/widget/ButtonWidget;<init>(IIIILnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V",
+//            ordinal = 0
+//        )
+//    )
+//    private Text modifyInitialJointButtonName(Text name) {
+//        return adjustJointButtonName(name);
+//    }
+//
+//    @Unique
+//    private Text adjustJointButtonName(Text name) {
+//        return new TranslatableText("jigsaw_block.joint_label")
+//            .append(" ")
+//            .append(name);
+//    }
 
-    @ModifyArg(
+    @Redirect(
         method = "init",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/widget/ButtonWidget;<init>(IIIILnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V",
-            ordinal = 0
+            target = "Lnet/minecraft/client/gui/widget/CyclingButtonWidget$Builder;omitKeyText()Lnet/minecraft/client/gui/widget/CyclingButtonWidget$Builder;"
         )
     )
-    private Text modifyInitialJointButtonName(Text name) {
-        return adjustJointButtonName(name);
-    }
-
-    @Unique
-    private Text adjustJointButtonName(Text name) {
-        return new TranslatableText("jigsaw_block.joint_label")
-            .append(" ")
-            .append(name);
+    private CyclingButtonWidget.Builder<?> doNotOmitKeyTextForJointBtn(CyclingButtonWidget.Builder<?> self) {
+        return self;
     }
 
     @ModifyArg(
@@ -125,8 +134,8 @@ abstract class JigsawBlockScreenMixin extends Screen {
         index = 2,
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/widget/ButtonWidget;<init>(IIIILnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V",
-            ordinal = 3
+            target = "Lnet/minecraft/client/gui/widget/CyclingButtonWidget$Builder;build(IIIILnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/CyclingButtonWidget$UpdateCallback;)Lnet/minecraft/client/gui/widget/CyclingButtonWidget;",
+            ordinal = 0
         )
     )
     private int adjustJointButtonLength(int length) {

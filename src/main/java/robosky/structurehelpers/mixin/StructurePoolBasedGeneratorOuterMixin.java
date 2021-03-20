@@ -28,6 +28,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.feature.StructurePoolFeatureConfig;
@@ -62,6 +63,7 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
         Random rand,
         boolean b,
         boolean generateAtSurface,
+        HeightLimitView view,
         CallbackInfo info
     ) {
         if(config instanceof ExtendedStructurePoolFeatureConfig) {
@@ -110,6 +112,7 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
         Random rand,
         boolean b,
         boolean generateAtSurface,
+        HeightLimitView view,
         CallbackInfo info
     ) {
         StructurePoolGeneratorAddition gen = poolGenerator.get();
@@ -122,12 +125,13 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
                     BlockBox blockBox = poolPiece.getBoundingBox();
                     int x = (blockBox.maxX + blockBox.minX) / 2;
                     int z = (blockBox.maxZ + blockBox.minZ) / 2;
-                    int y = generator.getHeightOnGround(x, z, Heightmap.Type.WORLD_SURFACE_WG);
+                    int y = generator.getHeightOnGround(x, z, Heightmap.Type.WORLD_SURFACE_WG, view);
                     ((StructurePoolGeneratorAccessor)gen).callGeneratePiece(poolPiece,
                         new MutableObject<>(VoxelShapes.empty()),
                         y + 80,
                         0,
-                        b);
+                        b,
+                        view);
                 }
             }
             if(!gen.structhelp_softCheckMinMaxConstraints()) {
@@ -160,7 +164,8 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
         List<? super PoolStructurePiece> children,
         Random rand,
         boolean b,
-        boolean generateAtSurface
+        boolean generateAtSurface,
+        HeightLimitView view
     ) {
         final int vanillaExtent = 80;
         if(config instanceof ExtendedStructurePoolFeatureConfig) {

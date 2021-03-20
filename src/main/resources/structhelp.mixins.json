@@ -1,19 +1,19 @@
 {
-    "required": true,
-    "package": "robosky.structurehelpers.mixin",
-    "compatibilityLevel": "JAVA_8",
-    "mixins": [
-        "JigsawBlockEntityMixin",
-        "SimpleStructurePieceMixin",
-        "StructurePlacementDataAccessor",
-        "StructurePoolBasedGeneratorMixin",
-        "StructurePoolBasedGeneratorOuterMixin",
-        "StructurePoolGeneratorAccessor"
-    ],
-    "client": [
-        "client.JigsawBlockScreenMixin"
-    ],
-    "injectors": {
-        "defaultRequire": 1
+  "required": true,
+  "package": "robosky.structurehelpers.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "JigsawBlockEntityMixin",
+    "SimpleStructurePieceMixin",
+    "StructurePlacementDataAccessor",
+    "StructurePoolBasedGeneratorMixin",
+    "StructurePoolBasedGeneratorOuterMixin",
+    "StructurePoolGeneratorAccessor"
+  ],
+  "client": [
+    "client.JigsawBlockScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
   }
 }
