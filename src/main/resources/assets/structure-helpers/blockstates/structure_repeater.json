@@ -1,0 +1,6 @@
+{
+    "variants": {
+        "facing=up": { "model": "structure-helpers:block/structure_repeater" },
+        "facing=down": { "model": "structure-helpers:block/structure_repeater", "x": 180 }
+    }
+}

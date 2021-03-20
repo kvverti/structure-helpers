@@ -1,0 +1,7 @@
+{
+    "parent": "block/cube_column",
+    "textures": {
+        "side": "structure-helpers:block/structure_repeater",
+        "end": "structure-helpers:block/structure_repeater_top"
+    }
+}

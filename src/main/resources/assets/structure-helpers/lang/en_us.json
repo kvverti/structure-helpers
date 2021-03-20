@@ -1,5 +1,6 @@
 {
     "block.structure-helpers.loot_data": "Loot Data Block",
+    "block.structure-helpers.structure_repeater": "Structure Repeater",
     "gui.structure-helpers.loot_data.title": "Loot Data Block",
     "gui.structure-helpers.loot_data.table": "Loot Table ID",
     "gui.structure-helpers.loot_data.replace": "Replacement State",

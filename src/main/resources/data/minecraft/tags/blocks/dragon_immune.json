@@ -1,6 +1,7 @@
 {
     "replace": false,
     "values": [
-        "structure-helpers:loot_data"
+        "structure-helpers:loot_data",
+        "structure-helpers:structure_repeater"
     ]
 }
