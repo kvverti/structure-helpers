@@ -5,6 +5,7 @@ import robosky.structurehelpers.block.LootDataBlockEntity;
 import robosky.structurehelpers.network.LootDataPacketData;
 import robosky.structurehelpers.network.ServerStructHelpPackets;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
@@ -16,8 +17,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
-
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 
 /**
  * Screen class for the loot data block entity.
@@ -129,7 +128,7 @@ public class LootDataScreen extends Screen {
             new LootDataPacketData(backingBe.getPos(), lootTableIn.getText(), replaceIn.getText());
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         data.write(buf);
-        ClientSidePacketRegistry.INSTANCE.sendToServer(ServerStructHelpPackets.LOOT_DATA_UPDATE, buf);
+        ClientPlayNetworking.send(ServerStructHelpPackets.LOOT_DATA_UPDATE, buf);
         this.onClose();
     }
 }

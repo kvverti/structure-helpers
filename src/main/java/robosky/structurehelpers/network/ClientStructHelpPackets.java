@@ -4,13 +4,13 @@ import robosky.structurehelpers.StructureHelpers;
 import robosky.structurehelpers.block.LootDataBlockEntity;
 import robosky.structurehelpers.client.LootDataScreen;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
-
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
-import net.fabricmc.fabric.api.network.PacketContext;
 
 public final class ClientStructHelpPackets {
 
@@ -20,11 +20,10 @@ public final class ClientStructHelpPackets {
     public static final Identifier LOOT_DATA_OPEN =
         new Identifier(StructureHelpers.MODID, "loot_data_open");
 
-    private static void openLootDataScreen(PacketContext ctx, PacketByteBuf buf) {
+    private static void openLootDataScreen(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
         LootDataPacketData data = new LootDataPacketData();
         data.read(buf);
-        ctx.getTaskQueue().execute(() -> {
-            MinecraftClient client = MinecraftClient.getInstance();
+        client.execute(() -> {
             BlockEntity be = client.world.getBlockEntity(data.getPos());
             if(be instanceof LootDataBlockEntity) {
                 LootDataBlockEntity ld = (LootDataBlockEntity)be;
@@ -36,6 +35,6 @@ public final class ClientStructHelpPackets {
     }
 
     public static void init() {
-        ClientSidePacketRegistry.INSTANCE.register(LOOT_DATA_OPEN, ClientStructHelpPackets::openLootDataScreen);
+        ClientPlayNetworking.registerGlobalReceiver(LOOT_DATA_OPEN, ClientStructHelpPackets::openLootDataScreen);
     }
 }

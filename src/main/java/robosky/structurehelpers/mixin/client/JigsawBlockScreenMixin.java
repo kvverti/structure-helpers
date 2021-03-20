@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import robosky.structurehelpers.iface.JigsawAccessorData;
 import robosky.structurehelpers.network.ServerStructHelpPackets;
 
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.entity.JigsawBlockEntity;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.JigsawBlockScreen;
@@ -48,7 +48,7 @@ abstract class JigsawBlockScreenMixin extends Screen {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeBlockPos(jigsaw.getPos());
         buf.writeBoolean(childJunction);
-        ClientSidePacketRegistry.INSTANCE.sendToServer(ServerStructHelpPackets.JIGSAW_OFFSET_UPDATE, buf);
+        ClientPlayNetworking.send(ServerStructHelpPackets.JIGSAW_OFFSET_UPDATE, buf);
     }
 
     @Inject(
@@ -86,37 +86,6 @@ abstract class JigsawBlockScreenMixin extends Screen {
         // cancels (this.width / 2 - 152)
         return 152 + 4;
     }
-
-//    @Dynamic("Joint rotation button click listener")
-//    @ModifyArg(
-//        method = "method_26411",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/client/gui/widget/ButtonWidget;setMessage(Lnet/minecraft/text/Text;)V"
-//        )
-//    )
-//    private Text modifyJointButtonName(Text name) {
-//        return adjustJointButtonName(name);
-//    }
-//
-//    @ModifyArg(
-//        method = "init",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/client/gui/widget/ButtonWidget;<init>(IIIILnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V",
-//            ordinal = 0
-//        )
-//    )
-//    private Text modifyInitialJointButtonName(Text name) {
-//        return adjustJointButtonName(name);
-//    }
-//
-//    @Unique
-//    private Text adjustJointButtonName(Text name) {
-//        return new TranslatableText("jigsaw_block.joint_label")
-//            .append(" ")
-//            .append(name);
-//    }
 
     @Redirect(
         method = "init",
