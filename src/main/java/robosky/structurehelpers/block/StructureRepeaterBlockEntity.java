@@ -28,9 +28,9 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
     private static final RepeaterData DEFAULT = new Single("minecraft:air");
 
     private RepeaterData data = DEFAULT;
-//    private int repeatMin;
-//    private int repeatMax;
-//    private boolean stopAtSolid;
+    private int repeatMin = 1;
+    private int repeatMax = 1;
+    private boolean stopAtSolid = false;
 
     public StructureRepeaterBlockEntity(BlockPos pos, BlockState state) {
         super(StructureHelpers.STRUCTURE_REPEATER_ENTITY_TYPE, pos, state);
@@ -39,15 +39,28 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
     @Override
     public void readNbt(NbtCompound tag) {
         super.readNbt(tag);
-        this.data = RepeaterData.CODEC.parse(NbtOps.INSTANCE, tag)
+        NbtCompound data = tag.getCompound("Data");
+        this.data = RepeaterData.CODEC
+            .parse(NbtOps.INSTANCE, data)
             .result()
             .orElse(DEFAULT);
+        this.repeatMin = Math.max(0, tag.getInt("RepeatMin"));
+        this.repeatMax = Math.max(this.repeatMin, tag.getInt("RepeatMax"));
+        this.stopAtSolid = tag.getBoolean("StopAtSolid");
     }
 
     @Override
     public NbtCompound writeNbt(NbtCompound tag) {
         tag = super.writeNbt(tag);
-        return (NbtCompound)RepeaterData.CODEC.encode(this.data, NbtOps.INSTANCE, tag).result().orElse(tag);
+        NbtCompound data = (NbtCompound)RepeaterData.CODEC
+            .encodeStart(NbtOps.INSTANCE, this.data)
+            .result()
+            .orElseGet(NbtCompound::new);
+        tag.put("Data", data);
+        tag.putInt("RepeatMin", this.repeatMin);
+        tag.putInt("RepeatMax", this.repeatMax);
+        tag.putBoolean("StopAtSolid", this.stopAtSolid);
+        return tag;
     }
 
     /**
@@ -87,7 +100,7 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
     private static final class Single extends RepeaterData {
 
         static final Codec<Single> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            Codec.STRING.fieldOf("BlockState").forGetter(d -> d.serializedState)
+            Codec.STRING.fieldOf("BlockState").orElse("minecraft:air").forGetter(d -> d.serializedState)
         ).apply(inst, Single::new));
 
         final String serializedState;
