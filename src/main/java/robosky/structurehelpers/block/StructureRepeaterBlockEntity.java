@@ -8,6 +8,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 
@@ -112,6 +113,40 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
     }
 
     /**
+     * Repeat a structure.
+     */
+    private static final class Layer extends RepeaterData {
+
+        static final Codec<Layer> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            Identifier.CODEC.fieldOf("Structure").orElseGet(() -> new Identifier("empty")).forGetter(d -> d.structure)
+        ).apply(inst, Layer::new));
+
+        final Identifier structure;
+
+        Layer(Identifier structure) {
+            super(Mode.LAYER);
+            this.structure = structure;
+        }
+    }
+
+    /**
+     * Start a jigsaw iteration.
+     */
+    private static final class Jigsaw extends RepeaterData {
+
+        static final Codec<Jigsaw> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            Identifier.CODEC.fieldOf("Start").orElseGet(() -> new Identifier("empty")).forGetter(d -> d.startPool)
+        ).apply(inst, Jigsaw::new));
+
+        final Identifier startPool;
+
+        Jigsaw(Identifier startPool) {
+            super(Mode.JIGSAW);
+            this.startPool = startPool;
+        }
+    }
+
+    /**
      * Base class for repeater data.
      */
     private static abstract class RepeaterData {
@@ -122,8 +157,9 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
             mode -> {
                 switch(mode) {
                     case LAYER:
+                        return Layer.CODEC;
                     case JIGSAW:
-                        throw new UnsupportedOperationException();
+                        return Jigsaw.CODEC;
                     default:
                         return Single.CODEC;
                 }
