@@ -1,7 +1,11 @@
 package robosky.structurehelpers.client;
 
+import io.netty.buffer.Unpooled;
 import robosky.structurehelpers.block.StructureRepeaterBlockEntity;
+import robosky.structurehelpers.network.RepeaterPacketData;
+import robosky.structurehelpers.network.ServerStructHelpPackets;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
@@ -11,6 +15,7 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.NarratorManager;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
@@ -62,7 +67,7 @@ public class StructureRepeaterScreen extends Screen {
             this.textRenderer,
             this.centerH - GUI_RADIUS + 1,
             this.centerV - 3 * (WIDGET_HEIGHT + PADDING_V),
-            GUI_RADIUS - PADDING_H - 3,
+            GUI_RADIUS - PADDING_H - 2,
             WIDGET_HEIGHT,
             new TranslatableText("gui.structure-helpers.repeater.min_repeat")));
         this.minRepeatIn.setMaxLength(9);
@@ -71,9 +76,9 @@ public class StructureRepeaterScreen extends Screen {
         this.minRepeatIn.setChangedListener(text -> this.updateDoneButton());
         this.maxRepeatIn = this.addChild(new TextFieldWidget(
             this.textRenderer,
-            this.centerH + PADDING_H - 1,
+            this.centerH + PADDING_H,
             this.centerV - 3 * (WIDGET_HEIGHT + PADDING_V),
-            GUI_RADIUS - PADDING_H - 3,
+            GUI_RADIUS - PADDING_H - 2,
             WIDGET_HEIGHT,
             new TranslatableText("gui.structure-helpers.repeater.max_repeat")));
         this.maxRepeatIn.setMaxLength(9);
@@ -103,9 +108,9 @@ public class StructureRepeaterScreen extends Screen {
                 (btn, v) -> this.updateModeSpecificState(v)));
         this.modeSpecificIn = this.addChild(new TextFieldWidget(
             this.textRenderer,
-            this.centerH + PADDING_H - 1,
+            this.centerH + PADDING_H,
             this.centerV,
-            GUI_RADIUS - PADDING_H - 3,
+            GUI_RADIUS - PADDING_H - 2,
             WIDGET_HEIGHT,
             new TranslatableText("gui.structure-helpers.repeater")));
         this.modeSpecificIn.setMaxLength(4096);
@@ -117,7 +122,7 @@ public class StructureRepeaterScreen extends Screen {
             GUI_RADIUS - PADDING_H,
             WIDGET_HEIGHT,
             ScreenTexts.DONE,
-            btn -> this.onClose()));
+            btn -> this.sendDataToServer()));
         this.addButton(new ButtonWidget(this.centerH + PADDING_H,
             this.centerV + 2 * (WIDGET_HEIGHT + PADDING_V),
             GUI_RADIUS - PADDING_H,
@@ -199,7 +204,7 @@ public class StructureRepeaterScreen extends Screen {
             this.textRenderer,
             I18n.translate("gui.structure-helpers.repeater.title"),
             this.centerH,
-            this.centerV - 5 * WIDGET_HEIGHT,
+            this.centerV - (11 * WIDGET_HEIGHT / 2),
             0xffffff);
         // min repeat
         DrawableHelper.drawStringWithShadow(matrices,
@@ -240,5 +245,19 @@ public class StructureRepeaterScreen extends Screen {
             0xa0a0a0);
         this.modeSpecificIn.render(matrices, mouseX, mouseY, delta);
         super.render(matrices, mouseX, mouseY, delta);
+    }
+
+    private void sendDataToServer() {
+        RepeaterPacketData data =
+            new RepeaterPacketData(backingBe.getPos(),
+                Integer.parseInt(this.minRepeatIn.getText()),
+                Integer.parseInt(this.maxRepeatIn.getText()),
+                this.stopAtSolidBtn.getValue(),
+                this.modeIn.getValue(),
+                this.modeSpecificIn.getText());
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        data.write(buf);
+        ClientPlayNetworking.send(ServerStructHelpPackets.REPEATER_UPDATE, buf);
+        this.onClose();
     }
 }

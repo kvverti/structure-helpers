@@ -1,14 +1,17 @@
 package robosky.structurehelpers.block;
 
-import robosky.structurehelpers.client.StructureRepeaterScreen;
+import io.netty.buffer.Unpooled;
+import robosky.structurehelpers.network.ClientStructHelpPackets;
+import robosky.structurehelpers.network.RepeaterPacketData;
 
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
@@ -49,11 +52,20 @@ public class StructureRepeaterBlock extends Block implements BlockEntityProvider
         if(!player.isCreativeLevelTwoOp()) {
             return ActionResult.PASS;
         }
-        if(world.isClient()) {
+        if(!world.isClient()) {
             BlockEntity be = world.getBlockEntity(pos);
-            if(be instanceof StructureRepeaterBlockEntity /*&& player instanceof ServerPlayerEntity*/) {
+            if(be instanceof StructureRepeaterBlockEntity && player instanceof ServerPlayerEntity) {
                 StructureRepeaterBlockEntity repeater = (StructureRepeaterBlockEntity)be;
-                MinecraftClient.getInstance().openScreen(new StructureRepeaterScreen(repeater));
+                RepeaterPacketData data =
+                    new RepeaterPacketData(repeater.getPos(),
+                        repeater.getMinRepeat(),
+                        repeater.getMaxRepeat(),
+                        repeater.stopsAtSolid(),
+                        repeater.getMode(),
+                        repeater.getModeData());
+                PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+                data.write(buf);
+                ServerPlayNetworking.send((ServerPlayerEntity)player, ClientStructHelpPackets.REPEATER_OPEN, buf);
             }
         }
         return ActionResult.SUCCESS;

@@ -2,6 +2,7 @@ package robosky.structurehelpers.network;
 
 import robosky.structurehelpers.StructureHelpers;
 import robosky.structurehelpers.block.LootDataBlockEntity;
+import robosky.structurehelpers.block.StructureRepeaterBlockEntity;
 import robosky.structurehelpers.iface.JigsawAccessorData;
 
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
@@ -24,6 +25,8 @@ public final class ServerStructHelpPackets {
         new Identifier(StructureHelpers.MODID, "loot_data_update");
     public static final Identifier JIGSAW_OFFSET_UPDATE =
         new Identifier(StructureHelpers.MODID, "jigsaw_offset_update");
+    public static final Identifier REPEATER_UPDATE =
+        new Identifier(StructureHelpers.MODID, "structure_repeater_update");
 
     /**
      * Updates loot data sent from the client to the server.
@@ -37,6 +40,7 @@ public final class ServerStructHelpPackets {
                 LootDataBlockEntity ld = (LootDataBlockEntity)be;
                 ld.setLootTable(data.getLootTable());
                 ld.setReplacementState(data.getReplacement());
+                ld.markDirty();
                 player.sendMessage(new TranslatableText("structure-helpers.updated_loot", data.getLootTable()), false);
             }
         });
@@ -52,6 +56,26 @@ public final class ServerStructHelpPackets {
             BlockEntity be = player.getEntityWorld().getBlockEntity(pos);
             if(be instanceof JigsawAccessorData) {
                 ((JigsawAccessorData)be).structhelp_setChildJunction(childJunction);
+                be.markDirty();
+            }
+        });
+    }
+
+    /**
+     * Updates the structure repeater data sent from the client.
+     */
+    private static void updateRepeaterData(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+        RepeaterPacketData data = new RepeaterPacketData();
+        data.read(buf);
+        server.execute(() -> {
+            BlockEntity be = player.world.getBlockEntity(data.getPos());
+            if(be instanceof StructureRepeaterBlockEntity && player.isCreativeLevelTwoOp()) {
+                StructureRepeaterBlockEntity repeater = (StructureRepeaterBlockEntity)be;
+                repeater.setMinRepeat(data.getMinRepeat());
+                repeater.setMaxRepeat(data.getMaxRepeat());
+                repeater.setStopAtSolid(data.isStopAtSolid());
+                repeater.setModeData(data.getMode(), data.getModeState());
+                repeater.markDirty();
             }
         });
     }
@@ -59,5 +83,6 @@ public final class ServerStructHelpPackets {
     public static void init() {
         ServerPlayNetworking.registerGlobalReceiver(LOOT_DATA_UPDATE, ServerStructHelpPackets::updateLootData);
         ServerPlayNetworking.registerGlobalReceiver(JIGSAW_OFFSET_UPDATE, ServerStructHelpPackets::updateJigsawOffset);
+        ServerPlayNetworking.registerGlobalReceiver(REPEATER_UPDATE, ServerStructHelpPackets::updateRepeaterData);
     }
 }

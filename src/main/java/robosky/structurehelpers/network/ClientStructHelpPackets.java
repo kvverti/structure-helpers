@@ -2,7 +2,9 @@ package robosky.structurehelpers.network;
 
 import robosky.structurehelpers.StructureHelpers;
 import robosky.structurehelpers.block.LootDataBlockEntity;
+import robosky.structurehelpers.block.StructureRepeaterBlockEntity;
 import robosky.structurehelpers.client.LootDataScreen;
+import robosky.structurehelpers.client.StructureRepeaterScreen;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
@@ -19,6 +21,8 @@ public final class ClientStructHelpPackets {
 
     public static final Identifier LOOT_DATA_OPEN =
         new Identifier(StructureHelpers.MODID, "loot_data_open");
+    public static final Identifier REPEATER_OPEN =
+        new Identifier(StructureHelpers.MODID, "structure_repeater_open");
 
     private static void openLootDataScreen(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
         LootDataPacketData data = new LootDataPacketData();
@@ -34,7 +38,24 @@ public final class ClientStructHelpPackets {
         });
     }
 
+    private static void openRepeaterScreen(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+        RepeaterPacketData data = new RepeaterPacketData();
+        data.read(buf);
+        client.execute(() -> {
+            BlockEntity be = client.world.getBlockEntity(data.getPos());
+            if(be instanceof StructureRepeaterBlockEntity) {
+                StructureRepeaterBlockEntity repeater = (StructureRepeaterBlockEntity)be;
+                repeater.setMinRepeat(data.getMinRepeat());
+                repeater.setMaxRepeat(data.getMaxRepeat());
+                repeater.setStopAtSolid(data.isStopAtSolid());
+                repeater.setModeData(data.getMode(), data.getModeState());
+                client.openScreen(new StructureRepeaterScreen(repeater));
+            }
+        });
+    }
+
     public static void init() {
         ClientPlayNetworking.registerGlobalReceiver(LOOT_DATA_OPEN, ClientStructHelpPackets::openLootDataScreen);
+        ClientPlayNetworking.registerGlobalReceiver(REPEATER_OPEN, ClientStructHelpPackets::openRepeaterScreen);
     }
 }

@@ -10,6 +10,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 
@@ -44,6 +45,44 @@ public class StructureRepeaterBlockEntity extends BlockEntity implements BlockEn
 
     public Mode getMode() {
         return this.data.mode;
+    }
+
+    public String getModeData() {
+        switch(this.data.mode) {
+            case SINGLE:
+                return this.data.asSingle().serializedState;
+            case LAYER:
+                return this.data.asLayer().structure.toString();
+            case JIGSAW:
+                return this.data.asJigsaw().startPool.toString();
+            default:
+                throw new AssertionError(this.data.mode);
+        }
+    }
+
+    public void setModeData(Mode mode, String data) {
+        Identifier id;
+        switch(mode) {
+            case SINGLE:
+                this.data = new Single(data);
+                break;
+            case LAYER:
+                try {
+                    id = new Identifier(data);
+                } catch(InvalidIdentifierException e) {
+                    id = new Identifier("empty");
+                }
+                this.data = new Layer(id);
+                break;
+            case JIGSAW:
+                try {
+                    id = new Identifier(data);
+                } catch(InvalidIdentifierException e) {
+                    id = new Identifier("empty");
+                }
+                this.data = new Jigsaw(id);
+                break;
+        }
     }
 
     public int getMinRepeat() {
