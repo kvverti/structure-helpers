@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import robosky.structurehelpers.StructureHelpers;
 
+import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -24,50 +25,92 @@ import net.minecraft.util.math.BlockPos;
  *       This mode only expends a single normal junction in the direction of repetition.</li>
  * </ul>
  */
-public class StructureRepeaterBlockEntity extends BlockEntity {
+public class StructureRepeaterBlockEntity extends BlockEntity implements BlockEntityClientSerializable {
 
     private static final RepeaterData DEFAULT = new Single("minecraft:air");
 
     private RepeaterData data = DEFAULT;
-    private int repeatMin = 1;
-    private int repeatMax = 1;
+    private int minRepeat = 1;
+    private int maxRepeat = 1;
     private boolean stopAtSolid = false;
 
     public StructureRepeaterBlockEntity(BlockPos pos, BlockState state) {
         super(StructureHelpers.STRUCTURE_REPEATER_ENTITY_TYPE, pos, state);
     }
 
+    public RepeaterData getData() {
+        return data;
+    }
+
+    public Mode getMode() {
+        return this.data.mode;
+    }
+
+    public int getMinRepeat() {
+        return minRepeat;
+    }
+
+    public void setMinRepeat(int minRepeat) {
+        this.minRepeat = minRepeat;
+    }
+
+    public int getMaxRepeat() {
+        return maxRepeat;
+    }
+
+    public void setMaxRepeat(int maxRepeat) {
+        this.maxRepeat = maxRepeat;
+    }
+
+    public boolean stopsAtSolid() {
+        return stopAtSolid;
+    }
+
+    public void setStopAtSolid(boolean stopAtSolid) {
+        this.stopAtSolid = stopAtSolid;
+    }
+
     @Override
     public void readNbt(NbtCompound tag) {
         super.readNbt(tag);
-        NbtCompound data = tag.getCompound("Data");
+        this.fromClientTag(tag);
+    }
+
+    @Override
+    public void fromClientTag(NbtCompound nbt) {
+        NbtCompound data = nbt.getCompound("Data");
         this.data = RepeaterData.CODEC
             .parse(NbtOps.INSTANCE, data)
             .result()
             .orElse(DEFAULT);
-        this.repeatMin = Math.max(0, tag.getInt("RepeatMin"));
-        this.repeatMax = Math.max(this.repeatMin, tag.getInt("RepeatMax"));
-        this.stopAtSolid = tag.getBoolean("StopAtSolid");
+        this.minRepeat = Math.max(0, nbt.getInt("RepeatMin"));
+        this.maxRepeat = Math.max(this.minRepeat, nbt.getInt("RepeatMax"));
+        this.stopAtSolid = nbt.getBoolean("StopAtSolid");
     }
 
     @Override
     public NbtCompound writeNbt(NbtCompound tag) {
         tag = super.writeNbt(tag);
+        return this.toClientTag(tag);
+    }
+
+    @Override
+    public NbtCompound toClientTag(NbtCompound nbt) {
         NbtCompound data = (NbtCompound)RepeaterData.CODEC
             .encodeStart(NbtOps.INSTANCE, this.data)
             .result()
             .orElseGet(NbtCompound::new);
-        tag.put("Data", data);
-        tag.putInt("RepeatMin", this.repeatMin);
-        tag.putInt("RepeatMax", this.repeatMax);
-        tag.putBoolean("StopAtSolid", this.stopAtSolid);
-        return tag;
+        nbt.put("Data", data);
+        nbt.putInt("RepeatMin", this.minRepeat);
+        nbt.putInt("RepeatMax", this.maxRepeat);
+        nbt.putBoolean("StopAtSolid", this.stopAtSolid);
+        return nbt;
     }
 
     /**
      * Type discriminant for repeater data.
      */
-    private enum Mode implements StringIdentifiable {
+    public enum Mode implements StringIdentifiable {
         SINGLE("single"),
         LAYER("layer"),
         JIGSAW("jigsaw");
@@ -98,13 +141,13 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
     /**
      * Repeat a single block state.
      */
-    private static final class Single extends RepeaterData {
+    public static final class Single extends RepeaterData {
 
         static final Codec<Single> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.STRING.fieldOf("BlockState").orElse("minecraft:air").forGetter(d -> d.serializedState)
         ).apply(inst, Single::new));
 
-        final String serializedState;
+        public final String serializedState;
 
         Single(String state) {
             super(Mode.SINGLE);
@@ -115,13 +158,13 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
     /**
      * Repeat a structure.
      */
-    private static final class Layer extends RepeaterData {
+    public static final class Layer extends RepeaterData {
 
         static final Codec<Layer> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Identifier.CODEC.fieldOf("Structure").orElseGet(() -> new Identifier("empty")).forGetter(d -> d.structure)
         ).apply(inst, Layer::new));
 
-        final Identifier structure;
+        public final Identifier structure;
 
         Layer(Identifier structure) {
             super(Mode.LAYER);
@@ -132,13 +175,13 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
     /**
      * Start a jigsaw iteration.
      */
-    private static final class Jigsaw extends RepeaterData {
+    public static final class Jigsaw extends RepeaterData {
 
         static final Codec<Jigsaw> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Identifier.CODEC.fieldOf("Start").orElseGet(() -> new Identifier("empty")).forGetter(d -> d.startPool)
         ).apply(inst, Jigsaw::new));
 
-        final Identifier startPool;
+        public final Identifier startPool;
 
         Jigsaw(Identifier startPool) {
             super(Mode.JIGSAW);
@@ -149,7 +192,7 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
     /**
      * Base class for repeater data.
      */
-    private static abstract class RepeaterData {
+    public static abstract class RepeaterData {
 
         static final Codec<RepeaterData> CODEC = Mode.CODEC.dispatch(
             "Mode",
@@ -170,6 +213,18 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
 
         protected RepeaterData(Mode mode) {
             this.mode = mode;
+        }
+
+        public Single asSingle() {
+            return (Single)this;
+        }
+
+        public Layer asLayer() {
+            return (Layer)this;
+        }
+
+        public Jigsaw asJigsaw() {
+            return (Jigsaw)this;
         }
     }
 }
