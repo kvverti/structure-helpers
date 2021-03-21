@@ -87,14 +87,14 @@ public class StructureRepeaterScreen extends Screen {
         this.maxRepeatIn.setTextPredicate(t -> t.matches("\\d*"));
         this.maxRepeatIn.setChangedListener(text -> this.updateDoneButton());
         this.stopAtSolidBtn = this.addButton(CyclingButtonWidget
-            .<Boolean>builder(b -> b ? ScreenTexts.YES : ScreenTexts.NO)
+            .<Boolean>builder(b -> new TranslatableText("gui.structure-helpers.repeater.termination." + (b ? "surface" : "random")))
             .values(false, true)
             .initially(this.backingBe.stopsAtSolid())
             .build(this.centerH - GUI_RADIUS,
                 this.centerV - (3 * (WIDGET_HEIGHT + PADDING_V) / 2),
                 GUI_RADIUS - PADDING_H,
                 WIDGET_HEIGHT,
-                new TranslatableText("gui.structure-helpers.repeater.stop_at_solid"),
+                new TranslatableText("gui.structure-helpers.repeater.termination"),
                 (btn, v) -> {
                 }));
         this.replacement = this.addChild(new TextFieldWidget(
