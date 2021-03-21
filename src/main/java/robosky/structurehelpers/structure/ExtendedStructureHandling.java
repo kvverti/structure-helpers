@@ -1,5 +1,6 @@
 package robosky.structurehelpers.structure;
 
+import java.util.Map;
 import java.util.Optional;
 
 import com.mojang.brigadier.StringReader;
@@ -14,11 +15,13 @@ import net.minecraft.block.entity.LootableContainerBlockEntity;
 import net.minecraft.command.argument.BlockStateArgumentType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.state.property.Property;
 import net.minecraft.structure.Structure.StructureBlockInfo;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.WorldAccess;
 
 /**
@@ -31,13 +34,59 @@ public final class ExtendedStructureHandling {
     private ExtendedStructureHandling() {
     }
 
+    /**
+     * Parse a command string into a block state, or return air if a block state cannot be parsed.
+     */
+    public static BlockState parseBlockState(String str) {
+        try {
+            return blockStateParser.parse(new StringReader(str)).getBlockState();
+        } catch(CommandSyntaxException e) {
+            return Blocks.AIR.getDefaultState();
+        }
+    }
+
+    /**
+     * Converts a block state to a string, removing defaulted properties from the output.
+     */
+    public static String stringifyBlockState(BlockState state) {
+        String blockId = Registry.BLOCK.getId(state.getBlock()).toString();
+        BlockState defaultState = state.getBlock().getDefaultState();
+        StringBuilder sb = new StringBuilder();
+        // append non-defaulted property-value pairs
+        sb.append('[');
+        for(Map.Entry<Property<?>, Comparable<?>> entry : state.getEntries().entrySet()) {
+            Property<?> prop = entry.getKey();
+            Comparable<?> value = entry.getValue();
+            if(!propertyEquals(defaultState, prop, value)) {
+                sb.append(prop.getName());
+                sb.append('=');
+                sb.append(valueName(prop, value));
+                sb.append(',');
+            }
+        }
+        sb.setCharAt(sb.length() - 1, ']');
+        // leave off empty bracket pair, for aesthetic reasons
+        if(sb.length() > 2) {
+            return blockId + sb.toString();
+        } else {
+            return blockId;
+        }
+    }
+
+    private static <T extends Comparable<T>> boolean propertyEquals(BlockState defaultState, Property<T> prop, Comparable<?> value) {
+        return defaultState.get(prop).compareTo(prop.getType().cast(value)) == 0;
+    }
+
+    private static <T extends Comparable<T>> String valueName(Property<T> prop, Comparable<?> value) {
+        return prop.name(prop.getType().cast(value));
+    }
+
     public static void handleLootData(WorldAccess world, StructureBlockInfo bi) {
         if(bi.tag != null) {
             BlockEntity be = world.getBlockEntity(bi.pos.down());
             if(be instanceof LootableContainerBlockEntity) {
                 LootableContainerBlockEntity lc = (LootableContainerBlockEntity)be;
                 Identifier lootTable;
-                BlockState blockState;
                 // loot table is validated by the block entity, the screen,
                 // and the packets both ways. If the loot table isn't a valid
                 // Identifier by this point, God help us.
@@ -46,14 +95,9 @@ public final class ExtendedStructureHandling {
                 } catch(InvalidIdentifierException e) {
                     lootTable = new Identifier("minecraft:empty");
                 }
-                try {
-                    String replacement = bi.tag.getString("Replacement");
-                    blockState = blockStateParser.parse(new StringReader(replacement)).getBlockState();
-                } catch(CommandSyntaxException e) {
-                    blockState = Blocks.AIR.getDefaultState();
-                }
+                BlockState replacement = parseBlockState(bi.tag.getString("Replacement"));
                 lc.setLootTable(lootTable, world.getRandom().nextLong());
-                world.setBlockState(bi.pos, blockState, 0);
+                world.setBlockState(bi.pos, replacement, 0);
             }
         }
     }
@@ -75,12 +119,7 @@ public final class ExtendedStructureHandling {
                 switch(data.mode) {
                     // repeat a single block state
                     case SINGLE: {
-                        BlockState state;
-                        try {
-                            state = blockStateParser.parse(new StringReader(data.asSingle().serializedState)).getBlockState();
-                        } catch(CommandSyntaxException e) {
-                            state = Blocks.AIR.getDefaultState();
-                        }
+                        BlockState state = parseBlockState(data.asSingle().serializedState);
                         pos.set(bi.pos);
                         int repetitions = getSingleRepetitions(world, dir, minRepeat, maxRepeat, stopAtSolid, pos);
                         pos.set(bi.pos);
@@ -97,12 +136,7 @@ public final class ExtendedStructureHandling {
                         break;
                 }
                 // replace the repeater block
-                BlockState replacement;
-                try {
-                    replacement = blockStateParser.parse(new StringReader(bi.tag.getString("Replacement"))).getBlockState();
-                } catch(CommandSyntaxException e) {
-                    replacement = Blocks.AIR.getDefaultState();
-                }
+                BlockState replacement = parseBlockState(bi.tag.getString("Replacement"));
                 world.setBlockState(bi.pos, replacement, 0);
             }
         }
