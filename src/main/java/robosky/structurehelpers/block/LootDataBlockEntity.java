@@ -2,7 +2,6 @@ package robosky.structurehelpers.block;
 
 import robosky.structurehelpers.StructureHelpers;
 
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -10,7 +9,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.math.BlockPos;
 
-public class LootDataBlockEntity extends BlockEntity implements BlockEntityClientSerializable {
+public class LootDataBlockEntity extends BlockEntity {
 
     private Identifier lootTable = new Identifier("minecraft:empty");
 
@@ -37,30 +36,21 @@ public class LootDataBlockEntity extends BlockEntity implements BlockEntityClien
     }
 
     @Override
-    public NbtCompound toClientTag(NbtCompound tag) {
+    public NbtCompound writeNbt(NbtCompound tag) {
+        tag = super.writeNbt(tag);
         tag.putString("LootTable", lootTable.toString());
         tag.putString("Replacement", replacementState);
         return tag;
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound tag) {
-        return toClientTag(super.writeNbt(tag));
-    }
-
-    @Override
-    public void fromClientTag(NbtCompound tag) {
+    public void readNbt(NbtCompound tag) {
+        super.readNbt(tag);
         replacementState = tag.getString("Replacement");
         try {
             lootTable = new Identifier(tag.getString("LootTable"));
         } catch(InvalidIdentifierException e) {
             lootTable = new Identifier("minecraft:air");
         }
-    }
-
-    @Override
-    public void readNbt(NbtCompound tag) {
-        super.readNbt(tag);
-        fromClientTag(tag);
     }
 }

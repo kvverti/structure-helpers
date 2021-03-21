@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import robosky.structurehelpers.StructureHelpers;
 
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -26,7 +25,7 @@ import net.minecraft.util.math.BlockPos;
  *       This mode only expends a single normal junction in the direction of repetition.</li>
  * </ul>
  */
-public class StructureRepeaterBlockEntity extends BlockEntity implements BlockEntityClientSerializable {
+public class StructureRepeaterBlockEntity extends BlockEntity {
 
     private static final RepeaterData DEFAULT = new Single("minecraft:air");
 
@@ -112,38 +111,28 @@ public class StructureRepeaterBlockEntity extends BlockEntity implements BlockEn
     @Override
     public void readNbt(NbtCompound tag) {
         super.readNbt(tag);
-        this.fromClientTag(tag);
-    }
-
-    @Override
-    public void fromClientTag(NbtCompound nbt) {
-        NbtCompound data = nbt.getCompound("Data");
+        NbtCompound data = tag.getCompound("Data");
         this.data = RepeaterData.CODEC
             .parse(NbtOps.INSTANCE, data)
             .result()
             .orElse(DEFAULT);
-        this.minRepeat = Math.max(0, nbt.getInt("RepeatMin"));
-        this.maxRepeat = Math.max(this.minRepeat, nbt.getInt("RepeatMax"));
-        this.stopAtSolid = nbt.getBoolean("StopAtSolid");
+        this.minRepeat = Math.max(0, tag.getInt("RepeatMin"));
+        this.maxRepeat = Math.max(this.minRepeat, tag.getInt("RepeatMax"));
+        this.stopAtSolid = tag.getBoolean("StopAtSolid");
     }
 
     @Override
     public NbtCompound writeNbt(NbtCompound tag) {
         tag = super.writeNbt(tag);
-        return this.toClientTag(tag);
-    }
-
-    @Override
-    public NbtCompound toClientTag(NbtCompound nbt) {
         NbtCompound data = (NbtCompound)RepeaterData.CODEC
             .encodeStart(NbtOps.INSTANCE, this.data)
             .result()
             .orElseGet(NbtCompound::new);
-        nbt.put("Data", data);
-        nbt.putInt("RepeatMin", this.minRepeat);
-        nbt.putInt("RepeatMax", this.maxRepeat);
-        nbt.putBoolean("StopAtSolid", this.stopAtSolid);
-        return nbt;
+        tag.put("Data", data);
+        tag.putInt("RepeatMin", this.minRepeat);
+        tag.putInt("RepeatMax", this.maxRepeat);
+        tag.putBoolean("StopAtSolid", this.stopAtSolid);
+        return tag;
     }
 
     /**
