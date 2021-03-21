@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import robosky.structurehelpers.StructureHelpers;
-import robosky.structurehelpers.structure.LootDataUtil;
+import robosky.structurehelpers.structure.ExtendedStructureHandling;
 
 import net.minecraft.structure.SimpleStructurePiece;
 import net.minecraft.structure.Structure;
@@ -19,7 +19,6 @@ import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -51,7 +50,7 @@ abstract class SimpleStructurePieceMixin extends StructurePiece {
             )
         )
     )
-    private void handleLootData(
+    private void handleExtendedMetadata(
         StructureWorldAccess world,
         StructureAccessor accessor,
         ChunkGenerator generator,
@@ -61,11 +60,17 @@ abstract class SimpleStructurePieceMixin extends StructurePiece {
         BlockPos blockPos,
         CallbackInfoReturnable<Boolean> info
     ) {
-        List<Structure.StructureBlockInfo> ls = this.structure.getInfosForBlock(this.pos,
+        List<Structure.StructureBlockInfo> lootData = this.structure.getInfosForBlock(this.pos,
             this.placementData,
             StructureHelpers.LOOT_DATA_BLOCK);
-        for(Structure.StructureBlockInfo bi : ls) {
-            LootDataUtil.handleLootData(world, bi);
+        for(Structure.StructureBlockInfo bi : lootData) {
+            ExtendedStructureHandling.handleLootData(world, bi);
+        }
+        List<Structure.StructureBlockInfo> repeaters = this.structure.getInfosForBlock(this.pos,
+            this.placementData,
+            StructureHelpers.STRUCTURE_REPEATER_BLOCK);
+        for(Structure.StructureBlockInfo bi : repeaters) {
+            ExtendedStructureHandling.handleRepeater(world, bi);
         }
     }
 }

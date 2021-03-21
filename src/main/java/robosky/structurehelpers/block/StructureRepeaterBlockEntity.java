@@ -222,7 +222,7 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
      */
     public static abstract class RepeaterData {
 
-        static final Codec<RepeaterData> CODEC = Mode.CODEC.dispatch(
+        public static final Codec<RepeaterData> CODEC = Mode.CODEC.dispatch(
             "Mode",
             d -> d.mode,
             mode -> {
@@ -237,7 +237,7 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
             }
         );
 
-        final Mode mode;
+        public final Mode mode;
 
         protected RepeaterData(Mode mode) {
             this.mode = mode;

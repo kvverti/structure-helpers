@@ -36,6 +36,11 @@ public class StructureHelpersTest implements ModInitializer {
             .step(GenerationStep.Feature.UNDERGROUND_STRUCTURES)
             .defaultConfig(8, 4, 1)
             .register();
+        Test2StructureFeature feature2 = FabricStructureBuilder
+            .create(StructureHelpers.id("test_box"), new Test2StructureFeature())
+            .step(GenerationStep.Feature.UNDERGROUND_STRUCTURES)
+            .defaultConfig(8, 4, 17)
+            .register();
         // create and register configured feature (may also be done via datapacks for datapack biomes)
         // sorry for the PascalCase names, they were made before I knew they were going to go into
         // datapack JSON objects
@@ -46,10 +51,19 @@ public class StructureHelpersTest implements ModInitializer {
                 256,
                 () -> TestStructureFeature.START,
                 16));
+        ConfiguredStructureFeature<?, ?> configuredFeature2 = feature2.configure(
+            new ExtendedStructurePoolFeatureConfig(
+                ImmutableList.of(),
+                0,
+                0,
+                () -> Test2StructureFeature.START,
+                16));
         BuiltinRegistries.add(BuiltinRegistries.CONFIGURED_STRUCTURE_FEATURE, StructureHelpers.id("test_dungeon"), configuredFeature);
+        BuiltinRegistries.add(BuiltinRegistries.CONFIGURED_STRUCTURE_FEATURE, StructureHelpers.id("test_box"), configuredFeature2);
         for(Biome biome : BuiltinRegistries.BIOME) {
             // only for biomes you want your structure to appear in
             biome.getGenerationSettings().getStructureFeatures().add(() -> configuredFeature);
+            biome.getGenerationSettings().getStructureFeatures().add(() -> configuredFeature2);
         }
     }
 }
@@ -175,5 +189,23 @@ class TestStructureFeature extends ExtendedStructureFeature {
 
     public TestStructureFeature() {
         super(30, false, false);
+    }
+}
+
+class Test2StructureFeature extends ExtendedStructureFeature {
+
+    public static final StructurePool START = StructurePools.register(
+            new StructurePool(
+                TestStructureFeature.id("start_2"),
+                new Identifier("empty"),
+                ImmutableList.of(
+                    Pair.of(ExtendedSinglePoolElement.of(TestStructureFeature.id("box")), 1)
+                ),
+                Projection.RIGID
+            )
+        );
+
+    public Test2StructureFeature() {
+        super(70, false, false);
     }
 }

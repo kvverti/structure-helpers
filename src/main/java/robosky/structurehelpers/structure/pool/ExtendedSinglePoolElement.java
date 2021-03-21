@@ -11,7 +11,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import robosky.structurehelpers.StructureHelpers;
 import robosky.structurehelpers.mixin.StructurePlacementDataAccessor;
-import robosky.structurehelpers.structure.LootDataUtil;
+import robosky.structurehelpers.structure.ExtendedStructureHandling;
 
 import net.minecraft.structure.Structure;
 import net.minecraft.structure.Structure.StructureBlockInfo;
@@ -107,10 +107,17 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
         boolean ret = super.generate(manager, world, accessor, generator, pos, pos2, rotation, box, rand, b);
         // process loot data blocks
         if(ret) {
-            List<StructureBlockInfo> ls = manager.getStructureOrBlank(location())
-                .getInfosForBlock(pos, createPlacementData(rotation, box, b), StructureHelpers.LOOT_DATA_BLOCK);
-            for(StructureBlockInfo info : ls) {
-                LootDataUtil.handleLootData(world, info);
+            Structure structure = manager.getStructureOrBlank(location());
+            StructurePlacementData placementData = createPlacementData(rotation, box, b);
+            List<StructureBlockInfo> lootData = structure
+                .getInfosForBlock(pos, placementData, StructureHelpers.LOOT_DATA_BLOCK);
+            for(StructureBlockInfo info : lootData) {
+                ExtendedStructureHandling.handleLootData(world, info);
+            }
+            List<Structure.StructureBlockInfo> repeaters = structure
+                .getInfosForBlock(pos, placementData, StructureHelpers.STRUCTURE_REPEATER_BLOCK);
+            for(Structure.StructureBlockInfo bi : repeaters) {
+                ExtendedStructureHandling.handleRepeater(world, bi);
             }
         }
         return ret;
