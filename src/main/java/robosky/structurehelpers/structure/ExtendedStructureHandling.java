@@ -63,14 +63,15 @@ public final class ExtendedStructureHandling {
             Direction dir = bi.state.get(StructureRepeaterBlock.FACING);
             int minRepeat = Math.max(0, bi.tag.getInt("RepeatMin"));
             int maxRepeat = Math.max(minRepeat, bi.tag.getInt("RepeatMax"));
+            boolean stopAtSolid = bi.tag.getBoolean("StopAtSolid");
             NbtCompound dataTag = bi.tag.getCompound("Data");
             // the data should be valid, barring incompatible updates to the NBT schema
             Optional<StructureRepeaterBlockEntity.RepeaterData> optionalData = StructureRepeaterBlockEntity.RepeaterData.CODEC
                 .parse(NbtOps.INSTANCE, dataTag)
                 .result();
             if(optionalData.isPresent()) {
+                BlockPos.Mutable pos = new BlockPos.Mutable();
                 StructureRepeaterBlockEntity.RepeaterData data = optionalData.get();
-                int repetitions = world.getRandom().nextInt(maxRepeat - minRepeat + 1) + minRepeat;
                 switch(data.mode) {
                     // repeat a single block state
                     case SINGLE: {
@@ -80,8 +81,8 @@ public final class ExtendedStructureHandling {
                         } catch(CommandSyntaxException e) {
                             state = Blocks.AIR.getDefaultState();
                         }
-                        BlockPos.Mutable pos = new BlockPos.Mutable();
                         pos.set(bi.pos);
+                        int repetitions = getSingleRepetitions(world, dir, minRepeat, maxRepeat, stopAtSolid, pos);
                         for(int i = 0; i < repetitions; i++) {
                             pos.move(dir);
                             world.setBlockState(pos, state, 0);
@@ -95,6 +96,23 @@ public final class ExtendedStructureHandling {
                         break;
                 }
             }
+        }
+    }
+
+    /**
+     * Compute the number of repetitions in a single-mode repeater.
+     */
+    private static int getSingleRepetitions(WorldAccess world, Direction dir, int min, int max, boolean stopAtSolid, BlockPos.Mutable pos) {
+        if(stopAtSolid) {
+            pos.move(dir, min + 1);
+            int amt = min;
+            while(amt < max && !world.getBlockState(pos).isOpaque()) {
+                pos.move(dir);
+                amt++;
+            }
+            return amt;
+        } else {
+            return world.getRandom().nextInt(max - min + 1) + min;
         }
     }
 }
