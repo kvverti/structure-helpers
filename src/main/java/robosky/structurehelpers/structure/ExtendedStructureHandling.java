@@ -83,6 +83,7 @@ public final class ExtendedStructureHandling {
                         }
                         pos.set(bi.pos);
                         int repetitions = getSingleRepetitions(world, dir, minRepeat, maxRepeat, stopAtSolid, pos);
+                        pos.set(bi.pos);
                         for(int i = 0; i < repetitions; i++) {
                             pos.move(dir);
                             world.setBlockState(pos, state, 0);
@@ -95,6 +96,14 @@ public final class ExtendedStructureHandling {
                         // this was already taken care of
                         break;
                 }
+                // replace the repeater block
+                BlockState replacement;
+                try {
+                    replacement = blockStateParser.parse(new StringReader(bi.tag.getString("Replacement"))).getBlockState();
+                } catch(CommandSyntaxException e) {
+                    replacement = Blocks.AIR.getDefaultState();
+                }
+                world.setBlockState(bi.pos, replacement, 0);
             }
         }
     }

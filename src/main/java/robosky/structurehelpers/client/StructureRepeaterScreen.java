@@ -33,6 +33,7 @@ public class StructureRepeaterScreen extends Screen {
     private TextFieldWidget minRepeatIn;
     private TextFieldWidget maxRepeatIn;
     private CyclingButtonWidget<Boolean> stopAtSolidBtn;
+    private TextFieldWidget replacement;
 
     // mode-specific fields
     private TextFieldWidget modeSpecificIn;
@@ -90,12 +91,21 @@ public class StructureRepeaterScreen extends Screen {
             .values(false, true)
             .initially(this.backingBe.stopsAtSolid())
             .build(this.centerH - GUI_RADIUS,
-                this.centerV - 2 * (WIDGET_HEIGHT + PADDING_V),
+                this.centerV - (3 * (WIDGET_HEIGHT + PADDING_V) / 2),
                 GUI_RADIUS - PADDING_H,
                 WIDGET_HEIGHT,
                 new TranslatableText("gui.structure-helpers.repeater.stop_at_solid"),
                 (btn, v) -> {
                 }));
+        this.replacement = this.addChild(new TextFieldWidget(
+            this.textRenderer,
+            this.centerH + PADDING_H,
+            this.centerV - (3 * (WIDGET_HEIGHT + PADDING_V) / 2),
+            GUI_RADIUS - PADDING_H - 2,
+            WIDGET_HEIGHT,
+            new TranslatableText("gui.structure-helpers.repeater.replacement")));
+        this.replacement.setMaxLength(4096);
+        this.replacement.setText(this.backingBe.getReplacementState());
         this.modeIn = this.addButton(CyclingButtonWidget
             .<StructureRepeaterBlockEntity.Mode>builder(m -> new TranslatableText("gui.structure-helpers.repeater.mode." + m.asString()))
             .values(StructureRepeaterBlockEntity.Mode.values())
@@ -222,6 +232,14 @@ public class StructureRepeaterScreen extends Screen {
             this.maxRepeatIn.y - WIDGET_HEIGHT / 2,
             0xa0a0a0);
         this.maxRepeatIn.render(matrices, mouseX, mouseY, delta);
+        // replacement state
+        DrawableHelper.drawStringWithShadow(matrices,
+            this.textRenderer,
+            I18n.translate("gui.structure-helpers.repeater.replacement"),
+            this.replacement.x,
+            this.replacement.y - WIDGET_HEIGHT / 2,
+            0xa0a0a0);
+        this.replacement.render(matrices, mouseX, mouseY, delta);
         // mode specific
         String modeSpecificSetting;
         switch(this.modeIn.getValue()) {
@@ -253,6 +271,7 @@ public class StructureRepeaterScreen extends Screen {
                 Integer.parseInt(this.minRepeatIn.getText()),
                 Integer.parseInt(this.maxRepeatIn.getText()),
                 this.stopAtSolidBtn.getValue(),
+                this.replacement.getText(),
                 this.modeIn.getValue(),
                 this.modeSpecificIn.getText());
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());

@@ -48,6 +48,7 @@ public final class ClientStructHelpPackets {
                 repeater.setMinRepeat(data.getMinRepeat());
                 repeater.setMaxRepeat(data.getMaxRepeat());
                 repeater.setStopAtSolid(data.isStopAtSolid());
+                repeater.setReplacementState(data.getReplacement());
                 repeater.setModeData(data.getMode(), data.getModeState());
                 client.openScreen(new StructureRepeaterScreen(repeater));
             }

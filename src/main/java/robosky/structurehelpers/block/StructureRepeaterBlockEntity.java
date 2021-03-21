@@ -33,6 +33,7 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
     private int minRepeat = 1;
     private int maxRepeat = 1;
     private boolean stopAtSolid = false;
+    private String replacementState = "minecraft:air";
 
     public StructureRepeaterBlockEntity(BlockPos pos, BlockState state) {
         super(StructureHelpers.STRUCTURE_REPEATER_ENTITY_TYPE, pos, state);
@@ -108,6 +109,14 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
         this.stopAtSolid = stopAtSolid;
     }
 
+    public String getReplacementState() {
+        return replacementState;
+    }
+
+    public void setReplacementState(String replacementState) {
+        this.replacementState = replacementState;
+    }
+
     @Override
     public void readNbt(NbtCompound tag) {
         super.readNbt(tag);
@@ -119,6 +128,7 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
         this.minRepeat = Math.max(0, tag.getInt("RepeatMin"));
         this.maxRepeat = Math.max(this.minRepeat, tag.getInt("RepeatMax"));
         this.stopAtSolid = tag.getBoolean("StopAtSolid");
+        this.replacementState = tag.getString("Replacement");
     }
 
     @Override
@@ -132,6 +142,7 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
         tag.putInt("RepeatMin", this.minRepeat);
         tag.putInt("RepeatMax", this.maxRepeat);
         tag.putBoolean("StopAtSolid", this.stopAtSolid);
+        tag.putString("Replacement", this.replacementState);
         return tag;
     }
 

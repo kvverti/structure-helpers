@@ -11,18 +11,20 @@ public final class RepeaterPacketData {
     private int minRepeat;
     private int maxRepeat;
     private boolean stopAtSolid;
+    private String replacement;
     private StructureRepeaterBlockEntity.Mode mode;
     private String modeState;
 
     public RepeaterPacketData() {
-        this(BlockPos.ORIGIN, 1, 1, false, StructureRepeaterBlockEntity.Mode.SINGLE, "minecraft:air");
+        this(BlockPos.ORIGIN, 1, 1, false, "minecraft:air", StructureRepeaterBlockEntity.Mode.SINGLE, "minecraft:air");
     }
 
-    public RepeaterPacketData(BlockPos pos, int minRepeat, int maxRepeat, boolean stopAtSolid, StructureRepeaterBlockEntity.Mode mode, String modeState) {
+    public RepeaterPacketData(BlockPos pos, int minRepeat, int maxRepeat, boolean stopAtSolid, String replacement, StructureRepeaterBlockEntity.Mode mode, String modeState) {
         this.pos = pos;
         this.minRepeat = minRepeat;
         this.maxRepeat = maxRepeat;
         this.stopAtSolid = stopAtSolid;
+        this.replacement = replacement;
         this.mode = mode;
         this.modeState = modeState;
     }
@@ -43,6 +45,10 @@ public final class RepeaterPacketData {
         return stopAtSolid;
     }
 
+    public String getReplacement() {
+        return replacement;
+    }
+
     public StructureRepeaterBlockEntity.Mode getMode() {
         return mode;
     }
@@ -56,6 +62,7 @@ public final class RepeaterPacketData {
         this.minRepeat = buf.readInt();
         this.maxRepeat = buf.readInt();
         this.stopAtSolid = buf.readBoolean();
+        this.replacement = buf.readString();
         this.mode = buf.readEnumConstant(StructureRepeaterBlockEntity.Mode.class);
         this.modeState = buf.readString();
     }
@@ -65,6 +72,7 @@ public final class RepeaterPacketData {
         buf.writeInt(this.minRepeat);
         buf.writeInt(this.maxRepeat);
         buf.writeBoolean(this.stopAtSolid);
+        buf.writeString(this.replacement);
         buf.writeEnumConstant(this.mode);
         buf.writeString(this.modeState);
     }

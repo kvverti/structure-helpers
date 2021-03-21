@@ -61,6 +61,7 @@ public class StructureRepeaterBlock extends Block implements BlockEntityProvider
                         repeater.getMinRepeat(),
                         repeater.getMaxRepeat(),
                         repeater.stopsAtSolid(),
+                        repeater.getReplacementState(),
                         repeater.getMode(),
                         repeater.getModeData());
                 PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
