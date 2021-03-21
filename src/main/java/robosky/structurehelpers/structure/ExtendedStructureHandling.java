@@ -15,6 +15,7 @@ import net.minecraft.block.entity.LootableContainerBlockEntity;
 import net.minecraft.command.argument.BlockStateArgumentType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.state.State;
 import net.minecraft.state.property.Property;
 import net.minecraft.structure.Structure.StructureBlockInfo;
 import net.minecraft.util.Identifier;
@@ -46,7 +47,21 @@ public final class ExtendedStructureHandling {
     }
 
     /**
+     * Determines whether a block state string represents a valid block state.
+     */
+    public static boolean isValidBlockState(String str) {
+        try {
+            blockStateParser.parse(new StringReader(str));
+            return true;
+        } catch(CommandSyntaxException e) {
+            return false;
+        }
+    }
+
+    /**
      * Converts a block state to a string, removing defaulted properties from the output.
+     * This method differs from {@link State#toString()} in that it removes properties
+     * whose values are equal to the default.
      */
     public static String stringifyBlockState(BlockState state) {
         String blockId = Registry.BLOCK.getId(state.getBlock()).toString();
@@ -119,7 +134,7 @@ public final class ExtendedStructureHandling {
                 switch(data.mode) {
                     // repeat a single block state
                     case SINGLE: {
-                        BlockState state = parseBlockState(data.asSingle().serializedState);
+                        BlockState state = data.asSingle().state;
                         pos.set(bi.pos);
                         int repetitions = getSingleRepetitions(world, dir, minRepeat, maxRepeat, stopAtSolid, pos);
                         pos.set(bi.pos);

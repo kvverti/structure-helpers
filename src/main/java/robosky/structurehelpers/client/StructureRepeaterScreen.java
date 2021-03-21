@@ -4,6 +4,7 @@ import io.netty.buffer.Unpooled;
 import robosky.structurehelpers.block.StructureRepeaterBlockEntity;
 import robosky.structurehelpers.network.RepeaterPacketData;
 import robosky.structurehelpers.network.ServerStructHelpPackets;
+import robosky.structurehelpers.structure.ExtendedStructureHandling;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.DrawableHelper;
@@ -105,7 +106,8 @@ public class StructureRepeaterScreen extends Screen {
             WIDGET_HEIGHT,
             new TranslatableText("gui.structure-helpers.repeater.replacement")));
         this.replacement.setMaxLength(4096);
-        this.replacement.setText(this.backingBe.getReplacementState());
+        this.replacement.setText(ExtendedStructureHandling.stringifyBlockState(this.backingBe.getReplacementState()));
+        this.replacement.setChangedListener(text -> this.updateDoneButton());
         this.modeIn = this.addButton(CyclingButtonWidget
             .<StructureRepeaterBlockEntity.Mode>builder(m -> new TranslatableText("gui.structure-helpers.repeater.mode." + m.asString()))
             .values(StructureRepeaterBlockEntity.Mode.values())
@@ -126,7 +128,6 @@ public class StructureRepeaterScreen extends Screen {
         this.modeSpecificIn.setMaxLength(4096);
         this.modeSpecificIn.setTextPredicate(this::modeSpecificTextPredicate);
         this.modeSpecificIn.setChangedListener(this::saveModeSpecificState);
-        this.setInitialModeSpecificState();
         this.doneBtn = this.addButton(new ButtonWidget(this.centerH - GUI_RADIUS,
             this.centerV + 2 * (WIDGET_HEIGHT + PADDING_V),
             GUI_RADIUS - PADDING_H,
@@ -139,13 +140,26 @@ public class StructureRepeaterScreen extends Screen {
             WIDGET_HEIGHT,
             ScreenTexts.CANCEL,
             btn -> this.onClose()));
+        this.setInitialModeSpecificState();
     }
 
     private void updateDoneButton() {
         try {
             int min = Integer.parseInt(this.minRepeatIn.getText());
             int max = Integer.parseInt(this.maxRepeatIn.getText());
-            this.doneBtn.active = min <= max;
+            this.doneBtn.active = min <= max &&
+                ExtendedStructureHandling.isValidBlockState(this.replacement.getText());
+            switch(this.modeIn.getValue()) {
+                case SINGLE:
+                    this.doneBtn.active &= ExtendedStructureHandling.isValidBlockState(this.singleText);
+                    break;
+                case LAYER:
+                    this.doneBtn.active &= Identifier.isValid(this.layerText);
+                    break;
+                case JIGSAW:
+                    this.doneBtn.active &= Identifier.isValid(this.jigsawText);
+                    break;
+            }
         } catch(NumberFormatException e) {
             this.doneBtn.active = false;
         }
@@ -156,7 +170,7 @@ public class StructureRepeaterScreen extends Screen {
         StructureRepeaterBlockEntity.Mode mode = this.backingBe.getMode();
         switch(mode) {
             case SINGLE:
-                this.singleText = data.asSingle().serializedState;
+                this.singleText = ExtendedStructureHandling.stringifyBlockState(data.asSingle().state);
                 break;
             case LAYER:
                 this.layerText = data.asLayer().structure.toString();
@@ -194,6 +208,7 @@ public class StructureRepeaterScreen extends Screen {
                 this.jigsawText = modeSpecific;
                 break;
         }
+        this.updateDoneButton();
     }
 
     private boolean modeSpecificTextPredicate(String text) {

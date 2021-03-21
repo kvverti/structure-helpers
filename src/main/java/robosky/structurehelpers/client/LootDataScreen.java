@@ -4,6 +4,7 @@ import io.netty.buffer.Unpooled;
 import robosky.structurehelpers.block.LootDataBlockEntity;
 import robosky.structurehelpers.network.LootDataPacketData;
 import robosky.structurehelpers.network.ServerStructHelpPackets;
+import robosky.structurehelpers.structure.ExtendedStructureHandling;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.DrawableHelper;
@@ -70,7 +71,7 @@ public class LootDataScreen extends Screen {
             20,
             new TranslatableText("gui.structure-helpers.loot_data.replace"));
         replaceIn.setMaxLength(4096);
-        replaceIn.setText(backingBe.getReplacementState());
+        replaceIn.setText(ExtendedStructureHandling.stringifyBlockState(backingBe.getReplacementState()));
         replaceIn.setChangedListener(text -> updateDoneButton());
         this.children.add(replaceIn);
         // done + cancel buttons
@@ -91,7 +92,8 @@ public class LootDataScreen extends Screen {
     }
 
     private void updateDoneButton() {
-        doneBtn.active = Identifier.isValid(lootTableIn.getText());
+        doneBtn.active = Identifier.isValid(lootTableIn.getText()) &&
+            ExtendedStructureHandling.isValidBlockState(replaceIn.getText());
     }
 
     @Override

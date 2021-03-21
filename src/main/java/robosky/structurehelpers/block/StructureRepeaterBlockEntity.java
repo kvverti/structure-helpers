@@ -3,8 +3,10 @@ package robosky.structurehelpers.block;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import robosky.structurehelpers.StructureHelpers;
+import robosky.structurehelpers.structure.ExtendedStructureHandling;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
@@ -27,13 +29,13 @@ import net.minecraft.util.math.BlockPos;
  */
 public class StructureRepeaterBlockEntity extends BlockEntity {
 
-    private static final RepeaterData DEFAULT = new Single("minecraft:air");
+    private static final RepeaterData DEFAULT = new Single(Blocks.AIR.getDefaultState());
 
     private RepeaterData data = DEFAULT;
     private int minRepeat = 1;
     private int maxRepeat = 1;
     private boolean stopAtSolid = false;
-    private String replacementState = "minecraft:air";
+    private BlockState replacementState = Blocks.AIR.getDefaultState();
 
     public StructureRepeaterBlockEntity(BlockPos pos, BlockState state) {
         super(StructureHelpers.STRUCTURE_REPEATER_ENTITY_TYPE, pos, state);
@@ -50,7 +52,7 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
     public String getModeData() {
         switch(this.data.mode) {
             case SINGLE:
-                return this.data.asSingle().serializedState;
+                return ExtendedStructureHandling.stringifyBlockState(this.data.asSingle().state);
             case LAYER:
                 return this.data.asLayer().structure.toString();
             case JIGSAW:
@@ -64,7 +66,7 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
         Identifier id;
         switch(mode) {
             case SINGLE:
-                this.data = new Single(data);
+                this.data = new Single(ExtendedStructureHandling.parseBlockState(data));
                 break;
             case LAYER:
                 try {
@@ -109,11 +111,11 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
         this.stopAtSolid = stopAtSolid;
     }
 
-    public String getReplacementState() {
+    public BlockState getReplacementState() {
         return replacementState;
     }
 
-    public void setReplacementState(String replacementState) {
+    public void setReplacementState(BlockState replacementState) {
         this.replacementState = replacementState;
     }
 
@@ -128,7 +130,7 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
         this.minRepeat = Math.max(0, tag.getInt("RepeatMin"));
         this.maxRepeat = Math.max(this.minRepeat, tag.getInt("RepeatMax"));
         this.stopAtSolid = tag.getBoolean("StopAtSolid");
-        this.replacementState = tag.getString("Replacement");
+        this.replacementState = ExtendedStructureHandling.parseBlockState(tag.getString("Replacement"));
     }
 
     @Override
@@ -142,7 +144,7 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
         tag.putInt("RepeatMin", this.minRepeat);
         tag.putInt("RepeatMax", this.maxRepeat);
         tag.putBoolean("StopAtSolid", this.stopAtSolid);
-        tag.putString("Replacement", this.replacementState);
+        tag.putString("Replacement", ExtendedStructureHandling.stringifyBlockState(this.replacementState));
         return tag;
     }
 
@@ -183,14 +185,18 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
     public static final class Single extends RepeaterData {
 
         static final Codec<Single> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            Codec.STRING.fieldOf("BlockState").orElse("minecraft:air").forGetter(d -> d.serializedState)
+            Codec.STRING
+                .fieldOf("BlockState")
+                .xmap(ExtendedStructureHandling::parseBlockState, ExtendedStructureHandling::stringifyBlockState)
+                .orElse(Blocks.AIR.getDefaultState())
+                .forGetter(d -> d.state)
         ).apply(inst, Single::new));
 
-        public final String serializedState;
+        public final BlockState state;
 
-        Single(String state) {
+        Single(BlockState state) {
             super(Mode.SINGLE);
-            this.serializedState = state;
+            this.state = state;
         }
     }
 

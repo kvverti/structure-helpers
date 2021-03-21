@@ -5,6 +5,7 @@ import robosky.structurehelpers.block.LootDataBlockEntity;
 import robosky.structurehelpers.block.StructureRepeaterBlockEntity;
 import robosky.structurehelpers.client.LootDataScreen;
 import robosky.structurehelpers.client.StructureRepeaterScreen;
+import robosky.structurehelpers.structure.ExtendedStructureHandling;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
@@ -32,7 +33,7 @@ public final class ClientStructHelpPackets {
             if(be instanceof LootDataBlockEntity) {
                 LootDataBlockEntity ld = (LootDataBlockEntity)be;
                 ld.setLootTable(data.getLootTable());
-                ld.setReplacementState(data.getReplacement());
+                ld.setReplacementState(ExtendedStructureHandling.parseBlockState(data.getReplacement()));
                 client.openScreen(new LootDataScreen(ld));
             }
         });
@@ -48,7 +49,7 @@ public final class ClientStructHelpPackets {
                 repeater.setMinRepeat(data.getMinRepeat());
                 repeater.setMaxRepeat(data.getMaxRepeat());
                 repeater.setStopAtSolid(data.isStopAtSolid());
-                repeater.setReplacementState(data.getReplacement());
+                repeater.setReplacementState(ExtendedStructureHandling.parseBlockState(data.getReplacement()));
                 repeater.setModeData(data.getMode(), data.getModeState());
                 client.openScreen(new StructureRepeaterScreen(repeater));
             }

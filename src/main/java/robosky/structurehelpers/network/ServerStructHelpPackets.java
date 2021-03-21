@@ -4,6 +4,7 @@ import robosky.structurehelpers.StructureHelpers;
 import robosky.structurehelpers.block.LootDataBlockEntity;
 import robosky.structurehelpers.block.StructureRepeaterBlockEntity;
 import robosky.structurehelpers.iface.JigsawAccessorData;
+import robosky.structurehelpers.structure.ExtendedStructureHandling;
 
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -39,7 +40,7 @@ public final class ServerStructHelpPackets {
             if(be instanceof LootDataBlockEntity && player.isCreativeLevelTwoOp()) {
                 LootDataBlockEntity ld = (LootDataBlockEntity)be;
                 ld.setLootTable(data.getLootTable());
-                ld.setReplacementState(data.getReplacement());
+                ld.setReplacementState(ExtendedStructureHandling.parseBlockState(data.getReplacement()));
                 ld.markDirty();
                 player.sendMessage(new TranslatableText("structure-helpers.updated_loot", data.getLootTable()), false);
             }
@@ -74,7 +75,7 @@ public final class ServerStructHelpPackets {
                 repeater.setMinRepeat(data.getMinRepeat());
                 repeater.setMaxRepeat(data.getMaxRepeat());
                 repeater.setStopAtSolid(data.isStopAtSolid());
-                repeater.setReplacementState(data.getReplacement());
+                repeater.setReplacementState(ExtendedStructureHandling.parseBlockState(data.getReplacement()));
                 repeater.setModeData(data.getMode(), data.getModeState());
                 repeater.markDirty();
             }

@@ -3,6 +3,7 @@ package robosky.structurehelpers.block;
 import io.netty.buffer.Unpooled;
 import robosky.structurehelpers.network.ClientStructHelpPackets;
 import robosky.structurehelpers.network.LootDataPacketData;
+import robosky.structurehelpers.structure.ExtendedStructureHandling;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
@@ -46,7 +47,7 @@ public class LootDataBlock extends Block implements BlockEntityProvider {
             if(be instanceof LootDataBlockEntity && player instanceof ServerPlayerEntity) {
                 LootDataBlockEntity ld = (LootDataBlockEntity)be;
                 LootDataPacketData data =
-                    new LootDataPacketData(pos, ld.getLootTable().toString(), ld.getReplacementState());
+                    new LootDataPacketData(pos, ld.getLootTable().toString(), ExtendedStructureHandling.stringifyBlockState(ld.getReplacementState()));
                 PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
                 data.write(buf);
                 ServerPlayNetworking.send((ServerPlayerEntity)player, ClientStructHelpPackets.LOOT_DATA_OPEN, buf);
