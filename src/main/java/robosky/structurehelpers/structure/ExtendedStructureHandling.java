@@ -134,13 +134,20 @@ public final class ExtendedStructureHandling {
                 switch(data.mode) {
                     // repeat a single block state
                     case SINGLE: {
-                        BlockState state = data.asSingle().state;
+                        BlockState fill = data.asSingle().fill;
                         pos.set(bi.pos);
                         int repetitions = getSingleRepetitions(world, dir, minRepeat, maxRepeat, stopAtSolid, pos);
+                        // fill in base, fill, cap
                         pos.set(bi.pos);
-                        for(int i = 0; i < repetitions; i++) {
+                        pos.move(dir);
+                        world.setBlockState(pos, data.asSingle().base, 0);
+                        for(int i = 1; i < repetitions - 1; i++) {
                             pos.move(dir);
-                            world.setBlockState(pos, state, 0);
+                            world.setBlockState(pos, fill, 0);
+                        }
+                        if(repetitions > 1) {
+                            pos.move(dir);
+                            world.setBlockState(pos, data.asSingle().cap, 0);
                         }
                         break;
                     }

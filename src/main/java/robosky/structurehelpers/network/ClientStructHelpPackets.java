@@ -46,11 +46,7 @@ public final class ClientStructHelpPackets {
             BlockEntity be = client.world.getBlockEntity(data.getPos());
             if(be instanceof StructureRepeaterBlockEntity) {
                 StructureRepeaterBlockEntity repeater = (StructureRepeaterBlockEntity)be;
-                repeater.setMinRepeat(data.getMinRepeat());
-                repeater.setMaxRepeat(data.getMaxRepeat());
-                repeater.setStopAtSolid(data.isStopAtSolid());
-                repeater.setReplacementState(ExtendedStructureHandling.parseBlockState(data.getReplacement()));
-                repeater.setModeData(data.getMode(), data.getModeState());
+                data.writeToBlockEntity(repeater);
                 client.openScreen(new StructureRepeaterScreen(repeater));
             }
         });

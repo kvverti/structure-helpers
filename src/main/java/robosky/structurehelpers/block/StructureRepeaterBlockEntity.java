@@ -1,5 +1,7 @@
 package robosky.structurehelpers.block;
 
+import java.util.Optional;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import robosky.structurehelpers.StructureHelpers;
@@ -11,7 +13,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 
@@ -29,9 +30,11 @@ import net.minecraft.util.math.BlockPos;
  */
 public class StructureRepeaterBlockEntity extends BlockEntity {
 
-    private static final RepeaterData DEFAULT = new Single(Blocks.AIR.getDefaultState());
+    public static final RepeaterData DEFAULT_DATA = new Single(Blocks.AIR.getDefaultState(),
+        Blocks.AIR.getDefaultState(),
+        Blocks.AIR.getDefaultState());
 
-    private RepeaterData data = DEFAULT;
+    private RepeaterData data = DEFAULT_DATA;
     private int minRepeat = 1;
     private int maxRepeat = 1;
     private boolean stopAtSolid = false;
@@ -45,46 +48,12 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
         return data;
     }
 
+    public void setData(RepeaterData data) {
+        this.data = data;
+    }
+
     public Mode getMode() {
         return this.data.mode;
-    }
-
-    public String getModeData() {
-        switch(this.data.mode) {
-            case SINGLE:
-                return ExtendedStructureHandling.stringifyBlockState(this.data.asSingle().state);
-            case LAYER:
-                return this.data.asLayer().structure.toString();
-            case JIGSAW:
-                return this.data.asJigsaw().startPool.toString();
-            default:
-                throw new AssertionError(this.data.mode);
-        }
-    }
-
-    public void setModeData(Mode mode, String data) {
-        Identifier id;
-        switch(mode) {
-            case SINGLE:
-                this.data = new Single(ExtendedStructureHandling.parseBlockState(data));
-                break;
-            case LAYER:
-                try {
-                    id = new Identifier(data);
-                } catch(InvalidIdentifierException e) {
-                    id = new Identifier("empty");
-                }
-                this.data = new Layer(id);
-                break;
-            case JIGSAW:
-                try {
-                    id = new Identifier(data);
-                } catch(InvalidIdentifierException e) {
-                    id = new Identifier("empty");
-                }
-                this.data = new Jigsaw(id);
-                break;
-        }
     }
 
     public int getMinRepeat() {
@@ -126,7 +95,7 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
         this.data = RepeaterData.CODEC
             .parse(NbtOps.INSTANCE, data)
             .result()
-            .orElse(DEFAULT);
+            .orElse(DEFAULT_DATA);
         this.minRepeat = Math.max(0, tag.getInt("RepeatMin"));
         this.maxRepeat = Math.max(this.minRepeat, tag.getInt("RepeatMax"));
         this.stopAtSolid = tag.getBoolean("StopAtSolid");
@@ -189,14 +158,28 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
                 .fieldOf("BlockState")
                 .xmap(ExtendedStructureHandling::parseBlockState, ExtendedStructureHandling::stringifyBlockState)
                 .orElse(Blocks.AIR.getDefaultState())
-                .forGetter(d -> d.state)
-        ).apply(inst, Single::new));
+                .forGetter(d -> d.fill),
+            Codec.STRING
+                .xmap(ExtendedStructureHandling::parseBlockState, ExtendedStructureHandling::stringifyBlockState)
+                .orElse(Blocks.AIR.getDefaultState())
+                .optionalFieldOf("BaseState")
+                .forGetter(d -> Optional.of(d.base).filter(b -> b != d.fill)),
+            Codec.STRING
+                .xmap(ExtendedStructureHandling::parseBlockState, ExtendedStructureHandling::stringifyBlockState)
+                .orElse(Blocks.AIR.getDefaultState())
+                .optionalFieldOf("CapState")
+                .forGetter(d -> Optional.of(d.cap).filter(c -> c != d.fill))
+        ).apply(inst, (f, b, c) -> new Single(f, b.orElse(f), c.orElse(f))));
 
-        public final BlockState state;
+        public final BlockState fill;
+        public final BlockState base;
+        public final BlockState cap;
 
-        Single(BlockState state) {
+        public Single(BlockState fill, BlockState base, BlockState cap) {
             super(Mode.SINGLE);
-            this.state = state;
+            this.fill = fill;
+            this.base = base;
+            this.cap = cap;
         }
     }
 
@@ -211,7 +194,7 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
 
         public final Identifier structure;
 
-        Layer(Identifier structure) {
+        public Layer(Identifier structure) {
             super(Mode.LAYER);
             this.structure = structure;
         }
@@ -228,7 +211,7 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
 
         public final Identifier startPool;
 
-        Jigsaw(Identifier startPool) {
+        public Jigsaw(Identifier startPool) {
             super(Mode.JIGSAW);
             this.startPool = startPool;
         }

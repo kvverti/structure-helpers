@@ -219,7 +219,14 @@ public class StructureRepeaterScreen extends Screen {
         StructureRepeaterBlockEntity.Mode mode = this.backingBe.getMode();
         switch(mode) {
             case SINGLE:
-                this.singleFillIn.setText(ExtendedStructureHandling.stringifyBlockState(data.asSingle().state));
+                StructureRepeaterBlockEntity.Single single = data.asSingle();
+                this.singleFillIn.setText(ExtendedStructureHandling.stringifyBlockState(single.fill));
+                if(single.base != single.fill) {
+                    this.singleBaseIn.setText(ExtendedStructureHandling.stringifyBlockState(single.base));
+                }
+                if(single.cap != single.fill) {
+                    this.singleCapIn.setText(ExtendedStructureHandling.stringifyBlockState(single.cap));
+                }
                 break;
             case LAYER:
                 break;
@@ -290,16 +297,26 @@ public class StructureRepeaterScreen extends Screen {
     }
 
     private void sendDataToServer() {
-        String modeDependentText;
+        String data1, data2, data3;
         switch(this.modeIn.getValue()) {
             case SINGLE:
-                modeDependentText = this.singleFillIn.getText();
+                data1 = this.singleFillIn.getText();
+                data2 = this.singleBaseIn.getText();
+                data3 = this.singleCapIn.getText();
+                if(data2.equals(data1)) {
+                    data2 = "";
+                }
+                if(data3.equals(data1)) {
+                    data3 = "";
+                }
                 break;
             case LAYER:
-                modeDependentText = "minecraft:empty";
+                data1 = "minecraft:empty";
+                data2 = data3 = "";
                 break;
             case JIGSAW:
-                modeDependentText = this.jigsawStartIn.getText();
+                data1 = this.jigsawStartIn.getText();
+                data2 = data3 = "";
                 break;
             default:
                 throw new AssertionError(this.modeIn.getValue());
@@ -311,7 +328,9 @@ public class StructureRepeaterScreen extends Screen {
                 this.stopAtSolidBtn.getValue(),
                 this.replacement.getText(),
                 this.modeIn.getValue(),
-                modeDependentText);
+                data1,
+                data2,
+                data3);
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         data.write(buf);
         ClientPlayNetworking.send(ServerStructHelpPackets.REPEATER_UPDATE, buf);

@@ -3,7 +3,6 @@ package robosky.structurehelpers.block;
 import io.netty.buffer.Unpooled;
 import robosky.structurehelpers.network.ClientStructHelpPackets;
 import robosky.structurehelpers.network.RepeaterPacketData;
-import robosky.structurehelpers.structure.ExtendedStructureHandling;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
@@ -57,14 +56,8 @@ public class StructureRepeaterBlock extends Block implements BlockEntityProvider
             BlockEntity be = world.getBlockEntity(pos);
             if(be instanceof StructureRepeaterBlockEntity && player instanceof ServerPlayerEntity) {
                 StructureRepeaterBlockEntity repeater = (StructureRepeaterBlockEntity)be;
-                RepeaterPacketData data =
-                    new RepeaterPacketData(repeater.getPos(),
-                        repeater.getMinRepeat(),
-                        repeater.getMaxRepeat(),
-                        repeater.stopsAtSolid(),
-                        ExtendedStructureHandling.stringifyBlockState(repeater.getReplacementState()),
-                        repeater.getMode(),
-                        repeater.getModeData());
+                RepeaterPacketData data = new RepeaterPacketData();
+                data.readFromBlockEntity(repeater);
                 PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
                 data.write(buf);
                 ServerPlayNetworking.send((ServerPlayerEntity)player, ClientStructHelpPackets.REPEATER_OPEN, buf);

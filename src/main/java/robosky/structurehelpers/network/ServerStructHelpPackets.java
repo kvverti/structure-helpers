@@ -72,11 +72,7 @@ public final class ServerStructHelpPackets {
             BlockEntity be = player.world.getBlockEntity(data.getPos());
             if(be instanceof StructureRepeaterBlockEntity && player.isCreativeLevelTwoOp()) {
                 StructureRepeaterBlockEntity repeater = (StructureRepeaterBlockEntity)be;
-                repeater.setMinRepeat(data.getMinRepeat());
-                repeater.setMaxRepeat(data.getMaxRepeat());
-                repeater.setStopAtSolid(data.isStopAtSolid());
-                repeater.setReplacementState(ExtendedStructureHandling.parseBlockState(data.getReplacement()));
-                repeater.setModeData(data.getMode(), data.getModeState());
+                data.writeToBlockEntity(repeater);
                 repeater.markDirty();
             }
         });
