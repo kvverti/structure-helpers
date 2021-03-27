@@ -37,7 +37,7 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
     private RepeaterData data = DEFAULT_DATA;
     private int minRepeat = 1;
     private int maxRepeat = 1;
-    private boolean stopAtSolid = false;
+    private boolean stopAtSolid = true;
     private BlockState replacementState = Blocks.AIR.getDefaultState();
 
     public StructureRepeaterBlockEntity(BlockPos pos, BlockState state) {
