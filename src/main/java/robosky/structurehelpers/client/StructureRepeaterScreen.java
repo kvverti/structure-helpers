@@ -17,6 +17,7 @@ import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.NarratorManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
@@ -37,10 +38,17 @@ public class StructureRepeaterScreen extends Screen {
     private TextFieldWidget replacement;
 
     // mode-specific fields
-    private TextFieldWidget modeSpecificIn;
-    private String singleText = "minecraft:air";
-    private String layerText = "minecraft:empty";
-    private String jigsawText = "minecraft:empty";
+    private TextFieldWidget singleBaseIn;
+    private TextFieldWidget singleFillIn;
+    private TextFieldWidget singleCapIn;
+
+    private TextFieldWidget jigsawStartIn;
+
+    // index of the mode specific fields
+    private int modeSpecificStart;
+
+    // dummy input field to round out the child widgets
+    private final TextFieldWidget dummy;
 
     // done button
     private ButtonWidget doneBtn;
@@ -52,6 +60,8 @@ public class StructureRepeaterScreen extends Screen {
     public StructureRepeaterScreen(StructureRepeaterBlockEntity backingBe) {
         super(NarratorManager.EMPTY);
         this.backingBe = backingBe;
+        this.dummy = new TextFieldWidget(this.textRenderer, 0, 0, 0, 0, LiteralText.EMPTY);
+        this.dummy.active = false;
     }
 
     @Override
@@ -108,6 +118,7 @@ public class StructureRepeaterScreen extends Screen {
         this.replacement.setMaxLength(4096);
         this.replacement.setText(ExtendedStructureHandling.stringifyBlockState(this.backingBe.getReplacementState()));
         this.replacement.setChangedListener(text -> this.updateDoneButton());
+        // mode button
         this.modeIn = this.addButton(CyclingButtonWidget
             .<StructureRepeaterBlockEntity.Mode>builder(m -> new TranslatableText("gui.structure-helpers.repeater.mode." + m.asString()))
             .values(StructureRepeaterBlockEntity.Mode.values())
@@ -117,25 +128,62 @@ public class StructureRepeaterScreen extends Screen {
                 GUI_RADIUS - PADDING_H,
                 WIDGET_HEIGHT,
                 new TranslatableText("gui.structure-helpers.repeater.mode"),
-                (btn, v) -> this.updateModeSpecificState(v)));
-        this.modeSpecificIn = this.addChild(new TextFieldWidget(
+                (btn, v) -> this.changeMode(v)));
+        // single mode
+        this.singleFillIn = new TextFieldWidget(
             this.textRenderer,
             this.centerH + PADDING_H,
             this.centerV,
             GUI_RADIUS - PADDING_H - 2,
             WIDGET_HEIGHT,
-            new TranslatableText("gui.structure-helpers.repeater")));
-        this.modeSpecificIn.setMaxLength(4096);
-        this.modeSpecificIn.setTextPredicate(this::modeSpecificTextPredicate);
-        this.modeSpecificIn.setChangedListener(this::saveModeSpecificState);
+            new TranslatableText("gui.structure-helpers.repeater.mode.single.base"));
+        this.singleFillIn.setMaxLength(4096);
+        this.singleFillIn.setText("minecraft:air");
+        this.singleFillIn.setChangedListener(v -> this.updateDoneButton());
+        this.singleBaseIn = new TextFieldWidget(
+            this.textRenderer,
+            this.centerH - GUI_RADIUS,
+            this.centerV + (3 * (WIDGET_HEIGHT + PADDING_V) / 2),
+            GUI_RADIUS - PADDING_H - 2,
+            WIDGET_HEIGHT,
+            new TranslatableText("gui.structure-helpers.repeater.mode.single.fill"));
+        this.singleBaseIn.setMaxLength(4096);
+        this.singleBaseIn.setChangedListener(v -> this.updateDoneButton());
+        this.singleCapIn = new TextFieldWidget(
+            this.textRenderer,
+            this.centerH + PADDING_H,
+            this.centerV + (3 * (WIDGET_HEIGHT + PADDING_V) / 2),
+            GUI_RADIUS - PADDING_H - 2,
+            WIDGET_HEIGHT,
+            new TranslatableText("gui.structure-helpers.repeater.mode.single.cap"));
+        this.singleCapIn.setMaxLength(4096);
+        this.singleCapIn.setChangedListener(v -> this.updateDoneButton());
+        // jigsaw mode
+        this.jigsawStartIn = new TextFieldWidget(
+            this.textRenderer,
+            this.centerH + PADDING_H,
+            this.centerV,
+            GUI_RADIUS - PADDING_H - 2,
+            WIDGET_HEIGHT,
+            new TranslatableText("gui.structure-helpers.repeater.mode.jigsaw.start"));
+        this.jigsawStartIn.setMaxLength(4096);
+        this.jigsawStartIn.setTextPredicate(Identifier::isValid);
+        this.jigsawStartIn.setText("minecraft:empty");
+        this.jigsawStartIn.setChangedListener(v -> this.updateDoneButton());
+        // fill the child slots with the dummy
+        this.modeSpecificStart = this.children.size();
+        this.addChild(this.dummy);
+        this.addChild(this.dummy);
+        this.addChild(this.dummy);
+        // done and cancel
         this.doneBtn = this.addButton(new ButtonWidget(this.centerH - GUI_RADIUS,
-            this.centerV + 2 * (WIDGET_HEIGHT + PADDING_V),
+            this.centerV + 3 * (WIDGET_HEIGHT + PADDING_V),
             GUI_RADIUS - PADDING_H,
             WIDGET_HEIGHT,
             ScreenTexts.DONE,
             btn -> this.sendDataToServer()));
         this.addButton(new ButtonWidget(this.centerH + PADDING_H,
-            this.centerV + 2 * (WIDGET_HEIGHT + PADDING_V),
+            this.centerV + 3 * (WIDGET_HEIGHT + PADDING_V),
             GUI_RADIUS - PADDING_H,
             WIDGET_HEIGHT,
             ScreenTexts.CANCEL,
@@ -151,13 +199,14 @@ public class StructureRepeaterScreen extends Screen {
                 ExtendedStructureHandling.isValidBlockState(this.replacement.getText());
             switch(this.modeIn.getValue()) {
                 case SINGLE:
-                    this.doneBtn.active &= ExtendedStructureHandling.isValidBlockState(this.singleText);
+                    this.doneBtn.active &= ExtendedStructureHandling.isValidBlockState(this.singleFillIn.getText()) &&
+                        (this.singleBaseIn.getText().isEmpty() || ExtendedStructureHandling.isValidBlockState(this.singleBaseIn.getText())) &&
+                        (this.singleCapIn.getText().isEmpty() || ExtendedStructureHandling.isValidBlockState(this.singleCapIn.getText()));
                     break;
                 case LAYER:
-                    this.doneBtn.active &= Identifier.isValid(this.layerText);
                     break;
                 case JIGSAW:
-                    this.doneBtn.active &= Identifier.isValid(this.jigsawText);
+                    this.doneBtn.active &= Identifier.isValid(this.jigsawStartIn.getText());
                     break;
             }
         } catch(NumberFormatException e) {
@@ -170,55 +219,35 @@ public class StructureRepeaterScreen extends Screen {
         StructureRepeaterBlockEntity.Mode mode = this.backingBe.getMode();
         switch(mode) {
             case SINGLE:
-                this.singleText = ExtendedStructureHandling.stringifyBlockState(data.asSingle().state);
+                this.singleFillIn.setText(ExtendedStructureHandling.stringifyBlockState(data.asSingle().state));
                 break;
             case LAYER:
-                this.layerText = data.asLayer().structure.toString();
                 break;
             case JIGSAW:
-                this.jigsawText = data.asJigsaw().startPool.toString();
+                this.jigsawStartIn.setText(data.asJigsaw().startPool.toString());
                 break;
         }
-        this.updateModeSpecificState(mode);
+        this.changeMode(mode);
     }
 
-    private void updateModeSpecificState(StructureRepeaterBlockEntity.Mode mode) {
+    private void changeMode(StructureRepeaterBlockEntity.Mode mode) {
         switch(mode) {
             case SINGLE:
-                this.modeSpecificIn.setText(this.singleText);
+                this.children.set(this.modeSpecificStart, this.singleFillIn);
+                this.children.set(this.modeSpecificStart + 1, this.singleBaseIn);
+                this.children.set(this.modeSpecificStart + 2, this.singleCapIn);
                 break;
             case LAYER:
-                this.modeSpecificIn.setText(this.layerText);
+                this.children.set(this.modeSpecificStart, this.dummy);
+                this.children.set(this.modeSpecificStart + 1, this.dummy);
+                this.children.set(this.modeSpecificStart + 2, this.dummy);
                 break;
             case JIGSAW:
-                this.modeSpecificIn.setText(this.jigsawText);
-                break;
-        }
-    }
-
-    private void saveModeSpecificState(String modeSpecific) {
-        switch(this.modeIn.getValue()) {
-            case SINGLE:
-                this.singleText = modeSpecific;
-                break;
-            case LAYER:
-                this.layerText = modeSpecific;
-                break;
-            case JIGSAW:
-                this.jigsawText = modeSpecific;
-                break;
+                this.children.set(this.modeSpecificStart, this.jigsawStartIn);
+                this.children.set(this.modeSpecificStart + 1, this.dummy);
+                this.children.set(this.modeSpecificStart + 2, this.dummy);
         }
         this.updateDoneButton();
-    }
-
-    private boolean modeSpecificTextPredicate(String text) {
-        switch(this.modeIn.getValue()) {
-            case LAYER:
-            case JIGSAW:
-                return Identifier.isValid(text);
-            default:
-                return true;
-        }
     }
 
     @Override
@@ -231,56 +260,50 @@ public class StructureRepeaterScreen extends Screen {
             this.centerH,
             this.centerV - (11 * WIDGET_HEIGHT / 2),
             0xffffff);
-        // min repeat
-        DrawableHelper.drawStringWithShadow(matrices,
-            this.textRenderer,
-            I18n.translate("gui.structure-helpers.repeater.min_repeat"),
-            this.minRepeatIn.x,
-            this.minRepeatIn.y - WIDGET_HEIGHT / 2,
-            0xa0a0a0);
-        this.minRepeatIn.render(matrices, mouseX, mouseY, delta);
-        // max repeat
-        DrawableHelper.drawStringWithShadow(matrices,
-            this.textRenderer,
-            I18n.translate("gui.structure-helpers.repeater.max_repeat"),
-            this.maxRepeatIn.x,
-            this.maxRepeatIn.y - WIDGET_HEIGHT / 2,
-            0xa0a0a0);
-        this.maxRepeatIn.render(matrices, mouseX, mouseY, delta);
-        // replacement state
-        DrawableHelper.drawStringWithShadow(matrices,
-            this.textRenderer,
-            I18n.translate("gui.structure-helpers.repeater.replacement"),
-            this.replacement.x,
-            this.replacement.y - WIDGET_HEIGHT / 2,
-            0xa0a0a0);
-        this.replacement.render(matrices, mouseX, mouseY, delta);
+        renderLabeledWidget(matrices, mouseX, mouseY, delta, "min_repeat", this.minRepeatIn);
+        renderLabeledWidget(matrices, mouseX, mouseY, delta, "max_repeat", this.maxRepeatIn);
+        renderLabeledWidget(matrices, mouseX, mouseY, delta, "replacement", this.replacement);
         // mode specific
-        String modeSpecificSetting;
         switch(this.modeIn.getValue()) {
             case SINGLE:
-                modeSpecificSetting = "single.state";
+                renderLabeledWidget(matrices, mouseX, mouseY, delta, "mode.single.base", this.singleBaseIn);
+                renderLabeledWidget(matrices, mouseX, mouseY, delta, "mode.single.fill", this.singleFillIn);
+                renderLabeledWidget(matrices, mouseX, mouseY, delta, "mode.single.cap", this.singleCapIn);
                 break;
             case LAYER:
-                modeSpecificSetting = "layer.structure";
                 break;
             case JIGSAW:
-                modeSpecificSetting = "jigsaw.start";
+                renderLabeledWidget(matrices, mouseX, mouseY, delta, "mode.jigsaw.start", this.jigsawStartIn);
                 break;
-            default:
-                throw new AssertionError("unknown mode");
         }
-        DrawableHelper.drawStringWithShadow(matrices,
-            this.textRenderer,
-            I18n.translate("gui.structure-helpers.repeater.mode." + modeSpecificSetting),
-            this.modeSpecificIn.x,
-            this.modeSpecificIn.y - WIDGET_HEIGHT / 2,
-            0xa0a0a0);
-        this.modeSpecificIn.render(matrices, mouseX, mouseY, delta);
         super.render(matrices, mouseX, mouseY, delta);
     }
 
+    private void renderLabeledWidget(MatrixStack matrices, int mouseX, int mouseY, float delta, String s, TextFieldWidget widget) {
+        DrawableHelper.drawStringWithShadow(matrices,
+            this.textRenderer,
+            I18n.translate("gui.structure-helpers.repeater." + s),
+            widget.x,
+            widget.y - WIDGET_HEIGHT / 2,
+            0xa0a0a0);
+        widget.render(matrices, mouseX, mouseY, delta);
+    }
+
     private void sendDataToServer() {
+        String modeDependentText;
+        switch(this.modeIn.getValue()) {
+            case SINGLE:
+                modeDependentText = this.singleFillIn.getText();
+                break;
+            case LAYER:
+                modeDependentText = "minecraft:empty";
+                break;
+            case JIGSAW:
+                modeDependentText = this.jigsawStartIn.getText();
+                break;
+            default:
+                throw new AssertionError(this.modeIn.getValue());
+        }
         RepeaterPacketData data =
             new RepeaterPacketData(backingBe.getPos(),
                 Integer.parseInt(this.minRepeatIn.getText()),
@@ -288,7 +311,7 @@ public class StructureRepeaterScreen extends Screen {
                 this.stopAtSolidBtn.getValue(),
                 this.replacement.getText(),
                 this.modeIn.getValue(),
-                this.modeSpecificIn.getText());
+                modeDependentText);
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         data.write(buf);
         ClientPlayNetworking.send(ServerStructHelpPackets.REPEATER_UPDATE, buf);
