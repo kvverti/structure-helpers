@@ -38,14 +38,14 @@ public class ExtendedStructureFeature extends StructureFeature<ExtendedStructure
 
     @Override
     public StructureStartFactory<ExtendedStructurePoolFeatureConfig> getStructureStartFactory() {
-        return (feature, chunkPos, box, referenceCount, worldSeed) ->
-            new Start((ExtendedStructureFeature)feature, chunkPos, box, referenceCount, worldSeed);
+        return (feature, chunkPos, referenceCount, worldSeed) ->
+            new Start((ExtendedStructureFeature)feature, chunkPos, referenceCount, worldSeed);
     }
 
     public static class Start extends MarginedStructureStart<ExtendedStructurePoolFeatureConfig> {
 
-        public Start(ExtendedStructureFeature structureFeature, ChunkPos chunkPos, BlockBox box, int referenceCount, long worldSeed) {
-            super(structureFeature, chunkPos, box, referenceCount, worldSeed);
+        public Start(ExtendedStructureFeature structureFeature, ChunkPos chunkPos, int referenceCount, long worldSeed) {
+            super(structureFeature, chunkPos, referenceCount, worldSeed);
         }
 
         @Override
@@ -59,7 +59,7 @@ public class ExtendedStructureFeature extends StructureFeature<ExtendedStructure
                 chunkGenerator,
                 structureManager,
                 pos,
-                this.children,
+                this,
                 this.random,
                 feature.b,
                 feature.generateAtSurface,

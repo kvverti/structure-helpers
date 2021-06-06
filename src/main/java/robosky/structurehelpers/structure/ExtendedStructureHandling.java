@@ -97,7 +97,7 @@ public final class ExtendedStructureHandling {
     }
 
     public static void handleLootData(WorldAccess world, StructureBlockInfo bi) {
-        if(bi.tag != null) {
+        if(bi.nbt != null) {
             BlockEntity be = world.getBlockEntity(bi.pos.down());
             if(be instanceof LootableContainerBlockEntity) {
                 LootableContainerBlockEntity lc = (LootableContainerBlockEntity)be;
@@ -106,11 +106,11 @@ public final class ExtendedStructureHandling {
                 // and the packets both ways. If the loot table isn't a valid
                 // Identifier by this point, God help us.
                 try {
-                    lootTable = new Identifier(bi.tag.getString("LootTable"));
+                    lootTable = new Identifier(bi.nbt.getString("LootTable"));
                 } catch(InvalidIdentifierException e) {
                     lootTable = new Identifier("minecraft:empty");
                 }
-                BlockState replacement = parseBlockState(bi.tag.getString("Replacement"));
+                BlockState replacement = parseBlockState(bi.nbt.getString("Replacement"));
                 lc.setLootTable(lootTable, world.getRandom().nextLong());
                 world.setBlockState(bi.pos, replacement, 0);
             }
@@ -118,12 +118,12 @@ public final class ExtendedStructureHandling {
     }
 
     public static void handleRepeater(WorldAccess world, StructureBlockInfo bi) {
-        if(bi.tag != null) {
+        if(bi.nbt != null) {
             Direction dir = bi.state.get(StructureRepeaterBlock.FACING);
-            int minRepeat = Math.max(0, bi.tag.getInt("RepeatMin"));
-            int maxRepeat = Math.max(minRepeat, bi.tag.getInt("RepeatMax"));
-            boolean stopAtSolid = bi.tag.getBoolean("StopAtSolid");
-            NbtCompound dataTag = bi.tag.getCompound("Data");
+            int minRepeat = Math.max(0, bi.nbt.getInt("RepeatMin"));
+            int maxRepeat = Math.max(minRepeat, bi.nbt.getInt("RepeatMax"));
+            boolean stopAtSolid = bi.nbt.getBoolean("StopAtSolid");
+            NbtCompound dataTag = bi.nbt.getCompound("Data");
             // the data should be valid, barring incompatible updates to the NBT schema
             Optional<StructureRepeaterBlockEntity.RepeaterData> optionalData = StructureRepeaterBlockEntity.RepeaterData.CODEC
                 .parse(NbtOps.INSTANCE, dataTag)
@@ -158,7 +158,7 @@ public final class ExtendedStructureHandling {
                         break;
                 }
                 // replace the repeater block
-                BlockState replacement = parseBlockState(bi.tag.getString("Replacement"));
+                BlockState replacement = parseBlockState(bi.nbt.getString("Replacement"));
                 world.setBlockState(bi.pos, replacement, 0);
             }
         }

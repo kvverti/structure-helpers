@@ -1,5 +1,7 @@
 package robosky.structurehelpers.client;
 
+import java.util.List;
+
 import io.netty.buffer.Unpooled;
 import robosky.structurehelpers.block.StructureRepeaterBlockEntity;
 import robosky.structurehelpers.network.RepeaterPacketData;
@@ -8,6 +10,7 @@ import robosky.structurehelpers.structure.ExtendedStructureHandling;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -75,7 +78,7 @@ public class StructureRepeaterScreen extends Screen {
         centerV = this.height / 2;
         assert this.client != null : "this.client null in LootDataScreen";
         this.client.keyboard.setRepeatEvents(true);
-        this.minRepeatIn = this.addChild(new TextFieldWidget(
+        this.minRepeatIn = this.addSelectableChild(new TextFieldWidget(
             this.textRenderer,
             this.centerH - GUI_RADIUS + 1,
             this.centerV - 3 * (WIDGET_HEIGHT + PADDING_V),
@@ -86,7 +89,7 @@ public class StructureRepeaterScreen extends Screen {
         this.minRepeatIn.setText(Integer.toString(this.backingBe.getMinRepeat()));
         this.minRepeatIn.setTextPredicate(t -> t.matches("\\d*"));
         this.minRepeatIn.setChangedListener(text -> this.updateDoneButton());
-        this.maxRepeatIn = this.addChild(new TextFieldWidget(
+        this.maxRepeatIn = this.addSelectableChild(new TextFieldWidget(
             this.textRenderer,
             this.centerH + PADDING_H,
             this.centerV - 3 * (WIDGET_HEIGHT + PADDING_V),
@@ -97,7 +100,7 @@ public class StructureRepeaterScreen extends Screen {
         this.maxRepeatIn.setText(Integer.toString(this.backingBe.getMaxRepeat()));
         this.maxRepeatIn.setTextPredicate(t -> t.matches("\\d*"));
         this.maxRepeatIn.setChangedListener(text -> this.updateDoneButton());
-        this.stopAtSolidBtn = this.addButton(CyclingButtonWidget
+        this.stopAtSolidBtn = this.addDrawableChild(CyclingButtonWidget
             .<Boolean>builder(b -> new TranslatableText("gui.structure-helpers.repeater.termination." + (b ? "surface" : "random")))
             .values(false, true)
             .initially(this.backingBe.stopsAtSolid())
@@ -108,7 +111,7 @@ public class StructureRepeaterScreen extends Screen {
                 new TranslatableText("gui.structure-helpers.repeater.termination"),
                 (btn, v) -> {
                 }));
-        this.replacement = this.addChild(new TextFieldWidget(
+        this.replacement = this.addSelectableChild(new TextFieldWidget(
             this.textRenderer,
             this.centerH + PADDING_H,
             this.centerV - (3 * (WIDGET_HEIGHT + PADDING_V) / 2),
@@ -119,7 +122,7 @@ public class StructureRepeaterScreen extends Screen {
         this.replacement.setText(ExtendedStructureHandling.stringifyBlockState(this.backingBe.getReplacementState()));
         this.replacement.setChangedListener(text -> this.updateDoneButton());
         // mode button
-        this.modeIn = this.addButton(CyclingButtonWidget
+        this.modeIn = this.addDrawableChild(CyclingButtonWidget
             .<StructureRepeaterBlockEntity.Mode>builder(m -> new TranslatableText("gui.structure-helpers.repeater.mode." + m.asString()))
             .values(StructureRepeaterBlockEntity.Mode.values())
             .initially(this.backingBe.getMode())
@@ -171,18 +174,18 @@ public class StructureRepeaterScreen extends Screen {
         this.jigsawStartIn.setText("minecraft:empty");
         this.jigsawStartIn.setChangedListener(v -> this.updateDoneButton());
         // fill the child slots with the dummy
-        this.modeSpecificStart = this.children.size();
-        this.addChild(this.dummy);
-        this.addChild(this.dummy);
-        this.addChild(this.dummy);
+        this.modeSpecificStart = this.children().size();
+        this.addSelectableChild(this.dummy);
+        this.addSelectableChild(this.dummy);
+        this.addSelectableChild(this.dummy);
         // done and cancel
-        this.doneBtn = this.addButton(new ButtonWidget(this.centerH - GUI_RADIUS,
+        this.doneBtn = this.addDrawableChild(new ButtonWidget(this.centerH - GUI_RADIUS,
             this.centerV + 3 * (WIDGET_HEIGHT + PADDING_V),
             GUI_RADIUS - PADDING_H,
             WIDGET_HEIGHT,
             ScreenTexts.DONE,
             btn -> this.sendDataToServer()));
-        this.addButton(new ButtonWidget(this.centerH + PADDING_H,
+        this.addDrawableChild(new ButtonWidget(this.centerH + PADDING_H,
             this.centerV + 3 * (WIDGET_HEIGHT + PADDING_V),
             GUI_RADIUS - PADDING_H,
             WIDGET_HEIGHT,
@@ -238,21 +241,23 @@ public class StructureRepeaterScreen extends Screen {
     }
 
     private void changeMode(StructureRepeaterBlockEntity.Mode mode) {
+        @SuppressWarnings("unchecked")
+        var children = (List<Element>)this.children();
         switch(mode) {
             case SINGLE:
-                this.children.set(this.modeSpecificStart, this.singleFillIn);
-                this.children.set(this.modeSpecificStart + 1, this.singleBaseIn);
-                this.children.set(this.modeSpecificStart + 2, this.singleCapIn);
+                children.set(this.modeSpecificStart, this.singleFillIn);
+                children.set(this.modeSpecificStart + 1, this.singleBaseIn);
+                children.set(this.modeSpecificStart + 2, this.singleCapIn);
                 break;
             case LAYER:
-                this.children.set(this.modeSpecificStart, this.dummy);
-                this.children.set(this.modeSpecificStart + 1, this.dummy);
-                this.children.set(this.modeSpecificStart + 2, this.dummy);
+                children.set(this.modeSpecificStart, this.dummy);
+                children.set(this.modeSpecificStart + 1, this.dummy);
+                children.set(this.modeSpecificStart + 2, this.dummy);
                 break;
             case JIGSAW:
-                this.children.set(this.modeSpecificStart, this.jigsawStartIn);
-                this.children.set(this.modeSpecificStart + 1, this.dummy);
-                this.children.set(this.modeSpecificStart + 2, this.dummy);
+                children.set(this.modeSpecificStart, this.jigsawStartIn);
+                children.set(this.modeSpecificStart + 1, this.dummy);
+                children.set(this.modeSpecificStart + 2, this.dummy);
         }
         this.updateDoneButton();
     }
@@ -261,7 +266,7 @@ public class StructureRepeaterScreen extends Screen {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.renderBackground(matrices);
         // title
-        DrawableHelper.drawCenteredString(matrices,
+        DrawableHelper.drawCenteredText(matrices,
             this.textRenderer,
             I18n.translate("gui.structure-helpers.repeater.title"),
             this.centerH,

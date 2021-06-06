@@ -62,7 +62,7 @@ public class LootDataScreen extends Screen {
         lootTableIn.setMaxLength(4096);
         lootTableIn.setText(backingBe.getLootTable().toString());
         lootTableIn.setChangedListener(text -> updateDoneButton());
-        this.children.add(lootTableIn);
+        this.addSelectableChild(lootTableIn);
         // replacement state
         replaceIn = new TextFieldWidget(this.textRenderer,
             centerH - guiRadius,
@@ -73,17 +73,17 @@ public class LootDataScreen extends Screen {
         replaceIn.setMaxLength(4096);
         replaceIn.setText(ExtendedStructureHandling.stringifyBlockState(backingBe.getReplacementState()));
         replaceIn.setChangedListener(text -> updateDoneButton());
-        this.children.add(replaceIn);
+        this.addSelectableChild(replaceIn);
         // done + cancel buttons
         final int padding = 5;
         final int btnWidth = guiRadius - padding + 1;
-        doneBtn = this.addButton(new ButtonWidget(centerH - padding - btnWidth,
+        doneBtn = this.addDrawableChild(new ButtonWidget(centerH - padding - btnWidth,
             centerV + 40,
             btnWidth,
             20,
             ScreenTexts.DONE,
             btn -> this.sendDataToServer()));
-        this.addButton(new ButtonWidget(centerH + padding,
+        this.addDrawableChild(new ButtonWidget(centerH + padding,
             centerV + 40,
             btnWidth,
             20,
@@ -100,7 +100,7 @@ public class LootDataScreen extends Screen {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.renderBackground(matrices);
         // title
-        DrawableHelper.drawCenteredString(matrices,
+        DrawableHelper.drawCenteredText(matrices,
             this.textRenderer,
             I18n.translate("gui.structure-helpers.loot_data.title"),
             centerH,

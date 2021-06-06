@@ -55,14 +55,13 @@ abstract class JigsawBlockScreenMixin extends Screen {
         method = "init",
         at = @At(
             value = "INVOKE",
-            target = "Ljava/util/List;add(Ljava/lang/Object;)Z",
+            target = "Lnet/minecraft/client/gui/screen/ingame/JigsawBlockScreen;addSelectableChild(Lnet/minecraft/client/gui/Element;)Lnet/minecraft/client/gui/Element;",
             ordinal = 3,
-            shift = At.Shift.AFTER,
-            remap = false
+            shift = At.Shift.AFTER
         )
     )
     private void initCxnTypeField(CallbackInfo info) {
-        junctionTypeButton = this.addButton(new ButtonWidget(
+        junctionTypeButton = this.addDrawableChild(new ButtonWidget(
             this.width / 2 - 152, 150, 150, 20,
             new LiteralText("<uninitialized>"),
             btn -> {

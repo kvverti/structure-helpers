@@ -1,8 +1,6 @@
 package robosky.structurehelpers.mixin;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -21,6 +19,8 @@ import robosky.structurehelpers.structure.pool.ExtendedStructurePoolFeatureConfi
 
 import net.minecraft.structure.PoolStructurePiece;
 import net.minecraft.structure.StructureManager;
+import net.minecraft.structure.StructurePiecesHolder;
+import net.minecraft.structure.StructureStart;
 import net.minecraft.structure.pool.StructurePoolBasedGenerator;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
@@ -59,7 +59,7 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
         ChunkGenerator generator,
         StructureManager manager,
         BlockPos pos,
-        List<? super PoolStructurePiece> children,
+        StructurePiecesHolder children,
         Random rand,
         boolean b,
         boolean generateAtSurface,
@@ -108,7 +108,7 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
         ChunkGenerator generator,
         StructureManager manager,
         BlockPos pos,
-        List<? super PoolStructurePiece> children,
+        StructurePiecesHolder holder,
         Random rand,
         boolean b,
         boolean generateAtSurface,
@@ -119,19 +119,21 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
         if(gen != null) {
             poolGenerator.remove();
             gen.structhelp_setGeneratingChildren();
-            for(Object piece : new ArrayList<>(children)) {
-                if(piece instanceof PoolStructurePiece) {
-                    PoolStructurePiece poolPiece = (PoolStructurePiece)piece;
-                    BlockBox blockBox = poolPiece.getBoundingBox();
-                    int x = (blockBox.maxX + blockBox.minX) / 2;
-                    int z = (blockBox.maxZ + blockBox.minZ) / 2;
-                    int y = generator.getHeightOnGround(x, z, Heightmap.Type.WORLD_SURFACE_WG, view);
-                    ((StructurePoolGeneratorAccessor)gen).callGeneratePiece(poolPiece,
-                        new MutableObject<>(VoxelShapes.empty()),
-                        y + 80,
-                        0,
-                        b,
-                        view);
+            // todo: fix child elements not generating
+            if(holder instanceof StructureStart<?> start) {
+                for(var piece : start.getChildren()) {
+                    if(piece instanceof PoolStructurePiece poolPiece) {
+                        BlockBox blockBox = poolPiece.getBoundingBox();
+                        int x = (blockBox.getMaxX() + blockBox.getMinX()) / 2;
+                        int z = (blockBox.getMaxZ() + blockBox.getMinZ()) / 2;
+                        int y = generator.getHeightOnGround(x, z, Heightmap.Type.WORLD_SURFACE_WG, view);
+                        ((StructurePoolGeneratorAccessor)gen).callGeneratePiece(poolPiece,
+                            new MutableObject<>(VoxelShapes.empty()),
+                            y + 80,
+                            0,
+                            b,
+                            view);
+                    }
                 }
             }
             if(!gen.structhelp_softCheckMinMaxConstraints()) {
@@ -161,15 +163,14 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
         ChunkGenerator generator,
         StructureManager manager,
         BlockPos pos,
-        List<? super PoolStructurePiece> children,
+        StructurePiecesHolder children,
         Random rand,
         boolean b,
         boolean generateAtSurface,
         HeightLimitView view
     ) {
         final int vanillaExtent = 80;
-        if(config instanceof ExtendedStructurePoolFeatureConfig) {
-            ExtendedStructurePoolFeatureConfig data = (ExtendedStructurePoolFeatureConfig)config;
+        if(config instanceof ExtendedStructurePoolFeatureConfig data) {
             int extentH = data.getHorizontalExtent() - vanillaExtent;
             int extentV = data.getVerticalExtent() - vanillaExtent;
             if(extentH <= -vanillaExtent) {

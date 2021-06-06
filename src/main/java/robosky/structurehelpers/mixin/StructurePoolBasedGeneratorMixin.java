@@ -181,8 +181,8 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
         )
     )
     private boolean filterAppropriateJunctionType(StructureBlockInfo a, StructureBlockInfo b) {
-        boolean child = a.tag.getBoolean(JigsawAccessorData.CHILD_JUNCTION);
-        boolean connectingChild = b.tag.getBoolean(JigsawAccessorData.CHILD_JUNCTION);
+        boolean child = a.nbt.getBoolean(JigsawAccessorData.CHILD_JUNCTION);
+        boolean connectingChild = b.nbt.getBoolean(JigsawAccessorData.CHILD_JUNCTION);
         if(!connectingChild && (generatingChildren == child)) {
             return JigsawBlock.attachmentMatches(a, b);
         }
