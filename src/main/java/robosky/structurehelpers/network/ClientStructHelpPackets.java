@@ -30,8 +30,7 @@ public final class ClientStructHelpPackets {
         data.read(buf);
         client.execute(() -> {
             BlockEntity be = client.world.getBlockEntity(data.getPos());
-            if(be instanceof LootDataBlockEntity) {
-                LootDataBlockEntity ld = (LootDataBlockEntity)be;
+            if(be instanceof LootDataBlockEntity ld) {
                 ld.setLootTable(data.getLootTable());
                 ld.setReplacementState(ExtendedStructureHandling.parseBlockState(data.getReplacement()));
                 client.openScreen(new LootDataScreen(ld));
@@ -44,8 +43,7 @@ public final class ClientStructHelpPackets {
         data.read(buf);
         client.execute(() -> {
             BlockEntity be = client.world.getBlockEntity(data.getPos());
-            if(be instanceof StructureRepeaterBlockEntity) {
-                StructureRepeaterBlockEntity repeater = (StructureRepeaterBlockEntity)be;
+            if(be instanceof StructureRepeaterBlockEntity repeater) {
                 data.writeToBlockEntity(repeater);
                 client.openScreen(new StructureRepeaterScreen(repeater));
             }

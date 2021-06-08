@@ -86,7 +86,7 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
         if(config != null) {
             Map<Identifier, ElementRange> ranges = new HashMap<>();
             for(ElementRange range : config.getRangeConstraints()) {
-                ranges.put(range.id, range);
+                ranges.put(range.id(), range);
             }
             StructurePoolGeneratorAddition gen1 = (StructurePoolGeneratorAddition)(Object)gen;
             gen1.structhelp_setRoomMinMax(ranges);

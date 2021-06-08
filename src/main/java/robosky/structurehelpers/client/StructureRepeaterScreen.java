@@ -244,20 +244,21 @@ public class StructureRepeaterScreen extends Screen {
         @SuppressWarnings("unchecked")
         var children = (List<Element>)this.children();
         switch(mode) {
-            case SINGLE:
+            case SINGLE -> {
                 children.set(this.modeSpecificStart, this.singleFillIn);
                 children.set(this.modeSpecificStart + 1, this.singleBaseIn);
                 children.set(this.modeSpecificStart + 2, this.singleCapIn);
-                break;
-            case LAYER:
+            }
+            case LAYER -> {
                 children.set(this.modeSpecificStart, this.dummy);
                 children.set(this.modeSpecificStart + 1, this.dummy);
                 children.set(this.modeSpecificStart + 2, this.dummy);
-                break;
-            case JIGSAW:
+            }
+            case JIGSAW -> {
                 children.set(this.modeSpecificStart, this.jigsawStartIn);
                 children.set(this.modeSpecificStart + 1, this.dummy);
                 children.set(this.modeSpecificStart + 2, this.dummy);
+            }
         }
         this.updateDoneButton();
     }
@@ -304,7 +305,7 @@ public class StructureRepeaterScreen extends Screen {
     private void sendDataToServer() {
         String data1, data2, data3;
         switch(this.modeIn.getValue()) {
-            case SINGLE:
+            case SINGLE -> {
                 data1 = this.singleFillIn.getText();
                 data2 = this.singleBaseIn.getText();
                 data3 = this.singleCapIn.getText();
@@ -314,17 +315,16 @@ public class StructureRepeaterScreen extends Screen {
                 if(data3.equals(data1)) {
                     data3 = "";
                 }
-                break;
-            case LAYER:
+            }
+            case LAYER -> {
                 data1 = "minecraft:empty";
                 data2 = data3 = "";
-                break;
-            case JIGSAW:
+            }
+            case JIGSAW -> {
                 data1 = this.jigsawStartIn.getText();
                 data2 = data3 = "";
-                break;
-            default:
-                throw new AssertionError(this.modeIn.getValue());
+            }
+            default -> throw new AssertionError(this.modeIn.getValue());
         }
         RepeaterPacketData data =
             new RepeaterPacketData(backingBe.getPos(),

@@ -44,8 +44,7 @@ public class LootDataBlock extends Block implements BlockEntityProvider {
         }
         if(!world.isClient()) {
             BlockEntity be = world.getBlockEntity(pos);
-            if(be instanceof LootDataBlockEntity && player instanceof ServerPlayerEntity) {
-                LootDataBlockEntity ld = (LootDataBlockEntity)be;
+            if(be instanceof LootDataBlockEntity ld && player instanceof ServerPlayerEntity) {
                 LootDataPacketData data =
                     new LootDataPacketData(pos, ld.getLootTable().toString(), ExtendedStructureHandling.stringifyBlockState(ld.getReplacementState()));
                 PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());

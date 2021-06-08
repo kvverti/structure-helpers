@@ -125,15 +125,10 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
         LAYER("layer"),
         JIGSAW("jigsaw");
 
-        static final Codec<Mode> CODEC = StringIdentifiable.createCodec(Mode::values, s -> {
-            switch(s) {
-                case "layer":
-                    return LAYER;
-                case "jigsaw":
-                    return JIGSAW;
-                default:
-                    return SINGLE;
-            }
+        static final Codec<Mode> CODEC = StringIdentifiable.createCodec(Mode::values, s -> switch(s) {
+            case "layer" -> LAYER;
+            case "jigsaw" -> JIGSAW;
+            default -> SINGLE;
         });
 
         private final String name;
@@ -225,15 +220,10 @@ public class StructureRepeaterBlockEntity extends BlockEntity {
         public static final Codec<RepeaterData> CODEC = Mode.CODEC.dispatch(
             "Mode",
             d -> d.mode,
-            mode -> {
-                switch(mode) {
-                    case LAYER:
-                        return Layer.CODEC;
-                    case JIGSAW:
-                        return Jigsaw.CODEC;
-                    default:
-                        return Single.CODEC;
-                }
+            mode -> switch(mode) {
+                case LAYER -> Layer.CODEC;
+                case JIGSAW -> Jigsaw.CODEC;
+                default -> Single.CODEC;
             }
         );
 

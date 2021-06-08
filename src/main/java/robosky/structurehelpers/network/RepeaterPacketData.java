@@ -80,21 +80,20 @@ public final class RepeaterPacketData {
         this.replacement = ExtendedStructureHandling.stringifyBlockState(be.getReplacementState());
         this.mode = be.getMode();
         switch(be.getMode()) {
-            case SINGLE: {
+            case SINGLE -> {
                 StructureRepeaterBlockEntity.Single single = be.getData().asSingle();
                 this.data1 = ExtendedStructureHandling.stringifyBlockState(single.fill);
                 this.data2 = single.base == single.fill ? "" : ExtendedStructureHandling.stringifyBlockState(single.base);
                 this.data3 = single.cap == single.fill ? "" : ExtendedStructureHandling.stringifyBlockState(single.cap);
-                break;
             }
-            case LAYER:
+            case LAYER -> {
                 this.data1 = be.getData().asLayer().structure.toString();
                 this.data2 = this.data3 = "";
-                break;
-            case JIGSAW:
+            }
+            case JIGSAW -> {
                 this.data1 = be.getData().asJigsaw().startPool.toString();
                 this.data2 = this.data3 = "";
-                break;
+            }
         }
     }
 
@@ -105,21 +104,15 @@ public final class RepeaterPacketData {
         be.setReplacementState(ExtendedStructureHandling.parseBlockState(this.replacement));
         StructureRepeaterBlockEntity.RepeaterData data;
         switch(this.mode) {
-            case SINGLE: {
+            case SINGLE -> {
                 BlockState fill = ExtendedStructureHandling.parseBlockState(this.data1);
                 BlockState base = this.data2.isEmpty() ? fill : ExtendedStructureHandling.parseBlockState(this.data2);
                 BlockState cap = this.data3.isEmpty() ? fill : ExtendedStructureHandling.parseBlockState(this.data3);
                 data = new StructureRepeaterBlockEntity.Single(fill, base, cap);
-                break;
             }
-            case LAYER:
-                data = new StructureRepeaterBlockEntity.Layer(parseOrDefault(this.data1));
-                break;
-            case JIGSAW:
-                data = new StructureRepeaterBlockEntity.Jigsaw(parseOrDefault(this.data1));
-                break;
-            default:
-                throw new AssertionError(this.mode);
+            case LAYER -> data = new StructureRepeaterBlockEntity.Layer(parseOrDefault(this.data1));
+            case JIGSAW -> data = new StructureRepeaterBlockEntity.Jigsaw(parseOrDefault(this.data1));
+            default -> throw new AssertionError(this.mode);
         }
         be.setData(data);
     }

@@ -54,8 +54,7 @@ public class StructureRepeaterBlock extends Block implements BlockEntityProvider
         }
         if(!world.isClient()) {
             BlockEntity be = world.getBlockEntity(pos);
-            if(be instanceof StructureRepeaterBlockEntity && player instanceof ServerPlayerEntity) {
-                StructureRepeaterBlockEntity repeater = (StructureRepeaterBlockEntity)be;
+            if(be instanceof StructureRepeaterBlockEntity repeater && player instanceof ServerPlayerEntity) {
                 RepeaterPacketData data = new RepeaterPacketData();
                 data.readFromBlockEntity(repeater);
                 PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());

@@ -1,5 +1,6 @@
 package robosky.structurehelpers.structure.processor;
 
+import java.util.Optional;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
@@ -49,14 +50,20 @@ public class AirGroundReplacementProcessor extends StructureProcessor {
         StructureBlockInfo info, StructurePlacementData data
     ) {
         for(Entry entry : entries) {
-            if(entry.key.matches(info.state)) {
+            if(entry.key().matches(info.state)) {
                 BlockState state;
                 if(world.getBlockState(info.pos).getCollisionShape(world, info.pos).isEmpty()) {
-                    state = entry.air.map(info.state);
+                    if(entry.air() == null) {
+                        return null;
+                    }
+                    state = entry.air().map(info.state);
                 } else {
-                    state = entry.ground.map(info.state);
+                    if(entry.ground() == null) {
+                        return null;
+                    }
+                    state = entry.ground().map(info.state);
                 }
-                return state.getBlock() == Blocks.STRUCTURE_VOID ? null : new StructureBlockInfo(info.pos, state, null);
+                return new StructureBlockInfo(info.pos, state, null);
             }
         }
         return info;
@@ -76,13 +83,31 @@ public class AirGroundReplacementProcessor extends StructureProcessor {
         private static final PartialBlockState EMPTY = PartialBlockState.of(Blocks.STRUCTURE_VOID);
 
         public static final Codec<Entry> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            PartialBlockState.CODEC.fieldOf("Key").forGetter(e -> e.key),
-            PartialBlockState.CODEC.optionalFieldOf("Air", EMPTY).forGetter(e -> e.air),
-            PartialBlockState.CODEC.optionalFieldOf("Ground", EMPTY).forGetter(e -> e.ground)
-        ).apply(inst, Entry::new));
+            PartialBlockState.CODEC.fieldOf("Key").forGetter(Entry::key),
+            PartialBlockState.CODEC.optionalFieldOf("Air").forGetter(e -> Optional.ofNullable(e.air())),
+            PartialBlockState.CODEC.optionalFieldOf("Ground").forGetter(e -> Optional.ofNullable(e.ground()))
+        ).apply(inst, (k, a, g) -> new Entry(k, a.orElse(null), g.orElse(null))));
 
+        /**
+         * @deprecated This class will become a record class in the next major release. Use {@link #key()} instead.
+         */
+        @Deprecated
         public final PartialBlockState key;
+
+        /**
+         * @deprecated This class will become a record class in the next major release. Use {@link #air()} instead.
+         *
+         * <p>Note that the accessor method may return {@code null}, whereas this field is always nonnull.
+         */
+        @Deprecated
         public final PartialBlockState air;
+
+        /**
+         * @deprecated This class will become a record class in the next major release. Use {@link #ground()} instead.
+         *
+         * <p>Note that the accessor method may return {@code null}, whereas this field is always nonnull.
+         */
+        @Deprecated
         public final PartialBlockState ground;
 
         private Entry(
@@ -93,6 +118,20 @@ public class AirGroundReplacementProcessor extends StructureProcessor {
             this.key = key;
             this.air = air;
             this.ground = ground;
+        }
+
+        public PartialBlockState key() {
+            return key;
+        }
+
+        @Nullable
+        public PartialBlockState air() {
+            return air == EMPTY ? null : air;
+        }
+
+        @Nullable
+        public PartialBlockState ground() {
+            return ground == EMPTY ? null : ground;
         }
 
         /**

@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
@@ -47,7 +46,7 @@ public class WeightedChanceProcessor extends StructureProcessor {
 
     private WeightedChanceProcessor(Map<PartialBlockState, List<Entry>> entries) {
         this.entries = entries;
-        weightSum = (float)entries.values().stream().flatMap(List::stream).mapToDouble(entry -> entry.weight).sum();
+        weightSum = (float)entries.values().stream().flatMap(List::stream).mapToDouble(Entry::weight).sum();
     }
 
     public static Builder builder() {
@@ -60,17 +59,35 @@ public class WeightedChanceProcessor extends StructureProcessor {
     public static final class Entry {
 
         public static final Codec<Entry> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            Codec.FLOAT.fieldOf("Weight").forGetter(e -> e.weight),
-            PartialBlockState.CODEC.fieldOf("Target").forGetter(e -> e.targetState)
+            PartialBlockState.CODEC.fieldOf("Target").forGetter(Entry::targetState),
+            Codec.FLOAT.fieldOf("Weight").forGetter(Entry::weight)
         ).apply(inst, Entry::new));
 
-        public final float weight;
+        /**
+         * @deprecated This class will become a record class in the next major release. Use {@link #targetState()} instead.
+         */
+        @Deprecated
         @Nullable
         public final PartialBlockState targetState;
 
-        private Entry(float weight, @Nullable PartialBlockState targetState) {
-            this.weight = weight;
+        /**
+         * @deprecated This class will become a record class in the next major release. Use {@link #weight()} instead.
+         */
+        @Deprecated
+        public final float weight;
+
+        private Entry(@Nullable PartialBlockState targetState, float weight) {
             this.targetState = targetState;
+            this.weight = weight;
+        }
+
+        @Nullable
+        public PartialBlockState targetState() {
+            return targetState;
+        }
+
+        public float weight() {
+            return weight;
         }
 
         public static Entry ofEmpty(float weight) {
@@ -86,7 +103,7 @@ public class WeightedChanceProcessor extends StructureProcessor {
         }
 
         public static Entry of(PartialBlockState target, float weight) {
-            return new Entry(weight, target);
+            return new Entry(target, weight);
         }
     }
 
@@ -102,10 +119,10 @@ public class WeightedChanceProcessor extends StructureProcessor {
                 float totalWeight = 0f;
                 float value = rand.nextFloat() * weightSum;
                 for(Entry e : entry.getValue()) {
-                    totalWeight += e.weight;
+                    totalWeight += e.weight();
                     if(value < totalWeight) {
-                        return e.targetState == null ? null
-                            : new Structure.StructureBlockInfo(info.pos, e.targetState.map(info.state), null);
+                        return e.targetState() == null ? null
+                            : new Structure.StructureBlockInfo(info.pos, e.targetState().map(info.state), null);
                     }
                 }
                 break;

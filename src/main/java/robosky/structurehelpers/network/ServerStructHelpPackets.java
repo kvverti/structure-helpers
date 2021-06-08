@@ -37,8 +37,7 @@ public final class ServerStructHelpPackets {
         data.read(buf);
         server.execute(() -> {
             BlockEntity be = player.getEntityWorld().getBlockEntity(data.getPos());
-            if(be instanceof LootDataBlockEntity && player.isCreativeLevelTwoOp()) {
-                LootDataBlockEntity ld = (LootDataBlockEntity)be;
+            if(be instanceof LootDataBlockEntity ld && player.isCreativeLevelTwoOp()) {
                 ld.setLootTable(data.getLootTable());
                 ld.setReplacementState(ExtendedStructureHandling.parseBlockState(data.getReplacement()));
                 ld.markDirty();
@@ -70,8 +69,7 @@ public final class ServerStructHelpPackets {
         data.read(buf);
         server.execute(() -> {
             BlockEntity be = player.world.getBlockEntity(data.getPos());
-            if(be instanceof StructureRepeaterBlockEntity && player.isCreativeLevelTwoOp()) {
-                StructureRepeaterBlockEntity repeater = (StructureRepeaterBlockEntity)be;
+            if(be instanceof StructureRepeaterBlockEntity repeater && player.isCreativeLevelTwoOp()) {
                 data.writeToBlockEntity(repeater);
                 repeater.markDirty();
             }

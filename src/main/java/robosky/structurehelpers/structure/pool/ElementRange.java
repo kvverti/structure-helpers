@@ -12,19 +12,48 @@ import net.minecraft.util.Identifier;
 public final class ElementRange {
 
     public static final Codec<ElementRange> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-        Identifier.CODEC.fieldOf("Id").forGetter(r -> r.id),
-        Codec.INT.fieldOf("Min").forGetter(r -> r.min),
-        Codec.INT.fieldOf("Max").forGetter(r -> r.max)
-    ).apply(inst, ElementRange::of));
+        Identifier.CODEC.fieldOf("Id").forGetter(ElementRange::id),
+        Codec.INT.fieldOf("Min").forGetter(ElementRange::min),
+        Codec.INT.fieldOf("Max").forGetter(ElementRange::max)
+    ).apply(inst, ElementRange::new));
 
+    /**
+     * @deprecated This class will become a record class in the next major release. Use {@link #id()} instead.
+     */
+    @Deprecated
     public final Identifier id;
+
+    /**
+     * @deprecated This class will become a record class in the next major release. Use {@link #min()} instead.
+     */
+    @Deprecated
     public final int min;
+
+    /**
+     * @deprecated This class will become a record class in the next major release. Use {@link #max()} instead.
+     */
+    @Deprecated
     public final int max;
 
-    private ElementRange(Identifier id, int min, int max) {
+    public ElementRange(Identifier id, int min, int max) {
+        if(min < 0 || min > max) {
+            throw new IllegalArgumentException("Invalid min-max range");
+        }
         this.id = id;
         this.min = min;
         this.max = max;
+    }
+
+    public Identifier id() {
+        return id;
+    }
+
+    public int min() {
+        return min;
+    }
+
+    public int max() {
+        return max;
     }
 
     /**
@@ -36,9 +65,6 @@ public final class ElementRange {
      * @param max the maximum number of times to generate the element, inclusive
      */
     public static ElementRange of(Identifier id, int min, int max) {
-        if(min < 0 || min > max) {
-            throw new IllegalArgumentException("Invalid min-max range");
-        }
         return new ElementRange(id, min, max);
     }
 }

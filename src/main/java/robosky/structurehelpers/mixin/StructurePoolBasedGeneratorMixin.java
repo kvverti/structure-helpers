@@ -81,7 +81,7 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
     @Override
     public boolean structhelp_softCheckMinMaxConstraints() {
         for(Object2IntMap.Entry<Identifier> entry : elementUses.object2IntEntrySet()) {
-            if(entry.getIntValue() < elementMinMax.get(entry.getKey()).min) {
+            if(entry.getIntValue() < elementMinMax.get(entry.getKey()).min()) {
                 return false;
             }
         }
@@ -128,7 +128,7 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
                 tmpElement = (ExtendedSinglePoolElement)element;
                 if(elementMinMax.containsKey(tmpElement.location())) {
                     int uses = elementUses.getInt(tmpElement.location());
-                    if(uses + 1 > elementMinMax.get(tmpElement.location()).max) {
+                    if(uses + 1 > elementMinMax.get(tmpElement.location()).max()) {
                         if(elementIterator.hasNext()) {
                             element = elementIterator.next();
                             elementValid = false;
@@ -160,8 +160,7 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
         // we can use this.elementToPlace because it is overwritten
         // on every iteration
         PoolStructurePiece piece = (PoolStructurePiece)obj;
-        if(piece.getPoolElement() instanceof ExtendedSinglePoolElement) {
-            ExtendedSinglePoolElement element = (ExtendedSinglePoolElement)piece.getPoolElement();
+        if(piece.getPoolElement() instanceof ExtendedSinglePoolElement element) {
             if(elementMinMax.containsKey(element.location())) {
                 elementUses.put(element.location(), elementUses.getInt(element.location()) + 1);
             }
@@ -239,7 +238,7 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
             final int MAX_EXTRA_ITRS = 4;
             if(currentSize - this.maxSize <= MAX_EXTRA_ITRS) {
                 for(Object2IntMap.Entry<Identifier> entry : elementUses.object2IntEntrySet()) {
-                    if(entry.getIntValue() < elementMinMax.get(entry.getKey()).min) {
+                    if(entry.getIntValue() < elementMinMax.get(entry.getKey()).min()) {
                         // continue normal generation past max size
                         // (currentSize != maxSize) is true, (currentSize + 1 <= maxSize) is true
                         return Integer.MAX_VALUE;

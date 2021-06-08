@@ -99,8 +99,7 @@ public final class ExtendedStructureHandling {
     public static void handleLootData(WorldAccess world, StructureBlockInfo bi) {
         if(bi.nbt != null) {
             BlockEntity be = world.getBlockEntity(bi.pos.down());
-            if(be instanceof LootableContainerBlockEntity) {
-                LootableContainerBlockEntity lc = (LootableContainerBlockEntity)be;
+            if(be instanceof LootableContainerBlockEntity lc) {
                 Identifier lootTable;
                 // loot table is validated by the block entity, the screen,
                 // and the packets both ways. If the loot table isn't a valid
