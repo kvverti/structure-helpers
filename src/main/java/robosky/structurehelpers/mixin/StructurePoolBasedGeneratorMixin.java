@@ -122,10 +122,8 @@ abstract class StructurePoolBasedGeneratorMixin implements StructurePoolGenerato
     private StructurePoolElement saveElementToPlace(StructurePoolElement element) {
         boolean elementValid;
         do {
-            ExtendedSinglePoolElement tmpElement;
             elementValid = true;
-            if(element instanceof ExtendedSinglePoolElement) {
-                tmpElement = (ExtendedSinglePoolElement)element;
+            if(element instanceof ExtendedSinglePoolElement tmpElement) {
                 if(elementMinMax.containsKey(tmpElement.location())) {
                     int uses = elementUses.getInt(tmpElement.location());
                     if(uses + 1 > elementMinMax.get(tmpElement.location()).max()) {
