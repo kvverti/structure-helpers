@@ -100,7 +100,14 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
      * Generate child elements. Child element generation does not necessarily
      * respect total structure piece count nor placement limits.
      */
-    @Inject(method = "method_30419", at = @At("RETURN"))
+    @Inject(
+        method = "method_30419",
+        at = @At(
+            value = "INVOKE",
+            target = "Ljava/util/List;forEach(Ljava/util/function/Consumer;)V",
+            remap = false
+        )
+    )
     private static void generateChildren(
         DynamicRegistryManager registryManager,
         StructurePoolFeatureConfig config,
@@ -119,21 +126,23 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
         if(gen != null) {
             poolGenerator.remove();
             gen.structhelp_setGeneratingChildren();
-            // todo: fix child elements not generating
-            if(holder instanceof StructureStart<?> start) {
-                for(var piece : start.getChildren()) {
-                    if(piece instanceof PoolStructurePiece poolPiece) {
-                        BlockBox blockBox = poolPiece.getBoundingBox();
-                        int x = (blockBox.getMaxX() + blockBox.getMinX()) / 2;
-                        int z = (blockBox.getMaxZ() + blockBox.getMinZ()) / 2;
-                        int y = generator.getHeightOnGround(x, z, Heightmap.Type.WORLD_SURFACE_WG, view);
-                        ((StructurePoolGeneratorAccessor)gen).callGeneratePiece(poolPiece,
-                            new MutableObject<>(VoxelShapes.empty()),
-                            y + 80,
-                            0,
-                            b,
-                            view);
-                    }
+            // use a simple for-statement to fix the elements we are iterating over even while generatePiece()
+            // adds child pieces to the list, while avoiding cloning the entire list. Hacky, but workable.
+            var children = ((StructurePoolGeneratorAccessor)gen).getChildren();
+            var numBasePieces = children.size();
+            // noinspection ForLoopReplaceableByForEach
+            for(var i = 0; i < numBasePieces; i++) {
+                if(children.get(i) instanceof PoolStructurePiece poolPiece) {
+                    BlockBox blockBox = poolPiece.getBoundingBox();
+                    int x = (blockBox.getMaxX() + blockBox.getMinX()) / 2;
+                    int z = (blockBox.getMaxZ() + blockBox.getMinZ()) / 2;
+                    int y = generator.getHeightOnGround(x, z, Heightmap.Type.WORLD_SURFACE_WG, view);
+                    ((StructurePoolGeneratorAccessor)gen).callGeneratePiece(poolPiece,
+                        new MutableObject<>(VoxelShapes.empty()),
+                        y + 80,
+                        0,
+                        b,
+                        view);
                 }
             }
             if(!gen.structhelp_softCheckMinMaxConstraints()) {
