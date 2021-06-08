@@ -12,7 +12,8 @@
   "icon": "assets/structure-helpers/icon.png",
   "environment": "*",
   "depends": {
-    "fabricloader": ">=0.4.0"
+    "minecraft": ">=1.17-rc.1",
+    "fabricloader": ">=0.10.0"
   },
   "suggests": {
     "flamingo": "*"
