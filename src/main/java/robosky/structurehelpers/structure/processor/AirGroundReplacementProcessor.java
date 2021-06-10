@@ -91,7 +91,7 @@ public class AirGroundReplacementProcessor extends StructureProcessor {
         /**
          * @deprecated This class will become a record class in the next major release. Use {@link #key()} instead.
          */
-        @Deprecated
+        @Deprecated(since = "3.1.1", forRemoval = true)
         public final PartialBlockState key;
 
         /**
@@ -99,7 +99,7 @@ public class AirGroundReplacementProcessor extends StructureProcessor {
          *
          * <p>Note that the accessor method may return {@code null}, whereas this field is always nonnull.
          */
-        @Deprecated
+        @Deprecated(since = "3.1.1", forRemoval = true)
         public final PartialBlockState air;
 
         /**
@@ -107,7 +107,7 @@ public class AirGroundReplacementProcessor extends StructureProcessor {
          *
          * <p>Note that the accessor method may return {@code null}, whereas this field is always nonnull.
          */
-        @Deprecated
+        @Deprecated(since = "3.1.1", forRemoval = true)
         public final PartialBlockState ground;
 
         private Entry(

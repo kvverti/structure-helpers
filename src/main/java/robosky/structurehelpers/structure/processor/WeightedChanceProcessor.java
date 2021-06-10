@@ -66,14 +66,14 @@ public class WeightedChanceProcessor extends StructureProcessor {
         /**
          * @deprecated This class will become a record class in the next major release. Use {@link #targetState()} instead.
          */
-        @Deprecated
+        @Deprecated(since = "3.1.1", forRemoval = true)
         @Nullable
         public final PartialBlockState targetState;
 
         /**
          * @deprecated This class will become a record class in the next major release. Use {@link #weight()} instead.
          */
-        @Deprecated
+        @Deprecated(since = "3.1.1", forRemoval = true)
         public final float weight;
 
         private Entry(@Nullable PartialBlockState targetState, float weight) {

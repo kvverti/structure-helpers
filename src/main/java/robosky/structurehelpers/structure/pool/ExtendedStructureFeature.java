@@ -27,7 +27,7 @@ public class ExtendedStructureFeature extends StructureFeature<ExtendedStructure
     /**
      * @deprecated Use {@link #ExtendedStructureFeature(int, boolean, boolean)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "3.1.0", forRemoval = true)
     public ExtendedStructureFeature(Codec<ExtendedStructurePoolFeatureConfig> codec, int height, boolean b, boolean generateAtSurface) {
         super(codec);
         this.height = height;

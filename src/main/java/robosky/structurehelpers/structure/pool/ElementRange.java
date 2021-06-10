@@ -20,19 +20,19 @@ public final class ElementRange {
     /**
      * @deprecated This class will become a record class in the next major release. Use {@link #id()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "3.1.1", forRemoval = true)
     public final Identifier id;
 
     /**
      * @deprecated This class will become a record class in the next major release. Use {@link #min()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "3.1.1", forRemoval = true)
     public final int min;
 
     /**
      * @deprecated This class will become a record class in the next major release. Use {@link #max()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "3.1.1", forRemoval = true)
     public final int max;
 
     public ElementRange(Identifier id, int min, int max) {
