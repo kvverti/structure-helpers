@@ -9,6 +9,7 @@ import robosky.structurehelpers.network.ServerStructHelpPackets;
 import robosky.structurehelpers.structure.ExtendedStructureHandling;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
@@ -132,6 +133,10 @@ public class StructureRepeaterScreen extends Screen {
                 WIDGET_HEIGHT,
                 new TranslatableText("gui.structure-helpers.repeater.mode"),
                 (btn, v) -> this.changeMode(v)));
+        // disable mode toggle in production until the other modes are implemented
+        if(!FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            this.modeIn.active = false;
+        }
         // single mode
         this.singleFillIn = new TextFieldWidget(
             this.textRenderer,
