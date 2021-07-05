@@ -28,9 +28,15 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+//	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	modImplementation fabricApi.module("fabric-networking-api-v1", project.fabric_api_version)
+	modImplementation fabricApi.module("fabric-object-builder-api-v1", project.fabric_api_version)
+	// required for particles to render on custom blocks
+	modImplementation fabricApi.module("fabric-registry-sync-v0", project.fabric_api_version)
 	compileOnly 'com.google.code.findbugs:jsr305:2.0.1'
 
+	// for the test mod env
+	modImplementation fabricApi.module("fabric-structure-api-v1", project.fabric_api_version)
 	devImplementation sourceSets.main.output
 }
 

@@ -80,7 +80,7 @@ public class ExtendedSinglePoolElement extends SinglePoolElement {
      * The structure element ID.
      */
     public final Identifier location() {
-        return this.field_24015.left()
+        return this.location.left()
             .orElseThrow(() -> new AssertionError("ExtendedSinglePoolElement created without ID"));
     }
 

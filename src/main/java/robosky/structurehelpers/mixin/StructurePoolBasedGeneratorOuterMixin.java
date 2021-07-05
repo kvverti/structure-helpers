@@ -51,7 +51,7 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
      * Extract element placement ranges from the child element list
      * out parameter.
      */
-    @Inject(method = "method_30419", at = @At("HEAD"))
+    @Inject(method = "generate", at = @At("HEAD"))
     private static void extractRoomMinMax(
         DynamicRegistryManager registryManager,
         StructurePoolFeatureConfig config,
@@ -73,7 +73,7 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
 
     @SuppressWarnings("ConstantConditions")
     @ModifyVariable(
-        method = "method_30419",
+        method = "generate",
         at = @At(
             value = "STORE",
             ordinal = 0
@@ -101,7 +101,7 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
      * respect total structure piece count nor placement limits.
      */
     @Inject(
-        method = "method_30419",
+        method = "generate",
         at = @At(
             value = "INVOKE",
             target = "Ljava/util/List;forEach(Ljava/util/function/Consumer;)V",
@@ -153,7 +153,7 @@ abstract class StructurePoolBasedGeneratorOuterMixin {
     }
 
     @Redirect(
-        method = "method_30419",
+        method = "generate",
         at = @At(
             value = "NEW",
             target = "(DDDDDD)Lnet/minecraft/util/math/Box;"

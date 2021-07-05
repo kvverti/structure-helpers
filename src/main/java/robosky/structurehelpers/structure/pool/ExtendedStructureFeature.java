@@ -51,7 +51,7 @@ public class ExtendedStructureFeature extends StructureFeature<ExtendedStructure
         public void init(DynamicRegistryManager dynamicRegistryManager, ChunkGenerator chunkGenerator, StructureManager structureManager, ChunkPos chunkPos, Biome biome, ExtendedStructurePoolFeatureConfig featureConfig, HeightLimitView view) {
             ExtendedStructureFeature feature = (ExtendedStructureFeature)this.getFeature();
             BlockPos pos = new BlockPos(chunkPos.x * 16, feature.height, chunkPos.z * 16);
-            StructurePoolBasedGenerator.method_30419(
+            StructurePoolBasedGenerator.generate(
                 dynamicRegistryManager,
                 featureConfig,
                 PoolStructurePiece::new,
