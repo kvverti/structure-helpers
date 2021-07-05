@@ -35,7 +35,7 @@ public final class ElementRange {
     @Deprecated(since = "3.1.1", forRemoval = true)
     public final int max;
 
-    public ElementRange(Identifier id, int min, int max) {
+    private ElementRange(Identifier id, int min, int max) {
         if(min < 0 || min > max) {
             throw new IllegalArgumentException("Invalid min-max range");
         }
